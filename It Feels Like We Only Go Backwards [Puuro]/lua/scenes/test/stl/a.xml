@@ -1,0 +1,12 @@
+<Layer Type="ActorFrame" ><children>
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(.8,.8,.8,1); end"/>
+
+<Layer File="sn.sprite" Name = "stl_sn[1]" InitCommand="hidden,1"/>
+	<Layer File="sn.sprite" Name = "stl_sn[2]" InitCommand="hidden,1"/>
+	<Layer File="sn.sprite" Name = "stl_sn[3]" InitCommand="hidden,1"/>
+	<Layer File="sn.sprite" Name = "stl_sn[4]" InitCommand="hidden,1"/>
+	<Layer File="sn.sprite" Name = "stl_sn[5]" InitCommand="hidden,1"/>
+	<Layer File="sn.sprite" Name = "stl_sn[6]" InitCommand="hidden,1"/>
+
+
+</children></Layer>

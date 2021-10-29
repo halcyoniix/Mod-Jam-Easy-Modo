@@ -1,0 +1,50 @@
+<ActorFrame InitCommand="%function(self)
+
+    wavestep_colors = {}
+    wavestep_spells = {
+        {0,42,1,'1:1 Wavestep','78909C'},
+        {42,51,1,'1:2 Lonesome hold','FFFFFF'},
+        {51,99,3,'1:3 Simple','1E88E5'},
+        {99,147,4,'1:4 Lay me down','1E88E5'},
+        {147,199,3,'1:5 For it is written','78909C'},
+        {199,247,5,'1:6 Displacer','EC407A'},
+        {247,311,2,'1:7 Dread','B71C1C'},
+        {311,377,6,'1:8 Cut myself','1E88E5'},
+        {377,409,0,'1:9 Doom','B71C1C'},
+        {412,425,9e9,'#:# Do not make any noise','000000'},
+    }
+
+    local function rgb(hex)
+        return {
+        tonumber('0x'..string.sub(hex,1,2))/255,
+        tonumber('0x'..string.sub(hex,3,4))/255,
+        tonumber('0x'..string.sub(hex,5,6))/255
+        }
+    end
+
+    function colorized2021(n)
+        local ret = {1,1,1,0}
+        if n>=5 then ret[4] = -90 end
+        if n==2 or n==6 then ret[2] = 0; ret[3] = 0; end
+        if n==3 or n==7 then ret[1] = 0; ret[3] = 0; end
+        if n==4 or n==8 then ret[3] = 0; end
+        table.insert(wavestep_colors, ret)
+    end
+
+    if table.getn(wavestep_spells) > 1 then
+        local song = GAMESTATE:GetCurrentSong()
+        song:SetNumSpellCards(table.getn(wavestep_spells))
+        song:ClearLabels()
+        for i = 0, table.getn(wavestep_spells) - 1 do
+            local a = wavestep_spells[i + 1]
+            song:SetSpellCardTiming(i, a[1]-0.1, a[2]-0.1)
+            song:SetSpellCardDifficulty(i, a[3])
+            song:SetSpellCardName(i, a[4])
+            song:AddLabel(a[1], a[4])
+            song:SetSpellCardColor(i, rgb(a[5])[1], rgb(a[5])[2], rgb(a[5])[3], 1)
+        end
+    else
+        return false
+    end
+
+end"/>

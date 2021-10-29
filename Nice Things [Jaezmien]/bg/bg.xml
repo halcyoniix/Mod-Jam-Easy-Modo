@@ -1,0 +1,40 @@
+<ActorFrame OnCommand="%melody(function(self) bg=self; end)"><children>
+
+	<Layer File="bg_sqr" Name="itg_back" OnCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;zoomto,SCREEN_WIDTH,SCREEN_HEIGHT"/>
+    <Layer File="bg_sqr" Name="itg" OnCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;zoomto,SCREEN_WIDTH,SCREEN_HEIGHT"/>
+	<Layer Type="Quad" InitCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0.2"/>
+
+	<Layer
+		Type="ActorFrameTexture"
+		InitCommand="%melody(function(self)
+			aft.set_aft( self, 'pixel bg 1' )
+		end)"
+	/>
+	<Layer Type="Quad" InitCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0"/>
+	<Layer
+		Type="Sprite"
+		InitCommand="%melody(function(self)
+			aft.set_sprite( self, 'pixel bg 1', 'pixel bg 1', true )
+			self:xy( SCREEN_CENTER_X, SCREEN_CENTER_Y )
+			self:SetTextureFiltering( false )
+		end)"
+	/>
+	<Layer
+		Type="ActorFrameTexture"
+		InitCommand="%melody(function(self)
+			aft.set_aft( self, 'pixel bg 2' )
+		end)"
+	/>
+	<Layer Type="Quad" InitCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0"/>
+	<Layer
+		Type="Sprite"
+		InitCommand="%melody(function(self)
+			aft.set_sprite( self, 'pixel bg 2', 'pixel bg 2', true )
+			self:xy( SCREEN_CENTER_X, SCREEN_CENTER_Y )
+			self:SetTextureFiltering( false )
+		end)"
+	/>
+
+	<Layer Type="Quad" Name="hide" InitCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1;hidden,1"/>
+
+</children></ActorFrame>

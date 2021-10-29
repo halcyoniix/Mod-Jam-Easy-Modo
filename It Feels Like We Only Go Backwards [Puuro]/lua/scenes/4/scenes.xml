@@ -1,0 +1,13 @@
+<Layer Type="ActorFrame" ><children>
+
+
+<Layer File="../test/water/a.xml" Name="scene[4][1]" />
+<Layer File="../test/waves2/a.xml" Name="scene[4][2]" OnCommand="hidden,1"/>
+<Layer File="../test/sin/a.xml" Name="scene[4][3]" OnCommand="hidden,1"/>
+<Layer File="../test/mw2/a.xml" Name="scene[4][4]" OnCommand="hidden,1"/>
+<Layer File="../test/hit/a.xml" Name="scene[4][5]" OnCommand="hidden,1"/>
+<Layer Type="ActorProxy" Name="scene[4][6]" OnCommand="hidden,1" />
+
+
+
+</children></Layer>

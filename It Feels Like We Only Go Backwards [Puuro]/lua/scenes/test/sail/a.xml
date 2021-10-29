@@ -1,0 +1,252 @@
+<Layer Type="ActorFrame" ><children>
+
+<Layer Type="Quad" OnCommand="%function(self) 
+local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+self:zoomx(1000); 
+self:zoomy(300); 
+self:y(-100); 
+self:diffusebottomedge(rgba(110, 194, 252,1))
+self:diffusetopedge(rgba(149, 246, 255,1)); end"/>
+
+<Layer Type="Quad" OnCommand="%function(self) 
+self:zoomx(1000); 
+self:zoomy(400); 
+self:y(200); 
+self:diffuse(63/255, 141/255, 153/255,1); end"/>
+
+<Layer File="sin2.png" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(.8,.5,2.8,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(rgba(66, 147, 152,1))
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:zoomy(.5)
+			self:zoomx(3)
+			self:rotationz(20)
+			self:xy(0,130)
+		end" />
+		
+		<Layer File="sin2.png" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(.8,.5,2.8,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(rgba(66, 147, 152,1))
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:zoomy(1)
+			self:zoomx(3)
+			self:rotationz(20)
+			self:xy(0,150)
+		end" />
+		
+		
+
+<Layer File="sin2.png" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(.8,.5,2.8,2.5)
+			self:texcoordvelocity(-.2,0)
+			self:diffuse(rgba(56, 130, 143,1))
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:cropright(.1)
+			self:zoomy(.4)
+			self:zoomx(2)
+			self:rotationz(-10)
+			self:xy(0,100)
+		end" />
+		
+		
+		
+
+		
+		
+<Layer File="sin2.png" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(63/255, 141/255, 153/255,1)
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:zoomy(.44)
+			self:zoomx(2)
+			self:rotationz(20)
+			self:xy(0,75)
+		end" />
+		
+		<Layer File="sin2.png" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(63/255, 141/255, 153/255,1)
+			self:croptop(.2)
+			self:cropright(.45)
+			self:cropbottom(.2)
+			self:zoomy(.44)
+			self:zoomx(2)
+			self:rotationz(-20)
+			self:xy(0,80)
+		end" />
+
+
+<Layer File="sin2.png" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(.8,.5,2.8,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(rgba(66, 133, 149,1))
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:cropleft(.4)
+			self:zoomy(.3)
+			self:zoomx(3)
+			self:rotationz(20)
+			self:xy(0,10)
+		end" />
+		
+		
+
+<Layer File="sin2.png" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.2,0)
+			self:diffuse(63/255, 141/255, 153/255,1)
+			self:croptop(.2)
+			self:cropbottom(.2)
+			self:zoomy(.5)
+			self:zoomx(4)
+		end" />
+		
+		<Layer Type="ActorFrame" OnCommand="%function(self) 
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectclock('bgm')
+	self:effectperiod(16)
+	self:effectoffset(3)
+	self:xy(-200,0)
+	self:zoom(.8)
+	
+	end"><children>
+		<Layer File="1.png" OnCommand="%function(self) 
+			self:zoom(1)
+			self:xy(15,-30)
+			self:bob()
+			self:effectmagnitude(10,0,0)
+			self:effectclock('bgm')
+			self:effectoffset(13)
+			self:effectperiod(16)
+		end" />
+		
+
+
+	</children></Layer>
+		
+		
+		<Layer Type="ActorFrame" OnCommand="%function(self) 
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectclock('bgm')
+	self:effectperiod(32)
+	self:effectoffset(10)
+	self:xy(200,0)
+	self:zoom(1)
+	
+	end"><children>
+		<Layer File="2.png" OnCommand="%function(self) 
+			self:zoom(1)
+			self:xy(15,-30)
+			self:bob()
+			self:effectmagnitude(0,8,0)
+			self:effectclock('bgm')
+			self:effectoffset(4)
+			self:effectperiod(16)
+		end" />
+		
+
+
+	</children></Layer>
+		
+	<Layer Type="ActorFrame" OnCommand="%function(self) 
+	self:wag()
+	self:effectmagnitude(0,0,5)
+	self:effectclock('bgm')
+	self:effectperiod(16)
+	self:xy(40,50)
+	self:zoom(.6)
+	
+	end"><children>
+		<Layer File="3.png" OnCommand="%function(self) 
+			self:zoom(1)
+			self:xy(30,-80)
+			self:bob()
+			self:effectmagnitude(30,0,0)
+			self:effectclock('bgm')
+			self:effectperiod(32)
+		end" />
+		
+
+	</children></Layer>
+	
+	
+	
+	<Layer Type="ActorFrame" OnCommand="%function(self) 
+	self:wag()
+	self:effectmagnitude(0,0,5)
+	self:effectclock('bgm')
+	self:effectperiod(16)
+	self:effectoffset(7)
+	self:xy(-50,70)
+	self:zoom(.7)
+	
+	end"><children>
+		<Layer File="4.png" OnCommand="%function(self) 
+			self:zoom(1)
+			self:xy(-40,-105)
+			self:bob()
+			self:effectmagnitude(0,20,0)
+			self:effectclock('bgm')
+			self:effectoffset(4)
+			self:effectperiod(32)
+		end" />
+		
+	</children></Layer>
+		
+
+
+
+</children></Layer>

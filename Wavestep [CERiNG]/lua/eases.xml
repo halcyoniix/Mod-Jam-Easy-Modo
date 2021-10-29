@@ -1,0 +1,222 @@
+<ActorFrame><children>
+	<CODE Type="Quad"
+    OnCommand="hidden,1"
+	InitCommand="%function(self)
+
+        -----------------------------------------------------------------------------------------------------------
+        -- adapted from robert penner: http://robertpenner.com/easing/                                           --
+        -- terms of use: http://robertpenner.com/easing_terms_of_use.html                                        --
+        -- more information on easing functions: https://easings.net/                                            --
+        -- shoutouts to exschwasion for implementation: https://www.youtube.com/channel/UCHRX_00IG-IOoBFEGOdACMA --
+        -----------------------------------------------------------------------------------------------------------
+
+        local cos = math.cos
+        local pi = math.pi
+        local pow = math.pow
+        local sin = math.sin
+        local sqrt = math.sqrt
+
+        function lin(t, b, c, d)
+            return c * t / d + b
+        end
+
+        function sinein(t, b, c, d)
+            return -c * cos(t / d * (pi / 2)) + c + b
+        end
+
+        function sineout(t, b, c, d)
+            return c * sin(t / d * (pi / 2)) + b
+        end
+
+        function quadin(t, b, c, d)
+            t = t / d
+            return c * pow(t, 2) + b
+        end
+
+        function quadout(t, b, c, d)
+            t = t / d
+            return -c * t * (t - 2) + b
+        end
+
+        function cubein(t, b, c, d)
+            t = t / d
+            return c * pow(t, 3) + b
+        end
+
+        function cubeout(t, b, c, d)
+            t = t / d - 1
+            return c * (pow(t, 3) + 1) + b
+        end
+
+        function quartin(t, b, c, d)
+            t = t / d
+            return c * pow(t, 4) + b
+        end
+
+        function quartout(t, b, c, d)
+            t = t / d - 1
+            return -c * (pow(t, 4) - 1) + b
+        end
+
+        function quintin(t, b, c, d)
+            t = t / d
+            return c * pow(t, 5) + b
+        end
+
+        function quintout(t, b, c, d)
+            t = t / d - 1
+            return c * (pow(t, 5) + 1) + b
+        end
+
+        function expoin(t, b, c, d)
+            if t == 0 then
+                return b
+            else
+                return c * pow(2, 10 * (t / d - 1)) + b - c * 0.001
+            end
+        end
+
+        function expoout(t, b, c, d)
+            if t == d then
+                return b + c
+            else
+                return c * 1.001 * (-pow(2, -10 * t / d) + 1) + b
+            end
+        end
+
+        function circin(t, b, c, d)
+            t = t / d
+            return(-c * (sqrt(1 - pow(t, 2)) - 1) + b)
+        end
+
+        function circout(t, b, c, d)
+            t = t / d - 1
+            return(c * sqrt(1 - pow(t, 2)) + b)
+        end
+
+        function backin(t, b, c, d)
+            t = t / d
+            return c * pow(t, 2) * (2.70158 * t - 1.70158) + b
+        end
+
+        function backout(t, b, c, d)
+            t = t / d - 1
+            return c * (pow(t, 2) * (2.70158 * t + 1.70158) + 1) + b
+        end
+
+        function elastin(t, b, c, d)
+            if t == 0 then
+                return b
+            end
+            t = t / d
+            if t == 1 then
+                return b + c
+            end
+            p = d * 0.3
+            t = t - 1
+            return -(c * pow(2, 10 * t) * sin((t * d - ((d * 0.3) / 4)) * (2 * pi) / (d * 0.3))) + b
+        end
+
+        function elastout(t, b, c, d, a, p)
+            if t == 0 then
+                return b
+            end
+            t = t / d
+            if t == 1 then
+                return b + c
+            end
+            return c * pow(2, -10 * t) * sin((t * d - ((d * 0.3) / 4)) * (2 * pi) / (d * 0.3)) + c + b
+        end
+
+        local function smooth(ease, t, b, c, d)
+            if t < d / 2 then
+                return _G[ease..'in'](t, b, c/2, d/2)
+            else
+                return _G[ease..'out'](t-d/2, b+c/2, c/2, d/2)
+            end
+        end
+
+        local function bounce(ease, t, b, c, d)
+            if t < d / 2 then
+                return _G[ease..'out'](t, b, c, d/2)
+            else
+                return _G[ease..'in'](t-d/2, b+c, -c, d/2)
+            end
+        end
+
+        local function impulse(ease, t, b, c, d)
+            if t < d / 2 then
+                return _G[ease..'in'](t, b, c, d/2)
+            else
+                return _G[ease..'out'](t-d/2, b+c, -c, d/2)
+            end
+        end
+
+        function sines(t, b, c, d) return smooth('sine', t, b, c, d) end
+        function quads(t, b, c, d) return smooth('quad', t, b, c, d) end
+        function cubes(t, b, c, d) return smooth('cube', t, b, c, d) end
+        function quarts(t, b, c, d) return smooth('quart', t, b, c, d) end
+        function quints(t, b, c, d) return smooth('quint', t, b, c, d) end
+        function expos(t, b, c, d) return smooth('expo', t, b, c, d) end
+        function circs(t, b, c, d) return smooth('circ', t, b, c, d) end
+        function backs(t, b, c, d) return smooth('back', t, b, c, d) end
+        function elasts(t, b, c, d) return smooth('elast', t, b, c, d) end
+
+        function sineb(t, b, c, d) return bounce('sine', t, b, c, d) end
+        function quadb(t, b, c, d) return bounce('quad', t, b, c, d) end
+        function cubeb(t, b, c, d) return bounce('cube', t, b, c, d) end
+        function quartb(t, b, c, d) return bounce('quart', t, b, c, d) end
+        function quintb(t, b, c, d) return bounce('quint', t, b, c, d) end
+        function expob(t, b, c, d) return bounce('expo', t, b, c, d) end
+        function circb(t, b, c, d) return bounce('circ', t, b, c, d) end
+        function backb(t, b, c, d) return bounce('back', t, b, c, d) end
+        function elastb(t, b, c, d) return bounce('elast', t, b, c, d) end
+
+        function sinem(t, b, c, d)  return impulse('sine', t, b, c, d)  end
+        function quadm(t, b, c, d)  return impulse('quad', t, b, c, d)  end
+        function cubem(t, b, c, d)  return impulse('cube', t, b, c, d)  end
+        function quartm(t, b, c, d) return impulse('quart', t, b, c, d) end
+        function quintm(t, b, c, d) return impulse('quint', t, b, c, d) end
+        function expom(t, b, c, d)  return impulse('expo', t, b, c, d)  end
+        function circm(t, b, c, d)  return impulse('circ', t, b, c, d)  end
+        function backm(t, b, c, d)  return impulse('back', t, b, c, d)  end
+        function elastm(t, b, c, d) return impulse('elast', t, b, c, d) end
+
+        local function smoothbounce(ease, t, b, c, d)
+            if t < d / 2 then
+                return _G[ease..'s'](t, b, c, d/2)
+            else
+                return _G[ease..'s'](t-d/2, b+c, -c, d/2)
+            end
+        end
+
+        local function outsmooth(ease, t, b, c, d)
+            if t < d / 2 then
+                return _G[ease..'out'](t, b, c, d/2)
+            else
+                return _G[ease..'s'](t-d/2, b+c, -c, d/2)
+            end
+        end
+
+        function sinesb(t, b, c, d)  return smoothbounce('sine', t, b, c, d)  end
+        function quadsb(t, b, c, d)  return smoothbounce('quad', t, b, c, d)  end
+        function cubesb(t, b, c, d)  return smoothbounce('cube', t, b, c, d)  end
+        function quartsb(t, b, c, d) return smoothbounce('quart', t, b, c, d) end
+        function quintsb(t, b, c, d) return smoothbounce('quint', t, b, c, d) end
+        function exposb(t, b, c, d)  return smoothbounce('expo', t, b, c, d)  end
+        function circsb(t, b, c, d)  return smoothbounce('circ', t, b, c, d)  end
+        function backsb(t, b, c, d)  return smoothbounce('back', t, b, c, d)  end
+        function elastsb(t, b, c, d) return smoothbounce('elast', t, b, c, d) end
+
+        function sineos(t, b, c, d)  return outsmooth('sine', t, b, c, d)  end
+        function quados(t, b, c, d)  return outsmooth('quad', t, b, c, d)  end
+        function cubeos(t, b, c, d)  return outsmooth('cube', t, b, c, d)  end
+        function quartos(t, b, c, d) return outsmooth('quart', t, b, c, d) end
+        function quintos(t, b, c, d) return outsmooth('quint', t, b, c, d) end
+        function expoos(t, b, c, d)  return outsmooth('expo', t, b, c, d)  end
+        function circos(t, b, c, d)  return outsmooth('circ', t, b, c, d)  end
+        function backos(t, b, c, d)  return outsmooth('back', t, b, c, d)  end
+        function elastos(t, b, c, d) return outsmooth('elast', t, b, c, d) end
+
+	end"/>
+</children></ActorFrame>

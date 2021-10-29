@@ -1,0 +1,1035 @@
+<Mods Name = "Rya" LoadCommand = "%xero(function(self)
+
+	-- card {420, 69, 'ass', -15, '#ffdfe8'}
+	--f_sprite:SetTexture(f_aft:GetTexture())
+	
+	-- splines baby
+	for pn = 1,2 do
+		P[pn]:NoClearSplines(true)
+	end
+	
+	-- kirby teached me how to use wiggle (by simply looking at their code in NDLSS) and this is POWERFUL
+	-- tho I had to hack some workarounds here so pls doN't cringe (you probably will anyways)
+	actualChart = P1:GetNoteData(0,580)
+	P1:SetNoteData(0)
+	
+	-- pinchung ya
+	function getHitData(b,e)
+		local shint = {}
+		P1:SetNoteData(0)
+		shint = P1:GetNoteData(b,e)
+		P1:SetNoteDataFromLua(actualChart)
+		return shint
+	end
+	
+	wigly1 = {}
+	wigly2 = {}
+	wigly3 = {}
+	
+	for i,v in pairs(P1:GetNoteData(0,580)) do
+		local b = v[1]
+		local c = v[2]
+		if c == 0 then
+			set {b, 100, 'pulseinner', 0, 'gradient'}
+			ease {b, 1, outExpo, 0, 'pulseinner'}
+			--ease {b, 1, linear, .25, 'gradient'}
+		elseif c == 1 then
+			--ease {b, 1, outQuint, -get('tornadoz'), 'tornadoz'}
+			set {b, 100, 'bumpyz'}
+			ease {b, 1.25, outExpo, 0, 'bumpyz'}
+			add {b, .5, outCirc, 100, 'bumpyzoffset'}
+			--wigly1[#wigly1 + 1] = {b}
+		elseif c == 2 then
+			--ease {b, 1, outQuint, -get('tipsy'), 'tipsy'}
+			wigly2[#wigly2 + 1] = {b}
+		elseif c == 3 then
+			--ease {b, 1, outQuint, -get('drunk'), 'drunk'}
+			set {b, 100, 'digital'}
+			ease {b, 1.25, outExpo, 0, 'digital'}
+			add {b, .5, outCirc, -150, 'digitaloffset'}
+			--wigly3[#wigly3 + 1] = {b}
+		end
+	end
+	
+	--wiggle2lua(wigly1, pop, 100*get('ZVal'), 'bumpyz')
+	wiggle2lua(wigly2, bounce, 25, 'tipsy')
+	--wiggle2lua(wigly3, bounce, 25*get('DigitalVal'), 'digital')
+	
+	P1:SetNoteDataFromLua(actualChart)
+	
+	-- right, this seems useless and to be fair it is for the most part,
+	-- but I need this as I don't wanna throw if-statements in the for-loop part above
+	func {0, 580, function(beat,poptions)
+		for pn = 1,2 do
+			poptions[pn].pulseinner = poptions[pn].pulseinner * KickVal
+			poptions[pn].bumpyz = poptions[pn].bumpyz * ZVal
+			poptions[pn].digital = poptions[pn].digital * DigitalVal
+			poptions[pn].tipsy = poptions[pn].tipsy * TipsyVal
+			-- exbample:
+			-- poptions[pn].pulseinner will be redefined in the loop above but as a post-mod
+			-- which means in the next frame poptions[pn].pulseinner will set back
+			-- to its original value without looping itself (I think??? this just kinda works)
+		end
+	end}
+	
+	-- //////////////////////////
+	-- BGA
+	-- some bga stuff is scattered around my xml file !! sori kid and anyone who's looking into here l~l
+	
+	for _,b in pairs({24,32,40}) do
+		set {b, .5, 'gradient'}
+		ease {b, 2, linear, 0, 'gradient'}
+	end
+	
+	for _,v in pairs(P1:GetNoteData(48,143)) do
+		local b = v[1]
+		if not v['length'] then
+			set {b, .5, 'gradient'}
+			ease {b, .75, linear, 0, 'gradient'}
+		end
+	end
+	
+	for b = 144, 171 do
+		if not range(b,{{157,159}}) then
+			set {b, .5, 'gradient'}
+			ease {b, .75, linear, 0, 'gradient'}
+		else
+			set {b-.5, .5, 'gradient'}
+			ease {b-.5, .75, linear, 0, 'gradient'}
+		end
+	end
+	
+	set {159.5, .5, 'gradient'}
+	ease {159.5, .75, linear, 0, 'gradient'}
+	
+	definemod{'bar1', 'bar2', 'bar3', 'bar4', function(a,b,c,d)
+		bar[1]:zoomx(a) bar[1]:diffusealpha(a/100)
+		bar[2]:zoomx(b) bar[2]:diffusealpha(b/100)
+		bar[3]:zoomx(c) bar[3]:diffusealpha(c/100)
+		bar[4]:zoomx(d) bar[4]:diffusealpha(d/100)
+	end}
+	
+	for _,v in pairs(P1:GetNoteData(176,239)) do
+		local b = v[1]
+		set {b, 100, 'bar'..(v[2] + 1)}
+		ease {b, 4, outExpo, 0, 'bar'..(v[2] + 1)}
+	end
+	
+	for _,v in pairs(P1:GetNoteData(368,440)) do
+		local b = v[1]
+		set {b, 100, 'bar'..(v[2] + 1)}
+		ease {b, 4, outExpo, 0, 'bar'..(v[2] + 1)}
+	end
+	
+	func {176, 240-176, function(beat)
+		Edge[1]:zoomx((sw-25) * (1 - ((beat % 1)/8)))
+		Edge[1]:diffusealpha(1 - ((beat % 1)/4))
+		Edge[2]:zoomy((sh-25) * (1 - ((beat % 1)/8)))
+		Edge[2]:diffusealpha(1 - ((beat % 1)/4))
+		--BGGradient:diffusealpha(.5 - ((beat % 1)/4))
+	end}
+	
+	func {368, 440-368, function(beat)
+		Edge[1]:zoomx((sw-25) * (1 - ((beat % 1)/8)))
+		Edge[1]:diffusealpha(1 - ((beat % 1)/4))
+		Edge[2]:zoomy((sh-25) * (1 - ((beat % 1)/8)))
+		Edge[2]:diffusealpha(1 - ((beat % 1)/4))
+		--BGGradient:diffusealpha(.5 - ((beat % 1)/4))
+	end}
+	
+	func {174, 2, outExpo, -1000, 0, function(a)
+		UI:xy(a,a)
+	end}
+	
+	local valFlip = 1
+	for b = 176, 239 do
+		set {b, 1.1, 'FSZoom', valFlip*5, 'FSRotationz', .5, 'gradient'}
+		ease {b, 1, outCubic, 1, 'FSZoom', 0, 'FSRotationz'}
+		ease {b, 1, linear, 0, 'gradient'}
+		--[[func {b, 1, outCubic, 1.1, 1, 'FrontSprite:zoom'}
+		func {b, 1, outCubic, valFlip*5, 0, 'FrontSprite:rotationz'}
+		func {b, 1, linear, .5, 0, 'BGGradient:diffusealpha'}]]
+		valFlip = -valFlip
+	end
+	
+	func {238, 2, inExpo, 0, -1000, function(a)
+		UI:xy(a,a)
+	end}
+	
+	func {365.5, 1, outExpo, -500, 0, function(a)
+		UI:xy(a,a)
+	end}
+	
+	func {440, 2, inExpo, 0, -1000, function(a)
+		UI:xy(a,a)
+	end}
+	
+	for _,v in pairs(getHitData(272,333.5)) do
+		local b = v[1]
+		if v[2] == 3 then
+			set {b, .5, 'gradient'}
+			ease {b, 1, linear, 0, 'gradient'}
+		end
+	end
+	
+	for _,v in pairs(P1:GetNoteData(336,359)) do
+		local b = v[1]
+		set {b, .5, 'gradient'}
+		ease {b, 2, linear, 0, 'gradient'}
+	end
+	
+	for b = 368, 439 do
+		if not range(b,{{404,414}}) then
+			set {b, .5, 'gradient'}
+			ease {b, 1, linear, 0, 'gradient'}
+		end
+	end
+	
+	for b = 360, 364-.25, .25 do
+		set {b, .15, 'gradient', 1.05, 'FSZoom'}
+		ease {b, .25, linear, 0, 'gradient', 1, 'FSZoom'}
+	end
+	
+	func {368, 64+8, function(beat)
+		if not range(beat,{{404,416}}) then
+			FrontSprite:zoom(1+(math.abs(math.sin(beat*math.pi))*.05) )
+			FrontSprite:rotationz(math.sin(beat*math.pi)*5)
+			marchies:zoom(1+(math.abs(math.sin(beat*math.pi))*.1) )
+			marchies:y((math.abs(math.sin(beat*math.pi))*-5) )
+		end
+	end}
+	
+	local valFlip = 1
+	for _,v in pairs(P1:GetNoteData(404,413.5)) do
+		local b = v[1]
+		--func {b, .75, outCubic, 1.1, 1, 'FrontSprite:zoom'}
+		set {b, .5, 'gradient', 1.1, 'FSZoom'}
+		ease {b, .75, linear, 0, 'gradient', 1, 'FSZoom'}
+		if range(b,{{404,408}}) then
+			set {b, valFlip*15, 'FSRotationz'}
+			ease {b, .75, outCubic, 0, 'FSRotationz'}
+			--func {b, .75, outCubic, valFlip*15, 0, 'FrontSprite:rotationz'}
+		end
+		valFlip = -valFlip
+	end
+	
+	for b = 448, 463 do
+		set {b, .5, 'gradient'}
+		ease {b, 1, linear, 0, 'gradient'}
+	end
+	
+	for _,v in pairs(P1:GetNoteData(464,563)) do
+		local b = v[1]
+		if not range(b,{{480,544}}) then
+			set {b, .5, 'gradient', 1.1, 'FSZoom'}
+			ease {b, .75, linear, 0, 'gradient', 1, 'FSZoom'}
+		end
+	end
+	
+	local valFlip = 1
+	for _,v in pairs(getHitData(480,544)) do
+		local b = v[1]
+		if v[2] == 0 then
+			if slump then
+				set {b, 1, 'gradient', 1.5, 'FSZoom', valFlip*10, 'FSRotationz'}
+			else
+				set {b, 1, 'gradient', 1.1, 'FSZoom', valFlip*2, 'FSRotationz'}
+			end
+			ease {b, .25, outQuad, 0, 'gradient', 1, 'FSZoom', 0, 'FSRotationz'}
+			valFlip = -valFlip
+		end
+	end
+	
+	for _,b in pairs({156,156.5,157.5,158.5,159.5,  419,423,427,431,  487,487.5,495,495.5,532,533.5,535}) do
+		--[[func {b, 1, linear, 16, -1, function(p)
+			PixelShader:GetShader():uniform1f('pixelSize', p)
+		end}]]
+		set {b, 16, 'pixelSize'}
+		ease {b, 1, linear, -1, 'pixelSize'}
+	end
+	
+	if not slump then
+	func {0, function() 
+		Trace('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+	end}
+	func {2, function() 
+		local song = GAMESTATE:GetCurrentSong()
+		local playcount = PROFILEMAN:GetMachineProfile():GetSongNumTimesPlayed(song)
+		Trace('--- Polybius is kind of a strange game to have this few amount of speedrunners...')
+		Trace('Not that it\'s bad or anything, like I can make my own rules now lmao')
+		Trace('but at the same time I kind of question why nobody plays this anymore.')
+		Trace('Maybe it\'s just me playing the game for like '.. (12111 + playcount) .. ' times to get a good run.')
+	end}
+	func {16, function() 
+		Trace('--- Anyways, what\'s funny is that people never enabled the \'Skip Cutscenes\' option.')
+		Trace('Like, what\'s the point in a speedrun to have that enabled???')
+		Trace('Oh well, it was 100%-only back then, probably needed for something, but I can\'t recall what for.')
+	end}
+	func {48, function() 
+		Trace('--- Sadly ! The tutorials cannot be skipped.')
+		Trace('Which is kind of sad considering a lot of any% speedruns on various games')
+		Trace('just skip all of that beginner-introduction stuff.')
+		Trace('...except for RPGs, those are literally too logical internally to skip anything.')
+	end}
+	func {80, function() 
+		Trace('--- This isn\'t difficult by any means, but there will be a difficulty curve.')
+		Trace('...and I hate it despite this being my favorite game!!!') -- >:3
+	end}
+	func {112, function() 
+		Trace('--- Oh yeah I forgot to mention, there\'s no big skip until like one and a half a minute in.')
+		Trace('fnuuy')
+	end}
+	func {176, function() 
+		Trace('--- People are scared of mirror rooms in DK: Jungle Climber,')
+		Trace('I was scared from being attacked from those stealth enemies...')
+		Trace('it\'s like they\'re teleporting, but they\'re not !')
+	end}
+	func {208, function() 
+		Trace('--- Oh yeah, S1NC also indicates if I was frame perfect on certain parts')
+		Trace('...no, by usual means this isn\'t really allowed to show, but who cares,')
+		Trace('only you are watching me. (:')
+		Trace('Oh right, I\'ll do a funny skip soon:tm:')
+	end}
+	func {240, function() 
+		Trace('--- Did you catch it?')
+		Trace('Oh wait, you\'re seeing this game for the first time, riiiiiight...')
+		Trace('Pretend it\'s part of the game lol')
+	end}
+	func {272, function() 
+		Trace('--- This part is a little trippy,')
+		Trace('the dev\'s thought it would be funny to make everything look linear.')
+		Trace('But to be fair, quite a bit is going on on the screen,')
+		Trace('probably to ease the eyes a little. Heh, quite soothing too.')
+	end}
+	func {328, function() 
+		Trace('--- Alright lemme concentrate real quick, got two skips really close to do...')
+		Trace('yes this is hard so be quIET')
+	end}
+	func {336, function() 
+		Trace('--- Well, this was noticable, was it?')
+		Trace('It\'s an extremely weird glitch I found like 7 years ago,')
+		Trace('which allows me to skip a cutscene and an area,')
+		Trace('but I\'m still not able to do this constantly most of the time so whew!')
+		Trace('I did a do and I might get a good run~')
+	end}
+	func {368, function() 
+		Trace('--- This part is almost confusing, probably why most quit speedrunning it.')
+		Trace('Actually I\'m not sure about that, it\'s fine after some good practice.')
+	end}
+	func {448, function() 
+		Trace('--- Oh yeah I should warn you that the next part is   a bit of an owie')
+		Trace('So prepare yourself !')
+	end}
+	func {480, function() 
+		Trace('--- This reminds me of constantly being spun around inside an UFO.')
+		Trace('...I wonder why.')
+		Trace('Also some people hurt their hands during that part, like cmon')
+		Trace('do they not know how to just *hold* on to it???')
+	end}
+	func {520, function() 
+		Trace('--- What\'s funny is that some boss levels are easier')
+		Trace('than what\'s required to reach to access the level itself.')
+		Trace('...yes I just skipped another part.')
+	end}
+	func {564, function() 
+		Trace('--- And guess what, I need to still do something')
+		Trace('before I can consider this as an any% completed run.')
+		Trace('But I, as the single moderator, can stop the timer here and consider it a run.')
+		Trace('Tho there\'s yet another cutscene that I have to watch before the credits.')
+	end}
+	func {580, function() 
+		Trace('--- Done !')
+		Trace('Got a decent record too~')
+		Trace('So how did ya like it?')
+	end}
+	func {584, function() 
+		Trace('--- ...are you still awake? Hello?')
+	end}
+	end
+	
+	-- //////////////////////////
+	-- yeah the intro ain't difficult
+	-- //////////////////////////
+	
+	set {0, 375, 'cmod', 100, 'dizzyholds', 100, 'halgun', 100, 'stealthpastreceptors', 25, 'bumpyzoffset', 100, 'arrowpathdrawsize', 200, 'arrowpathdrawsizeback', 25, 'drawsize'}
+	
+	-- //////////////////////////
+	-- idk original intro
+	card {16, 47.5, 'smh can\'t skip the intro in 100%', 1, '#4B802F'}
+	
+	set {0, -500, 'flip', 0, 'zoom', confOff(360*4), 'confusionoffset', 1000, 'drunk', 180, 'fov', -45, 'rotationx', 1000, 'tipsy', 100, 'dark', 100, 'cover', 100, 'arrowpath'}
+	ease {8, 8, inOutQuad, 0, 'flip', 100, 'zoom', 0, 'confusionoffset', 0, 'drunk', 60, 'fov', 0, 'rotationx', 0, 'tipsy', 50, 'dark', 60, 'cover', 1000, 'arrowpathwidth'}
+	
+	ease {44, 4, outSine, 0, 'arrowpathwidth'}
+	
+	for b = 16, 43.5, .5 do
+		add {b, 0, linear, 45/4, 'val'}
+		set {b, math.sin(get('val')/2)*15, 'rotationy', math.cos(get('val')/2)*15, 'rotationx'}
+		for c = 0,3 do
+			set {b, math.sin(get('val')+(c*(45/2)))*25, 'movex'..c, math.cos(get('val')+(c*(45/2)))*25, 'movey'..c}
+		end
+	end
+	
+	if slump then
+		func {16, 32-4, function(beat,poptions)
+			for pn = 1,2 do
+				poptions[pn].invert = (math.floor(beat) % 2) * 100
+			end
+		end}
+	end
+	
+	for c = 0,3 do
+		ease {44, 4, inOutCubic, 0, 'movex'..c, 0, 'movey'..c}
+	end
+	
+	for b = 24, 40, 8 do
+		set {b, 100, 'drunk', 10000, 'drunkoffset'}
+		ease {b, 4, outCirc, 0, 'drunk', 0, 'drunkoffset'}
+	end
+	
+	ease {44, 4, linear, -50, 'flip', 0, 'rotationx', 0, 'rotationy'}
+	ease {44, 4, outCirc, confOff(360), 'confusionoffset'}
+	ease {44, 4, inCirc, 0, 'flip'}
+	set {48, 0, 'confusionoffset'}
+	
+	-- //////////////////////////
+	-- hm I wonder which file this might be (tip: I don't know)
+	card {47.5, 79.5, 'Lesser driven drop', 3, '#4D852E'}
+	
+	for b = 48, 72, 8 do
+		ease {b-4.5, 2.5, outQuad, 0, 'centered2'}
+		ease {b-2, 2, inCirc, 25, 'centered2'}
+		ease {b, 3.5, linear, 50*3.5, 'centered2'}
+	end
+	
+	ease {44, 4, inOutSine, -20, 'rotx', 90, 'fov'}
+	
+	ease {51.5, 2, outCubic, 40, 'rotx', 360, 'roty'}
+	ease {59.5, .75, outCubic, 0, 'rotx', 100, 'reverse'}
+	ease {60.25, 1.5, outCubic, -40, 'rotx'}
+	ease {67.5, 2, outCubic, 0, 'reverse', -80, 'rotx', 0, 'roty'}
+	ease {77, 3, inOutQuad, 0, 'rotx', 60, 'fov', 0, 'centered2'}
+	
+	if slump then
+		ease {51.5, 2, outCubic, 100, 'alternate'}
+		ease {59.5, .75, outCubic, 0, 'alternate', 100, 'split'}
+		ease {60.25, 1.5, outCubic, 0, 'split', 100, 'cross'}
+		ease {67.5, 2, outCubic, 0, 'cross', 100, 'split'}
+		ease {77, 3, inOutQuad, 0, 'split'}
+	end
+	
+	-- //////////////////////////
+	-- Chemical Cookie
+	card {79.5, 110, 'Gatekept away using chemicals ?????', 2, '#538833'}
+	
+	mirror {77, 3, inOutSine, 200, 'movex'}
+	set {77, 1, 'val'}
+	
+	for b = 80, 103 do
+		set {b, 110*get('val'), 'zoom', 1/(2*get('val')), 'xmod', 1000, 'arrowpathwidth'}
+		ease {b, 1, outCirc, 100, 'zoom', 1, 'xmod', 0, 'arrowpathwidth'}
+		if b >= 96 then
+			add {b, 1, outCirc, .1, 'val'}
+		end
+	end
+	
+	for b = 104, 107.5, .5 do
+		set {b, 150, 'zoom', .25, 'xmod', 1000, 'arrowpathwidth'}
+		ease {b, .5, outCirc, 100, 'zoom', 1, 'xmod', 0, 'arrowpathwidth'}
+		add {b, 0, linear, -200/8, 'movex', plr = 1}
+		add {b, 0, linear, 200/8, 'movex', plr = 2}
+		if slump then
+			add {b, 0, linear, -100/8, 'invert'}
+		end
+	end
+	
+	-- loop? na, too lazy
+	ease {80, 16, inOutSine, 45, 'rotx'}
+	ease {80+8, 16, inOutSine, 0, 'rotx'}
+	ease {80, 8, inOutSine, -15, 'rotz'}
+	ease {80+4, 8, inOutSine, 0, 'rotz'}
+	ease {80+8, 8, inOutSine, 25, 'rotz'}
+	ease {80+12, 8, inOutSine, 0, 'rotz'}
+	ease {80, 8, inOutSine, 25, 'roty'}
+	ease {80+4, 8, inOutSine, 0, 'roty'}
+	ease {80+8, 8, inOutSine, -25, 'roty'}
+	ease {80+12, 8, inOutSine, 0, 'roty'}
+	
+	ease {96, 12, linear, 90, 'fov', 2, 'DigitalVal'}
+	ease {108, 4, linear, 60, 'fov', 3, 'KickVal'}
+	
+	add {87, 2, inOutCubic, -360, 'rotationy'}
+	if slump then
+		add {87, 2, inOutCubic, 100, 'invert'}
+	end
+	set {108, 0, 'rotationy'}
+	
+	-- //////////////////////////
+	-- oh the gimmicks are ON
+	-- //////////////////////////
+	
+	-- //////////////////////////
+	-- Inframan?
+	card {110, 143.5, 'Inframushroom, why do you curse me', 5, '#588D36'}
+	
+	for _,b in pairs({108,108.5,109,110}) do
+		add {b, .5, outCirc, 25, 'reverse'}
+	end
+	
+	for b = 112, 135 do
+		set {b, 1000, 'arrowpathwidth'}
+		ease {b, 1, outCirc, 0, 'arrowpathwidth'}
+		
+		mirror {b, 1, outCirc, 50, 'movex', 25, 'rotationy'}
+		ease {b, 1, outCirc, 125, 'zoom', -50, 'flip'}
+		ease {b, 1, inExpo, 100, 'zoom', 0, 'flip', 0, 'movex', 0, 'rotationy'}
+	end
+	for b = 112, 134, 2 do
+		ease {b, 1, outExpo, 175, 'invert'}
+		ease {b+1, 1, outExpo, 0, 'invert'}
+	end
+	
+	for _,b in pairs({141,141.75,142.5,143}) do
+		add {b, .5, outCirc, -25, 'reverse'}
+	end
+	
+	for b = 112, 140, 2 do --170
+		for c = 0,3 do
+			set {b+(c/2), -100, 'tinyy'..c}
+			ease {b+(c/2), 1, outCirc, 0, 'tinyy'..c}
+		end
+	end
+	
+	set {139, 1, 'DigitalVal'}
+	ease {140, 4, linear, .25, 'DigitalVal'}
+	
+	for b = 176, 228, 4 do
+		if not inside(b,{188,200,204,220}) then
+			set {b+3, 16, 'pixelSize'}
+			ease {b+3, 1, linear, -1, 'pixelSize'}
+			--[[func {b+3, 1, linear, 16, -1, function(p)
+				PixelShader:GetShader():uniform1f('pixelSize', p)
+			end}]]
+		end
+	end
+	
+	-- //////////////////////////
+	-- Sinked to the deep sea world (with only 1 (ONE) crossover !)
+	card {143.5, 172, 'How about you skew some b-score-ches', 4, '#4F8D36'}
+	
+	--for b = 144, 171 do
+	func {144, 32-4, function(beat,poptions)
+		for pn = 1,2 do
+			poptions[pn].skewx = 0
+			poptions[pn].movex = 0
+		end
+		if not range(beat, {{156,160}}) then
+			local valFlip = 1
+			local othervalFlip = 1
+			if beat % 2 >= 1 then
+				othervalFlip = -1
+			end
+			for pn = 1,2 do
+				poptions[pn].skewx = math.sin(beat*math.pi)*50*valFlip
+				poptions[pn].movex = math.sin(beat*math.pi)*100*othervalFlip*valFlip
+				poptions[pn].z = math.abs(math.sin(beat*math.pi))*50
+				poptions[pn].fov = 90 + math.abs(math.sin(beat*math.pi))*20
+				valFlip = -valFlip
+			end
+		end
+	end}
+	--end
+	
+	set {156, 2, 'KickVal'}
+	
+	for b = 160, 167 do
+		set {b, 2, 'DigitalVal', 2, 'KickVal'}
+		ease {b, 1, outCirc, .25, 'DigitalVal', 1, 'KickVal'}
+	end
+	
+	ease {168, 4, inExpo, 3, 'KickVal'}
+	
+	for _,b in pairs({144,152,156,158}) do
+		set {b, 1, 'DigitalVal'}
+		ease {b, 4, outCirc, .25, 'DigitalVal'}
+	end
+	
+	ease {168, 4, linear, 2, 'DigitalVal'}
+	
+	ease {168, 4, inCirc, 90, 'rotx', 180, 'fov', -100, 'flip'}
+	set {172, -90, 'rotx', 0, 'flip'}
+	ease {172, 4, outQuad, 0, 'rotx'}
+	ease {172, 4, linear, 60, 'fov'}
+	
+	local valFlip = 1
+	if slump then
+		for b = 144, 170, 2 do
+			if not range(b,{{156,158}}) then
+				add {b+1, 2, outQuint, 360, 'roty'}
+				ease {b+1, 2, outQuint, 50 + (valFlip*50), 'reverse'}
+				valFlip = -valFlip
+			end
+		end
+	end
+	set {172, 0, 'roty'}
+	
+	-- //////////////////////////
+	-- nope that's definitely not how you make standoff's fountain of truth part like jeez rya you're dumb
+	if slump then
+		card {172, 239.5, 'FUCK! HOLY SHIT!.PNG', 13, '#FF0000FF'}
+	else
+		card {172, 207.5, 'Fountain of Boost/Brake', 7, '#5D9641'}
+		card {207.5, 239.5, 'Fount railed (IT ISN\'T OVER YET???)', 8, '#5F9644'}
+	end
+	
+	ease {174, 2, linear, 1, 'KickVal', 1, 'DigitalVal', .5, 'ZVal'}
+	
+	--[[
+	for b = 176, 176+64, 4 do
+		for pn = 1,2 do
+			for c = 0,2,2 do
+				set {b+c,
+					50, 'dark'..(pn-1),
+					50, 'dark'..1+(pn),
+					50, 'stealth'..(pn-1),
+					50, 'stealth'..1+(pn),
+				plr = pn}
+			end
+		end
+		ease {b, 2, outExpo, 100, 'dark'..(1-1), 100, 'dark'..1+(1), 100, 'stealth'..(1-1), 100, 'stealth'..1+(1), plr = 1}
+		ease {b, 2, outExpo, 0, 'dark'..(2-1), 0, 'dark'..1+(2), 0, 'stealth'..(2-1), 0, 'stealth'..1+(2), plr = 2}
+		ease {b+2, 2, outExpo, 100, 'dark'..(2-1), 100, 'dark'..1+(2), 100, 'stealth'..(2-1), 100, 'stealth'..1+(2), plr = 2}
+		ease {b+2, 2, outExpo, 0, 'dark'..(1-1), 0, 'dark'..1+(1), 0, 'stealth'..(1-1), 0, 'stealth'..1+(1), plr = 1}
+	end -- I give up ]]
+	
+	if slump then -- 100 is enough for my sanity
+		-- update: no 80 is now
+		set {176, 80, 'boost', plr = 1}
+		set {176, 80, 'brake', plr = 2}
+	else
+		set {176, 50, 'boost', plr = 1}
+		set {176, 50, 'brake', plr = 2}
+	end
+	
+	ease {176, 16, inOutQuad, .75, 'DigitalVal', .75, 'TipsyVal', .75, 'ZVal'}
+	
+	func {176, 64, function(beat,poptions)
+		local valFlip = 1
+		for pn = 1,2 do
+			if slump then
+				-- 'FON'T YOU FUCKING DARE'
+				poptions[pn].stealth1 = math.sin((beat+(pn-1))  *math.pi)*125
+				poptions[pn].dark1    = math.sin((beat+(pn-1))  *math.pi)*125
+				poptions[pn].stealth3 = math.sin((beat+(pn-1))  *math.pi)*125
+				poptions[pn].dark3    = math.sin((beat+(pn-1))  *math.pi)*125
+				poptions[pn].stealth0 = math.sin((beat+1+(pn-1))*math.pi)*125
+				poptions[pn].dark0    = math.sin((beat+1+(pn-1))*math.pi)*125
+				poptions[pn].stealth2 = math.sin((beat+1+(pn-1))*math.pi)*125
+				poptions[pn].dark2    = math.sin((beat+1+(pn-1))*math.pi)*125
+			else
+				poptions[pn].stealth = 100 + math.sin((beat+(pn-1))*math.pi)*200
+				poptions[pn].dark    = 100 + math.sin((beat+(pn-1))*math.pi)*200
+			end
+			poptions[pn].rotationy = math.sin(beat*math.pi/2)*20*valFlip
+			poptions[pn].rotationx = math.sin(beat*math.pi/4)*20*valFlip
+			if beat >= 208 then
+				poptions[pn].movex     = math.sin(beat*math.pi/4)*val*valFlip
+				poptions[pn].rotationz = math.sin(beat*math.pi/4)*(val/20)*valFlip
+			end
+			valFlip = -valFlip
+		end
+	end}
+	
+	set {207, 0, 'val'}
+	ease {208, 16, linear, 100, 'val'}
+	ease {208, 16, inOutQuad, 1, 'DigitalVal', 1, 'TipsyVal', 1.5, 'ZVal'}
+	
+	ease {239, 1, inCirc, 0, 'boost', 0, 'brake'}
+	
+	-- //////////////////////////
+	-- the other part I (silently) expected sudo to mod but my fear increased hence I forced myself to do this
+	-- update: I partially did and it's 12 am HLEP (utc+2)
+	-- //////////////////////////	
+	card {239.5, 270, 'Tutorial #2', 4, '#56AE42'}
+	local function playergamer()
+		if math.random(0, 10) == 0 then return 'GAYMER' end
+		return (math.random(0, 1) == 0) and 'GAME' or 'play'
+	end
+	card {270, 334, 'are you a '..(playergamer())..'boy or a '..(playergamer())..'boy (playing on a gameboy???)', 6, '#45BD38'}
+	
+	func {240, 16, function(beat,poptions)
+		for pn = 1,2 do
+			poptions[pn].rotz = math.sin(poptions[pn].digital)*15
+			poptions[pn].digital = 100 + poptions[pn].digital
+		end
+	end}
+	
+	set {268, 4, 'KickVal'}
+	set {270, 1, 'KickVal'}
+	
+	ease {242, 14, bounce, -15, 'rotationx', -10, 'reverse', 70, 'fov'}
+	
+	local valFlip = 1
+	for b = 256, 264, 4 do
+		set {b, .5, 'gradient'}
+		ease {b, 4, outQuad, 0, 'gradient'}
+		ease {b, 4, bounce, .5, 'xmod', valFlip*100, 'dizzy', valFlip*15, 'rotationy'}
+		valFlip = -valFlip
+	end
+	
+	ease {256, 4, outExpo, 120, 'zoom', 5, 'reverse'}
+	
+	add {256, 12, inExpo, 360*3, 'roty', 10, 'zoom'}
+	
+	for b = 268, 269.5, .5 do
+		set {b, 1.1, 'fszoom', 1, 'gradient'}
+		ease {b, .5, outCirc, 1, 'fszoom', 0, 'gradient'}
+		add {b, .5, outCirc, -30/4, 'zoom', -5/4, 'reverse'}
+	end
+	
+	-- bye-
+	ease {334, 1, bounce, -25, 'rotationx'}
+	ease {335, 1, bounce, -25, 'flip'}
+	flicker {335, 1, -50, 0, 'tornado'}
+	
+	if slump then
+		local valFlip = 1
+		for b = 336, 363 do
+			ease {b, 1, inOutCubic, 50 + (valFlip*50), 'invert'}
+			valFlip = -valFlip
+		end
+	end
+	
+	-- //////////////////////////
+	-- help sudo ! I don't know how to code
+	-- //////////////////////////
+	card {334, 364, 'I\'m using tilt controls!', 4, '#3AC630'}
+	card {364, 444, 'wii sports (weehehe)', 6, '#3AC630'}
+	
+	--                             DAAAAAAAAAA
+    --     Daaaaa
+    --           Daaaaa
+    --   Da            Daaa
+    -- Ba                  daaaaaaa
+	
+	set {368, 0, 'drawsize'}
+	set {444, 25, 'drawsize'}
+	
+	function mix(a, b, x) return a * (1 - x) + b * x end
+	
+	local proxPos = {}
+	local proxZoom = 1
+	local proxDist = 64 * 4 * proxZoom -- 4 - column number
+	local newprox = 1
+	for i,prox in ipairs(rya_proxyMarch) do
+		local pn = ((i - 1) % 2) + 1
+		local start = scx - proxDist * #rya_proxyMarch/2
+		local x = start + proxDist * (i - 1)
+		prox:SetTarget(P[pn]:GetChild('NoteField'))
+		proxPos[i] = x
+		prox:xy(scx, scy)
+		prox:hidden(1)
+		prox:diffusealpha(1/#rya_proxyMarch)
+	end
+	
+	definemod {'proxyZoom', function(a) proxZoom = a end}
+	set {0, 1, 'proxyZoom'}
+	
+	definemod {'proxywall', 'proxywallx', function(a, x)
+		for i,prox in ipairs(rya_proxyMarch) do
+			local pn = ((i - 1) % 2) + 1
+
+			prox:xy(mix(scx, proxPos[i], a / 100) + ((x/100) * proxDist * 2) % (proxDist * 2), scy)
+
+			prox:zoom(mix(1, proxZoom, a / 100))
+			prox:hidden(a == 0 and 1 or 0)
+			prox:diffusealpha(mix(1/#rya_proxyMarch, 1, a / 100))
+		end
+	end}
+	
+	for pn = 1,#rya_proxyMarch do
+		rya_proxyMarch[pn]:SetTarget(P[(pn % 2) + 1]:GetChild('NoteField'))
+	end
+	
+	mirror {364, .75, outCubic, 128, 'x'}
+	mirror {364.75, .75, outCubic, 128*2, 'x'}
+	mirror {365.5, .75, outCubic, 128*3, 'x'}
+	func {364.75, .75, function(a)
+		rya_proxyMarch[1]:hidden(0)
+		rya_proxyMarch[1]:x(64*9) -- ?????????????????????????????????????????????????????????
+	end}
+	func {365.5, .75, function(a)
+		rya_proxyMarch[2]:hidden(0)
+		rya_proxyMarch[2]:x(64)
+	end}
+	
+	func {367, function() for pn = 1,2 do PP[pn]:hidden(1) end end, true}
+	set {367, 100, 'proxywall', 0, 'x', 50, 'proxywallx'}
+	if slump then
+		add {367, 1, inQuad, 2000/64 / 2, 'proxywallx'}
+		ease {368, 64+8, linear, 2000, 'proxywallx'}
+	else
+		add {367, 1, inQuad, 1000/64 / 2, 'proxywallx'}
+		ease {368, 64+8, linear, 1000, 'proxywallx'}
+	end
+	
+	local valFlip = 1
+	for b = 368, 439 do
+		if not range(b, {{404,415}}) then
+			for c = 0,3 do
+				ease {b, 1, outCirc, 50*valFlip, 'movez'..c}
+				valFlip = -valFlip
+			end
+			set {b, 50, 'dark'}
+			ease {b, 1, linear, 75, 'dark'}
+			valFlip = -valFlip
+		end
+	end
+	
+	--local valFlip = 1 -- actually no I wanna keep the valFlip for once
+	local funny = 0
+	local halFlip = -1
+	for _,v in pairs(P1:GetNoteData(404,413.5)) do
+		local b = v[1]
+		if range(b,{{404,408}}) then
+			if slump then
+				add {b, .75, outCubic, -50, 'proxywallx'}
+				ease {b, .75, outCubic, 50 + (halFlip * 50), 'invert'}
+				halFlip = -halFlip
+			else
+				add {b, .75, outCubic, -25, 'proxywallx'}
+			end
+		end
+		for c = 0,3 do
+			ease {b, 1, outQuint, 50*valFlip, 'movez'..c}
+			valFlip = -valFlip
+		end
+		valFlip = -valFlip
+	end
+	
+	for c = 0,3 do
+		ease {440, 4, outCubic, 0, 'movez'..c}
+	end
+	
+	if slump then
+		add {438, 2, inCirc, -50, 'proxywallx'}
+	else
+		add {438, 2, inCirc, -25, 'proxywallx'}
+	end
+	
+	ease {440, 4, outCubic, 0, 'proxywall', 0, 'dark'}
+	func {444, function() for pn = 1,2 do PP[pn]:hidden(0) end end, true}
+	
+	func {368, 32, function(beat)
+		marchies:rotationy(math.sin(beat*math.pi/16)*5)
+	end}
+	
+	if slump then
+		for _,b in pairs({386,390,414,418,422,426,430,438}) do
+			ease {b+.5, .5, inOutCubic, 100, 'invert'}
+			ease {b+1.5, .5, inOutCubic, 0, 'invert'}
+		end
+	end
+	
+	-- //////////////////////////
+	-- uhhhhhhh
+	-- //////////////////////////
+	card {444, 476, 'Speedrunning building up speed for 12 hours in 8 seconds', 4, '#26CF38'}
+	
+	--[[local valFlip = 1
+	for b = 448, 462 do
+		ease {b, 1, inQuint, valFlip*100, 'movex'}
+		valFlip = -valFlip
+	end]]
+	
+	for b = 448, 460, 4 do
+		ease {b, 1, inQuint, 20, 'rotationx', 100, 'invert', 15, 'rotz'}
+		ease {b+1, 1, inQuint, 0, 'rotationx', 0, 'invert', 0, 'rotz'}
+		ease {b+2, 1, inQuint, -20, 'rotationx', 100, 'flip', -15, 'rotz'}
+		ease {b+3, 1, inQuint, 0, 'rotationx', 0, 'flip', 0, 'rotz'}
+	end
+	
+	set {448, 1.5, 'KickVal'}
+	
+	func {448, 16, function(beat,poptions)
+		for pn = 1,2 do
+			poptions[pn].y = math.abs(math.sin(beat*math.pi))*-50
+		end
+	end}
+	
+	ease {463, 1, inQuint, 0, 'movex'}
+	
+	for _,v in pairs(P1:GetNoteData(464,475)) do
+		local b = v[1]
+		add {b, .75, outCirc, 10, 'zoom', -10, 'flip'}
+	end
+	
+	for _,b in pairs({467,471,473,475}) do
+		ease {b, 1, outCubic, 100, 'zoom', 0, 'flip'}
+		--[[local funny = 16
+		for c = 0,3 do
+			func {b+(c/4), .25, function()
+				PixelShader:GetShader():uniform1f('pixelSize', funny)
+			end}
+			funny = funny / 2
+		end]] -- WOI U NO WORK?=??
+		--[[func {b, .25, function()
+			PixelShader:GetShader():uniform1f('pixelSize', 32)
+		end}
+		func {b+.25, .25, function()
+			PixelShader:GetShader():uniform1f('pixelSize', 18)
+		end}
+		func {b+.5, .25, function()
+			PixelShader:GetShader():uniform1f('pixelSize', 6)
+		end}
+		func {b+.75, .25, function()
+			PixelShader:GetShader():uniform1f('pixelSize', -1)
+		end}]]
+		set {b, 32, 'pixelSize'}
+		set {b+.75, -1, 'pixelSize'}
+	end
+	
+	ease {472, .75, outCirc, 100, 'reverse0', 100, 'reverse1'}
+	ease {472.75, .75, outCirc, 100, 'reverse2', 100, 'reverse3'}
+	
+	ease {474, .75, outCirc, 0, 'reverse0', 0, 'reverse1'}
+	ease {474.75, .75, outCirc, 0, 'reverse2', 0, 'reverse3'}
+	
+	-- //////////////////////////
+	-- did you know you don't have constantly spin the joystick to keep bowser spinning
+	-- //////////////////////////
+	card {476, 512, 'OUT OF MY FRIENDS, I\'M wheel', -5, '#1CDA4F'}
+	-- https://media.discordapp.net/attachments/231196459486281730/734406183707738162/unknown.png
+	
+	-- this part is a mess holy fuck
+	-- todo: make arrows appear at the front of the holds
+	-- todo: not forgetting the todo above
+	
+	set {476, 90, 'fov', 100, 'zbuffer'}
+	ease {476, 4, inCirc, 50, 'flip', 200, 'movey', .5, 'xmod', 2, 'KickVal', 3, 'DigitalVal'}
+	func {476, 4, linear, .25, .95, function(a)
+		WoomSprite:diffusealpha(a)
+		GAMESTATE:ForceSmoothLines(0)
+	end}
+	
+	func {476, 4, inCirc, 0, 200, function(a)
+		for pn = 1,2 do
+			local b = P[pn]
+			b:SetZSpline(0, -1, -a, 100, -1)
+			b:SetZSpline(1, -1, a, 400, -1)
+		end
+	end}
+	
+	add {476, 4, inCirc, (360*7), 'rotz', 100, 'hidden', 15, 'hiddenoffset', plr = 2}
+	set {476, 0, 'arrowpath', 1, 'hidenoteflashes', 100, 'stealthgg', 25, 'stealthgr', 25, 'stealthgb', 100, 'dark', plr = 2}
+	
+	if slump then
+		add {476, 4, inCirc, (360*7), 'rotz', plr = 1}
+		func {480, 32, function(beat,poptions)
+			for pn = 1,2 do -- todo: don't do this rya what the fuck
+				if beat >= 496 then
+					poptions[pn].rotationz = GAMESTATE:GetSongBeat() * math.pi * 250
+					poptions[pn].fsrotationz = poptions[pn].rotationz + 10
+					poptions[pn].confusionoffset = confOff(25)
+				else
+					poptions[pn].rotz = GAMESTATE:GetSongBeat() * math.pi * 250
+				end
+				-- nevermind this is PERFECTLY CONSISTANT and doesn't require any hacks !!!!!!!!!!!!!!!!
+				-- awesome, I should've done this for sink to the deep sea world
+				-- also if you, who are reading this exact line, name is jill/oatmealine, then please continue on your version of sink to the deep sea world please oat I and taro beg you
+			end
+		end}
+	else
+		set {476, 100, 'stealth', plr = 2}
+		ease {476, 4, linear, 90, 'stealth', plr = 2}
+		func {480, 32, function(beat,poptions)
+			poptions[2].rotz = GAMESTATE:GetSongBeat() * math.pi * 250
+		end}
+		for _,v in pairs(P1:GetNoteData(480,503)) do
+			local b = v[1]
+			add {b, 1, outCirc, 45, 'rotz', plr = 1}
+		end
+		add {495.5, 1, outCirc, 45, 'rotz', plr = 1}
+	end
+	
+	for _,v in pairs(getHitData(480,563)) do
+		local b = v[1]
+		if v[2] == 0 then
+		set {b, 15000, 'arrowpathwidth'}
+		ease {b, .25, outExpo, 0, 'arrowpathwidth'}
+		end
+	end
+	
+	ease {502.25, 1.75, outCirc, 0, 'flip', 0, 'movey', 1, 'xmod', plr = 1}
+	
+	func {502.25, 1.75, outCirc, 200, 0, function(a)
+		for pn = 1,2 do
+			local b = P[pn]
+			b:SetZSpline(0, -1, -a, 100, -1)
+			b:SetZSpline(1, -1, a, 400, -1)
+		end
+	end}
+	if slump then
+		func {502.25, 9.75, function(beat,poptions)
+			poptions[1].rotz = 0
+		end}
+	end
+	
+	-- maybe just hide it completely? idk
+	func {512, 8, linear, .95, .85, function(a)
+		WoomSprite:diffusealpha(a)
+		GAMESTATE:ForceSmoothLines(-1)
+	end}
+
+	set {512, 0, 'flip', 0, 'movey', 1, 'xmod', 100, 'stealth', 0, 'stealthgr', 0, 'stealthgg', 0, 'stealthgb', 100, 'arrowpath', 0, 'dark', plr = 2}
+	set {516, 1.5, 'DigitalVal', 0, 'stealth', 0, 'hidenoteflashes', 0, 'hidden', 0, 'hiddenoffset'}
+	
+	-- //////////////////////////
+	-- final attack???!?!?!?
+	-- //////////////////////////
+	card {512, 563.5, 'final attack???!?!?!?', 7, '#0FE66C'}
+	card {563.5, 582, '64, 32, 16, 8- yeah 8 bits ending, cool', 3, '#05F290'}
+	
+	local valFlip = 1
+	if slump then
+		for b = 520, 542, 2 do
+			ease {b, .5, outCirc, 50 + (valFlip*50), 'movex0', 50 + (valFlip*50), 'movex2', -50 - (valFlip*50), 'movex1', -50 - (valFlip*50), 'movex3'}
+			valFlip = -valFlip
+		end
+	end
+	
+	local valFlip = -1
+	for _,v in pairs(getHitData(504,512)) do
+		local b = v[1]
+		set {b, valFlip*20, 'rotx'}
+		ease {b, .75, outCirc, 0, 'rotx'}
+		valFlip = -valFlip
+	end
+	
+	ease {508, 4, inQuad, -500, 'bouncez', 100, 'bouncezperiod'}
+	mirror {512, 8, linear, 125, 'drunk'}
+	ease {512, 8, linear, 25, 'arrowpath'}
+	
+	ease {535, 1, outCirc, 100, 'reverse'}
+	func {560, 16, linear, .85, 0, function(a)
+		WoomSprite:diffusealpha(a)
+	end}
+	
+	for _,v in pairs(P1:GetNoteData(560,563)) do
+		local b = v[1]
+		add {b, .75, outCirc, (180)/5, 'rotx'}
+	end
+	
+	for _,v in pairs(getHitData(564,580)) do
+		local b = v[1]
+		if v[2] == 3 then
+			add {b, 0, linear, 4, 'PixelSize'}
+			add {b, .75, outCirc, -4, 'PixelSize'}
+		end
+	end
+	
+	ease {564, 16, inQuad, 32, 'PixelSize'}
+	
+	ease {578, 2.5, inCirc, 180, 'fov', 1000, 'longboys', 360, 'rotx', 0, 'arrowpath', -500, 'reverse'}
+	
+end)" />

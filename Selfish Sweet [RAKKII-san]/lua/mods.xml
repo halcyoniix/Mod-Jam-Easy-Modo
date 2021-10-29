@@ -1,0 +1,1544 @@
+<Mods LoadCommand = "%xero(function(self)
+	self:SetVanishPoint(scx, scy)
+	self:fov(45)
+	slumpo = false --Get at least 80% or higher to access this!
+	for pn = 1, 2 do
+		if GAMESTATE:IsPlayerEnabled(pn-1) then 
+			if GAMESTATE:GetCurrentSteps(pn-1):GetDifficulty() == 5 then
+				slumpo = true --speed=6,stamina=2,tech=3,movement=5,timing=9,gimmick=heavy;
+			end
+		end
+	end
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	local pi = 3.14159265
+	-- if you're wondering why there are so many tables it's because this song is mostly 96th note swung :rockymeme2:
+	introjump = {
+	{4.000,2,1},
+	{5.500,1,1},
+	{6.500,3,1},
+	{8.000,0,2},
+	{8.792,1,2},
+	{9.500,2,2},
+	{10.500,3,2},
+	{12.000,0,1},
+	{12.792,2,1},
+	{13.500,1,1},
+	{14.000,3,1},
+	{14.500,0,1},
+	{14.500,1,2},
+	{15.000,2,2},
+	{15.500,0,2},
+	{16.000,3,2},
+	{16.500,2,2},
+	{17.500,1,2},
+	{18.500,2,2},
+	{19.000,0,2},
+	}
+	introtap = {
+	{18.000,1},
+	{18.500,1},
+	{19.000,0},
+	{19.292,1},
+	{19.500,2},
+	{19.792,3},
+	}
+	introendtap = {
+	{35.000,2},
+	{35.292,1},
+	{35.500,2},
+	{35.792,1},
+	}
+	introendtapslumpo = {
+	{35.000,3},
+	{35.292,1},
+	{35.500,2},
+	{35.792,1},
+	}
+	scratches = {
+	{10.500,1,1},
+	{10.792,0,1},
+	{11.000,1,1},
+	{11.500,0,1},
+	{11.792,1,1},
+	{12.000,2,1},
+	{27.000,1,1},
+	{27.292,0,1},
+	{27.500,1,1},
+	{27.792,0,1},
+	{28.000,2,1},
+	{82.500,1,1},
+	{82.792,0,1},
+	{83.000,1,1},
+	{83.292,0,1},
+	{83.500,1,1},
+	{83.792,0,1},
+	{84.000,2,1},
+	{98.500,1,1},
+	{98.792,0,1},
+	{99.000,1,1},
+	{99.500,0,1},
+	{99.792,1,1},
+	{100.000,2,1},
+	{114.500,1,1},
+	{114.792,0,1},
+	{115.000,1,1},
+	{115.292,0,1},
+	{115.500,1,1},
+	{115.792,0,1},
+	{116.000,2,1},
+	{130.500,1,1},
+	{130.792,0,1},
+	{131.000,1,1},
+	{131.292,0,1},
+	{131.500,1,1},
+	{131.792,0,1},
+	{132.000,2,1},
+	{162.500,1,1},
+	{162.792,0,1},
+	{163.000,1,1},
+	{163.292,0,1},
+	{163.500,1,1},
+	{163.792,0,1},
+	{164.000,2,1},
+	{179.000,1,1},
+	{179.292,0,1},
+	{179.500,1,1},
+	{179.792,0,1},
+	{180.000,2,1},
+	{194.500,1,1},
+	{194.792,0,1},
+	{195.000,1,1},
+	{195.292,0,1},
+	{195.500,1,1},
+	{195.792,0,1},
+	{196.000,2,1},
+	{211.000,1,1},
+	{211.292,0,1},
+	{211.500,1,1},
+	{211.792,0,1},
+	{212.000,2,1},
+	{227.000,1,1},
+	{227.292,0,1},
+	{227.500,1,1},
+	{227.792,0,1},
+	{228.000,2,1},
+	}
+	bittertap = {
+	{40.000,3},
+	{40.792,2},
+	{41.500,1},
+	{42.000,0},
+	{48.000,0},
+	{48.792,1},
+	{49.500,2},
+	{50.000,3},
+	}
+	bittertap2 = {
+	{58.000,2},
+	{58.292,3},
+	{58.500,0},
+	{58.792,2},
+	}
+	bitterspeen = {
+	{53.500,3,1},
+	{53.667,0,1},
+	{53.833,1,1},
+	{54.000,2,1},
+	{54.792,3,1},
+	{55.500,0,1},
+	}
+	bitterspicyspeen = {
+	{53.500,2,1},
+	{53.667,0,1},
+	{53.833,3,1},
+	{54.000,1,1},
+	{54.792,3,1},
+	{55.500,0,1},
+	}
+	bitterguitar = {
+	{60.500,3,1},
+	{61.000,1,1},
+	{61.292,2,1},
+	{61.792,1,1},
+	{62.292,3,1},
+	{62.500,0,1},
+	{63.500,1,1},
+	{64.500,0,1},
+	{65.000,1,1},
+	{65.292,0,1},
+	{65.792,3,1},
+	{66.000,1,1},
+	{66.292,2,1},
+	{66.500,1,1},
+	}
+	pralinesnare = {
+	{76.000,0,1},
+	{76.500,1,1},
+	{77.000,0,1},
+	{77.500,3,1},
+	{77.667,2,1},
+	{77.833,3,1},
+	{78.000,2,1},
+	}
+	pralinejump = {
+	{78.500,1,1},
+	{79.292,0,1},
+	{80.000,0,1},
+	}
+	pralineiiwa = {
+	{88.000,0,1},
+	{88.792,1,1},
+	{89.500,0,1},
+	}
+	carameltrumpet = {
+	{109.000,1},
+	{109.292,0},
+	{109.792,3},
+	{110.292,0},
+	{110.500,1},
+	{111.500,2},
+	{111.792,3},
+	{112.000,0},
+	}
+	candyjump = {
+	{132.000},
+	{132.500},
+	{133.500},
+	{134.500},
+	{135.500},
+	}
+	candytap = {
+	{139.000,3},
+	{139.292,2},
+	{139.500,1},
+	{139.792,0},
+	}
+	selfishtap = {
+	{187.000,0},
+	{187.292,1},
+	{187.500,2},
+	{187.792,3},
+	}
+	spoonspeen = {
+	{196.000,1,1},
+	{196.292,0,1},
+	{196.500,3,1},
+	{196.792,1,1},
+	{197.000,2,1},
+	{197.292,0,1},
+	{197.500,3,1},
+	{197.792,2,1},
+	}
+	spoonjump = {
+	{200.292,2,1},
+	{201.000,3,1},
+	{201.500,1,1},
+	{202.000,2,1},
+	{202.500,2,1},
+	}
+	spoonendtrumpet = {
+	{216.292,1,1},
+	{216.292,3,1},
+	{217.000,1,1},
+	{217.000,2,1},
+	{217.792,0,1},
+	{217.792,1,1},
+	}
+	wheeljump = {
+	{174.000,1,1},
+	{174.792,1,1},
+	{175.500,0,1},
+	{230.000,3,1},
+	{230.792,1,1},
+	{231.500,1,1},
+	}
+	endingjump = {
+	{244.000},
+	{244.500},
+	{246.000},
+	{246.500},
+	}
+	-- initialize background shit
+	bg_black:xy(scx,scy)
+	bg_black:zoomto(sw,sh)
+	bg_black:diffuse(0,0,0,1)
+	bg_cranberry:xy(scx,scy)
+	bg_cranberry:zoomto(sw,sh)
+	bg_cranberry:diffusealpha(0.4);
+	bg_flash:xy(scx,scy)
+	bg_flash:zoomto(sw,sh)
+	bg_flash:diffuse(1,1,1,0)
+	bg_hey:diffusealpha(0)
+	bg_hey:xy(0,sh)
+	bg_hey2:diffusealpha(0)
+	bg_hey2:xy(sw,sh)
+	bg_comeon:diffusealpha(0)
+	bg_comeon:xy(scx,sh)
+	bg_cookie:xy(scx,scy)
+	bg_cookie:zoomto(sw*3,sw*3)
+	bg_cookie:diffusealpha(0)
+	-- set the cookie bg
+	definemod{'cookiebgzoom', 'cookiebgspeedx', 'cookiebgspeedy', 'cookiebgrotation', function(zoom,x,y,rot)
+		bg_cookie:customtexturerect(0,0,zoom,zoom)
+		bg_cookie:texcoordvelocity(x,y)
+		bg_cookie:rotationz(rot)
+	end}
+	if slumpo then
+		setdefault{10,'cookiebgzoom',60/135,'cookiebgspeedx',22.5,'cookiebgrotation'}
+	else
+		setdefault{10,'cookiebgzoom',60/270,'cookiebgspeedx',22.5,'cookiebgrotation'}
+	end
+	-- intro nyoom
+	func{2,1.2,outQuad,1,0.5,function(a)
+		bg_cranberry:zoom(a)
+		bg_cranberry:rotationz((a*60) - 60)
+		bg_cranberry:y(sh*(1-(a/2)))
+		bg_cranberry:x(sw*(1-(a/2)))
+		for n = 1,2 do
+			PP[n]:zoom(a)
+			PP[n]:rotationz(a*60 - 60)
+		end
+	end}
+	func{3.2,0.8,inQuint,0.5,5,function(a)
+		bg_cranberry:zoom(a)
+		bg_cranberry:rotationz((a*36) - 48)
+		for n = 1,2 do
+			PP[n]:zoom(a)
+			PP[n]:rotationz((a*36) - 48)
+		end
+	end}
+	func{4,2,outSine,1,0,function(a)
+		bg_flash:diffusealpha(a)
+	end}
+	func{4,1,instant,5,1,function(a)
+		if slumpo then
+			bg_cookie:diffuse(0.7,0.4,0.3,1)
+		else
+			bg_cookie:diffuse(0.7,0.6,0.5,1)
+		end
+		for n = 1,2 do
+			PP[n]:zoom(a)
+			PP[n]:rotationz(0)
+		end
+	end}
+	-- heyman.ogg
+	function Hey(beat)
+		func{beat,0.5,outQuad,0,1,function(a)
+			bg_hey:diffusealpha(1)
+			bg_hey:xy(sw*(a/4),sh*(1-a/2))
+		end}
+		func{beat+0.5,0.5,inQuad,1,0,function(a)
+			bg_hey:diffusealpha(a)
+			bg_hey:xy(sw*(a/4),sh*(1-a/2))
+		end}
+		func{beat+1,0.5,outQuad,0,1,function(a)
+			bg_hey2:diffusealpha(1)
+			bg_hey2:xy(sw*(1-a/4),sh*(1-a/2))
+		end}
+		func{beat+1.5,0.5,inQuad,1,0,function(a)
+			bg_hey2:diffusealpha(a)
+			bg_hey2:xy(sw*(1-a/4),sh*(1-a/2))
+		end}
+	end
+	Hey(18.5)
+	Hey(74.5)
+	function ComeOn(beat)
+		func{beat,0.5,outQuad,0,1,function(a)
+			bg_comeon:diffusealpha(1)
+			bg_comeon:y(sh*(1-a/2))
+		end}
+		func{beat+0.5,0.5,outQuad,1,0,function(a)
+			bg_comeon:diffusealpha(a)
+			bg_comeon:y(sh*(0.3+a*0.2))
+		end}
+	end
+	ComeOn(90.5)
+	for i,v in ipairs(pralinejump) do
+		func {v[1],0.25,outQuad,3,3.75,function(a)
+			bg_cookie:zoomto(sw*a,sw*a)
+		end}
+		func {v[1]+0.25,0.25,inQuad,3.75,3,function(a)
+			bg_cookie:zoomto(sw*a,sw*a)
+		end}
+	end
+	-- set more mods
+	definemod{'wheelrotation','wheelsize',function(rot,size)
+		local x,z
+			x = math.sin(rot*math.pi)*size
+			z = math.cos(rot*math.pi)*size
+		return x,z
+	end,'x','z'}
+	-- I think I only needed this for one line lmao
+	definemod{'rotx','roty','rotz',function(xDegrees, yDegrees, zDegrees, plr)
+        local axes = xDegrees ~= 0 and 1 or 0 + yDegrees ~= 0 and 1 or 0 and zDegrees ~= 0 and 1 or 0
+        local angles
+        local DEG_TO_RAD = math.pi / 180
+        if axes > 1 then
+            local function mindf_reverseRotation(angleX, angleY, angleZ)
+                local sinX = math.sin(angleX);
+                local cosX = math.cos(angleX);
+                local sinY = math.sin(angleY);
+                local cosY = math.cos(angleY);
+                local sinZ = math.sin(angleZ);
+                local cosZ = math.cos(angleZ);
+                return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+                        math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+                        math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+            end
+            angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+        else
+            angles = { -xDegrees * -DEG_TO_RAD, -yDegrees * DEG_TO_RAD, -zDegrees * DEG_TO_RAD }
+        end
+        local rotationx,rotationy,rotationz=
+            xDegrees,
+            yDegrees,
+            zDegrees
+        local confusionxoffset,confusionyoffset,confusionzoffset=
+            (angles[1]*100),
+            (angles[2]*100),
+            (angles[3]*100)
+
+        return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+    end,
+    'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+    }
+	-- Time for the arrows.
+	-- throughout the file you'll see me not knowing that you can fit multiple mods in a single ease statement
+	if slumpo then -- higher scroll speed for higher difficulty? what is this, FNF?
+		set {0,2.5,'xmod'}
+	else
+		set {0,2.25,'xmod'}
+	end
+	set
+	{4,200,'tipsy',200,'zoom'}
+	{4,-22.5,'rotationz'}
+	plr=1
+	set {4,25,'tornado'}
+	plr=2
+	set {4,-25,'tornado'}
+	plr=nil
+	ease
+	{4,1,outSine,0,'rotationz'}
+	{4,1,outSine,100,'zoom'}
+	for i = 4,16,4 do
+		if i%8 == 0 then
+			ease
+			{i,1.5,outSine,-sh/8,'y',plr=1}
+			{i+1.5,0.5,inCubic,sh/16,'y',plr=1}
+			{i+2,1,outSine,0,'y',plr=1}
+			{i,1.5,outSine,sh/16,'y',plr=2}
+			{i+1.5,0.5,inCubic,-sh/32,'y',plr=2}
+			{i+2,1,outSine,0,'y',plr=2}
+		else
+			ease
+			{i,1.5,outSine,-sh/8,'y',plr=2}
+			{i+1.5,0.5,inCubic,sh/16,'y',plr=2}
+			{i+2,1,outSine,0,'y',plr=2}
+			{i,1.5,outSine,sh/16,'y',plr=1}
+			{i+1.5,0.5,inCubic,-sh/32,'y',plr=1}
+			{i+2,1,outSine,0,'y',plr=1}
+		end
+	end
+	for i,v in ipairs(introjump) do
+		ease
+		{v[1]-0.1,0.1,inExpo,25,'tiny'..v[2],plr=v[3]}
+		{v[1],0.25,outCubic,-100,'tiny'..v[2],plr=v[3]}
+		{v[1]+0.25,0.75,inCubic,25,'tiny'..v[2],plr=v[3]}
+		{v[1]+1,0.5,outSine,0,'tiny'..v[2],plr=v[3]}
+	end
+	ease
+	{4,8,linear,42,'tipsy'}
+	{6.5,0.5,outSine,45,'rotationy'}
+	{10.5,0.5,outSine,-60,'rotationy'}
+	{11,1.5,inOutSine,0,'rotationy'}
+
+	{6.5,0.125,inQuad,15*pi,'confusionoffset3',plr=1}
+	{6.625,0.875,outQuad,-15*pi,'confusionoffset3',plr=1}
+	{7.5,0.5,inOutBack,7.5*pi,'confusionoffset3',plr=1}
+	{8,1,inSine,0,'confusionoffset3',plr=1}
+	{10.5,0.125,inQuad,-25*pi,'confusionoffset3',plr=2}
+	{10.625,0.875,outQuad,25*pi,'confusionoffset3',plr=2}
+	{11.5,0.5,inOutBack,-12.5*pi,'confusionoffset3',plr=2}
+	{12,1,inSine,0,'confusionoffset3',plr=2}
+	for i,v in ipairs(scratches) do
+		if v[2] == 0 then
+			ease 
+			{v[1],0.208,inQuad,-30,'skewx'}
+			{v[1],0.208,inQuad,-25*pi,'confusionoffset'}
+		elseif v[2] == 1 then
+			ease 
+			{v[1],0.292,outQuad,30,'skewx'}
+			{v[1],0.292,outQuad,25*pi,'confusionoffset'}
+		else
+			ease 
+			{v[1],0.25,outQuad,0,'skewx'}
+			{v[1],0.25,outQuad,0,'confusionoffset'}
+		end
+	end
+	ease
+	{12,0.5,outCirc,30,'rotationx',plr=1}
+	{12.5,0.5,outCirc,-30,'rotationx',plr=2}
+	{13.5,0.5,outCirc,-30,'rotationx',plr=1}
+	{13.5,0.5,outCirc,30,'rotationx',plr=2}
+	{14,0.5,inOutSine,0,'rotationx'}
+	for i,v in ipairs(introtap) do
+		ease
+		{v[1]-0.15,0.15,inSine,-10,'reverse'..v[2]}
+		{v[1],0.25,outExpo,10,'reverse'..v[2]}
+		{v[1]+0.25,0.25,outSine,0,'reverse'..v[2]}
+	end
+	-- the wheels on the bus go pop pop pop... now we got 3 flat tires
+	set{0,1,'wheelrotation',plr=2}
+	ease
+	{18,2,inSine,sw/4,'x',plr=1}
+	{18,2,inSine,-sw/4,'x',plr=2}
+	add
+	{18,0,instant,-0.5,'wheelrotation'}
+	{18,2,linear,0.5,'wheelrotation'}
+	{20,8,linear,1.5,'wheelrotation'}
+	{20,8,outCirc,150,'wheelsize'}
+	{28,8,linear,-2,'wheelrotation'}
+	{34.5,1.5,inCirc,-200,'wheelsize'}
+	ease
+	{18,2,inSine,75,'stealth',plr=1}
+	{18,2,inSine,75,'stealthpastreceptors',plr=1}
+	{27,1,outSine,0,'stealth',plr=1}
+	{27,1,outSine,0,'stealthpastreceptors',plr=1}
+	{18+8,2,inSine,75,'stealth',plr=2}
+	{18+8,2,inSine,75,'stealthpastreceptors',plr=2}
+	{27+8,1,outSine,0,'stealth',plr=2}
+	{27+8,1,outSine,0,'stealthpastreceptors',plr=2}
+	--singing choir
+	{19.875,0.125,inQuad,90,'zoomy'}
+	{20,0.5,outQuad,110,'zoomy'}
+	{20.5,3.292,inQuad,125,'zoomy'}
+	{23.792,0.208,outQuad,100,'zoomy'}
+	{24,0.5,outQuad,125,'zoomy'}
+	{24.5,1.4,inQuad,137.5,'zoomy'}
+	{25.9,0.1,inQuad,125,'zoomy'}
+	{26,1,outQuad,150,'zoomy'}
+	{27,0.5,outQuad,100,'zoomy'}
+	{27.9,0.1,outQuad,75,'zoomy'}
+	{28,0.5,outQuad,165,'zoomy'}
+	{28.5,3.292,inQuad,175,'zoomy'}
+	{31.792,0.208,outQuad,100,'zoomy'}
+	{32,0.5,outQuad,125,'zoomy'}
+	{32.5,1.4,inQuad,137.5,'zoomy'}
+	{33.9,0.1,inQuad,125,'zoomy'}
+	{34,0.25,outQuad,60,'zoomy'}
+	{34.48,0.42,outQuad,180,'zoomy'}
+	{34.9,0.5,outQuad,100,'zoomy'}
+	-- I really should have made another mod to accommodate each player, should I
+	{20,0.5,outQuad,15,'skewx',plr=1}
+	{20,0.5,outQuad,-15,'skewx',plr=2}
+	{20.5,3.292,inQuad,22.5,'skewx',plr=1}
+	{20.5,3.292,inQuad,-22.5,'skewx',plr=2}
+	{23.792,0.208,outQuad,0,'skewx'}
+	{24,0.5,outQuad,15,'skewx',plr=1}
+	{24,0.5,outQuad,-15,'skewx',plr=2}
+	{24.5,1.4,inQuad,22.5,'skewx',plr=1}
+	{24.5,1.4,inQuad,-22.5,'skewx',plr=2}
+	{25.9,0.1,outQuad,15,'skewx',plr=1}
+	{25.9,0.1,outQuad,-15,'skewx',plr=2}
+	{26,1,outQuad,27.5,'skewx',plr=1}
+	{26,1,outQuad,-27.5,'skewx',plr=2}
+	{27,0.5,outQuad,0,'skewx'}
+	{28,0.5,outQuad,-30,'skewx',plr=1}
+	{28,0.5,outQuad,30,'skewx',plr=2}
+	{28.5,3.292,inQuad,-33,'skewx',plr=1}
+	{28.5,3.292,inQuad,33,'skewx',plr=2}
+	{31.792,0.208,outQuad,0,'skewx'}
+	{32,0.5,outQuad,-15,'skewx',plr=1}
+	{32,0.5,outQuad,15,'skewx',plr=2}
+	{32.5,1.4,inQuad,-22.5,'skewx',plr=1}
+	{32.5,1.4,inQuad,22.5,'skewx',plr=2}
+	{33.9,0.1,outQuad,-15,'skewx',plr=1}
+	{33.9,0.1,outQuad,15,'skewx',plr=2}
+	{34,0.25,outQuad,0,'skewx'}
+	for i = 22,34,4 do
+		add
+		{i-0.1,0.1,inQuad,4,'reverse'}
+		{i,0.25,outQuad,-8,'reverse'}
+		{i+0.25,0.5,outQuad,4,'reverse'}
+		{i-0.1,0.1,inQuad,-20,'tiny'}
+		{i,0.25,outQuad,40,'tiny'}
+		{i+0.25,0.5,outQuad,-20,'tiny'}
+	end
+	-- chilling down from the intro
+	reset {35,1,inQuad,exclude = {'x','xmod'}}
+	if slumpo then
+		for i,v in ipairs(introendtapslumpo) do
+			ease
+			{v[1]-0.15,0.15,inSine,10,'reverse'..v[2]}
+			{v[1],0.25,outExpo,10,'reverse'..v[2]}
+			{v[1]+0.25,0.25,outSine,0,'reverse'..v[2]}
+		end
+	else
+		for i,v in ipairs(introendtap) do
+			ease
+			{v[1]-0.15,0.15,inSine,-10,'reverse'..v[2]}
+			{v[1],0.25,outExpo,10,'reverse'..v[2]}
+			{v[1]+0.25,0.25,outSine,0,'reverse'..v[2]}
+		end
+	end
+	-- 'Our stories taste sour but sweet...' now they're bitter what kind of flavor is this make up your damn mind bruh
+	if slumpo then
+		set {36,2.75,'xmod'}
+	end
+	set {36,200,'arrowpathwidth'}
+	plr = 2
+	set {36,100,'stealth',100,'stealthpastreceptors',100,'dark',100,'hidenoteflash'}
+	plr = 1
+	ease
+	{35.75,0.25,inQuad,10,'rotationz'}
+	{36,0.25,outQuad,-15,'rotationz'}
+	{36.25,0.542,outQuad,0,'rotationz'}
+	{36.792,0.208,outQuad,-30,'rotationz'}
+	{38,0.25,outQuad,0,'rotationz'}
+	{38.25,0.25,inQuad,-10,'rotationz'}
+	{39.792,0.208,outQuad,0,'rotationz'}
+	{40,2,inQuad,15,'rotationz'}
+	{42,0.25,outQuad,0,'rotationz'}
+	{42.25,0.75,inQuad,30,'rotationz'}
+	{43,0.25,outQuad,0,'rotationz'}
+	{43.25,0.75,inQuad,30,'rotationz'}
+	{44,2,inQuad,15,'rotationz'}
+	{46,0.25,outQuad,0,'rotationz'}
+	{46.25,0.25,inQuad,15,'rotationz'}
+	{46.5,1.292,inQuad,0,'rotationz'}
+	{47.792,0.208,inQuad,-15,'rotationz'}
+	{48,2,inQuad,0,'rotationz'}
+	{50,0.25,outQuad,30,'rotationz'}
+	{50.25,0.75,inQuad,0,'rotationz'}
+	{51,0.25,outQuad,-30,'rotationz'}
+	{51.25,0.75,inQuad,0,'rotationz'}
+
+	{36+16,0.25,outQuad,15,'rotationz'}
+	{36.25+16,0.542,outQuad,0,'rotationz'}
+	{36.792+16,0.208,outQuad,30,'rotationz'}
+	{38+16,0.25,outQuad,0,'rotationz'}
+	{38.25+16,0.25,inQuad,10,'rotationz'}
+	{39.5+16,0.292,outQuad,-5,'rotationz'}
+	{39.792+16,0.208,outQuad,0,'rotationz'}
+	{44+16,2,inQuad,15,'rotationz'}
+	{46+16,0.25,outQuad,0,'rotationz'}
+	{46.25+16,0.25,inQuad,15,'rotationz'}
+	{46.5+16,1.292,inQuad,0,'rotationz'}
+	{47.792+16,0.208,inQuad,-15,'rotationz'}
+	{48+16,2,inQuad,0,'rotationz'}
+	{50+16,0.25,outQuad,30,'rotationz'}
+	{50.25+16,0.75,inQuad,0,'rotationz'}
+	{51+16,0.25,outQuad,-30,'rotationz'}
+	{51.25+16,0.75,inQuad,0,'rotationz'}
+
+	{36,0.25,outQuad,-200,'tiny0'}
+	{36.25,0.542,outQuad,0,'tiny0'}
+	{36.792,0.208,outQuad,-150,'tiny0'}
+	{37,0.25,outQuad,0,'tiny0'}
+	if slumpo then
+		ease
+		{52,0.25,outQuad,-200,'tiny1'}
+		{52.25,0.542,outQuad,0,'tiny1'}
+		{52.792,0.208,outQuad,-150,'tiny1'}
+		{53,0.25,outQuad,0,'tiny1'}
+	else
+		ease
+		{52,0.25,outQuad,-200,'tiny0'}
+		{52.25,0.542,outQuad,0,'tiny0'}
+		{52.792,0.208,outQuad,-150,'tiny0'}
+		{53,0.25,outQuad,0,'tiny0'}
+	end
+	ease
+	{39.5,0.292,outQuad,5,'alternate'}
+	{39.792,0.208,outQuad,-10,'alternate'}
+	{40,0.25,outQuad,0,'alternate'}
+	{39.5,0.292,outQuad,-2.5,'reverse'}
+	{39.792,0.208,outQuad,5,'reverse'}
+	{40,0.25,outQuad,0,'reverse'}
+
+	{36,0.25,outQuad,50,'arrowpath'}
+	{36.25,0.542,inQuad,10,'arrowpath'}
+	{36.792,0.208,outQuad,50,'arrowpath'}
+	{36,0.25,outQuad,125,'arrowpathdrawdistance'}
+	{36,0.25,outQuad,125,'arrowpathdrawdistanceback'}
+
+	{42,0.5,inQuad,50,'tiny'}
+	{42.5,0.25,outExpo,-225,'tiny'}
+	{42.75,1.25,inSine,25,'tiny'}
+	{44,1,outSine,0,'tiny'}
+	add
+	{42.4,0.1,inQuad,10,'flip'}
+	{42.5,0.25,outExpo,-60,'flip'}
+	{42.75,1.25,inSine,50,'flip'}
+	
+	{44,0.25,outQuad,30,'tipsy'}
+	ease
+	{42.5,0.25,outExpo,-20*pi,'confusionoffset'}
+	{42.75,1.25,inSine,29*pi,'confusionoffset'}
+	{44,0.5,outSine,0,'confusionoffset'}
+	{44.5,1.5,inSine,-25*pi,'confusionoffset'}
+	{46,1,outQuad,0,'confusionoffset'}
+	{47,1,inQuad,25*pi,'confusionoffset'}
+	{48,2,outQuad,0,'confusionoffset'}
+	-- sine waves woooooo
+	func {36,30.875,function(beat,poptions)
+    	poptions[1].drunk = math.sin((beat/4 + 1/4)*math.pi)*69
+	end}
+	func {36,30,function(beat,poptions)
+    	poptions[1].flip = poptions[1].flip + math.cos((beat/4)*math.pi)*10
+	end}
+	func {36,32,function(beat,poptions)
+    	poptions[1].x = math.sin(beat/4*math.pi)*sw/16 + sw/4
+	end}
+	for i,v in ipairs(bittertap) do
+		ease
+		{v[1]-0.15,0.15,inQuad,-5,'reverse'..v[2]}
+		{v[1],0.25,outQuad,5,'reverse'..v[2]}
+		{v[1]+0.25,0.25,outQuad,0,'reverse'..v[2]}
+	end
+	if slumpo then
+		for i,v in ipairs(bitterspicyspeen) do
+			ease
+			{v[1],0.5,outQuad,220*pi,'confusionoffset'..v[2]}
+			{v[1]+0.5,0.5,outQuad,200*pi,'confusionoffset'..v[2]}
+			{v[1],0.5,outQuad,-100,'tiny'..v[2]}
+			{v[1]+0.5,0.5,inQuad,0,'tiny'..v[2]}
+		end
+	else
+		for i,v in ipairs(bitterspeen) do
+			ease
+			{v[1],0.5,outQuad,220*pi,'confusionoffset'..v[2]}
+			{v[1]+0.5,0.5,outQuad,200*pi,'confusionoffset'..v[2]}
+			{v[1],0.5,outQuad,-100,'tiny'..v[2]}
+			{v[1]+0.5,0.5,inQuad,0,'tiny'..v[2]}
+		end
+	end
+	ease
+	{50.5,0.5,linear,-200*pi,'confusionoffset'}
+	{51.0,0.5,outSine,-215*pi,'confusionoffset'}
+	{51.5,0.5,linear,0,'confusionoffset'}
+	{52,0.792,outSine,15*pi,'confusionoffset'}
+	{52.792,0.208,outQuad,0,'confusionoffset'}
+
+	{56,0.25,outExpo,-15,'rotationz'}
+	{56.25,0.75,inQuad,0,'rotationz'}
+	{57,0.25,outExpo,15,'rotationz'}
+	{57.25,0.75,inQuad,0,'rotationz'}
+	{58,0.5,inQuad,-30,'rotationz'}
+	{58.5,0.5,outQuad,0,'rotationz'}
+	for i = 56,57 do
+		ease
+		{i-0.1,0.1,inQuad,-100,'tiny'}
+		{i,0.75,outQuad,100,'tiny'}
+		{i+0.75,0.25,inQuad,0,'tiny'}
+	end
+	ease
+	{58.292,0.208,inQuad,80,'zoom'}
+	{58.5,0.25,outQuad,150,'zoom'}
+	{58.75,0.5,inQuad,100,'zoom'}
+	for i,v in ipairs(bittertap2) do
+		ease
+		{v[1]-0.15,0.15,inQuad,-5,'reverse'..v[2]}
+		{v[1],0.25,outQuad,5,'reverse'..v[2]}
+		{v[1]+0.25,0.25,outQuad,0,'reverse'..v[2]}
+	end
+	add
+	{59,0.25,outQuad,15,'reverse'}
+	{59.25,0.25,inQuad,-20,'reverse'}
+	{59.5,0.5,outQuad,5,'reverse'}
+	{67,0.25,outQuad,10,'reverse'}
+	{67.25,0.5,inQuad,-10,'reverse'}
+	for i,v in ipairs(bitterguitar) do
+		ease
+		{v[1],0.25,outQuad,35,'bumpyx'..v[2]}
+		{v[1]+0.25,0.5,inQuad,0,'bumpyx'..v[2]}
+		{v[1],0.25,outQuad,300,'bumpyperiod'}
+		{v[1]+0.25,0.5,inQuad,100,'bumpyperiod'}
+		{v[1]-0.15,0.15,inSine,-7,'reverse'..v[2]}
+		{v[1],0.25,outExpo,7,'reverse'..v[2]}
+		{v[1]+0.25,0.25,outSine,0,'reverse'..v[2]}
+	end
+	set {69,100,'stealth',100,'stealthpastreceptors',100,'dark',100,'hidenoteflash',0,'arrowpath'}
+	plr = 2
+	reset{67,1,outQuad,exclude = {'xmod', 'x'}}
+	set{67,30,'rotationz',-sw*3/4,'x',-sh*3/8,'y',100,'drawsizeback'}
+	-- transition into praline
+	ease
+	{67,1,inSine,0,'rotationz'}
+	func {67,1,function(beat,poptions)
+    	poptions[2].x = math.cos((beat-67)*math.pi/2)*-sw*3/4 -sw/4
+		poptions[2].y = math.cos((beat-67)*-math.pi/2)*-sh/4
+	end}
+	set{68,-sw/4,'x',0,'y'}
+	func {68,1,function(beat,poptions)
+    	poptions[1].x = math.sin((beat-68)*math.pi/2)*sw*3/4 +sw/4
+		poptions[1].y = math.sin((beat-68)*math.pi/2)*-sh/4
+	end}
+	-- wtf is a praline
+	ease
+	{68,0.25,outQuad,-100,'tiny'}
+	{68.25,0.25,inQuad,10,'tiny'}
+	{68.5,0.25,outQuad,0,'tiny'}
+	{68,8,linear,2,'wheelrotation'}
+	{68,4,outSine,200,'wheelsize'}
+	{72,4,inSine,0,'wheelsize'}
+	{68,4,outQuad,110,'zoomy'}
+	{72,0.5,outQuad,125,'zoomy'}
+	{74,0.5,outQuad,100,'zoomy'}
+	func{68,8,function(beat,poptions)
+		poptions[2].rotationz = poptions[2].rotationz + math.sin((beat-68)*math.pi/4)*30
+	end}
+	for i = 74.5,75.5 do
+		ease
+		{i,0.25,outQuad,-25,'reverse'}
+		{i+0.25,0.25,inQuad,10,'reverse'}
+		{i+0.25,0.25,outQuad,0,'reverse'}
+	end
+	for i,v in ipairs(pralinesnare) do -- there might be an cleaner way to do this idk
+		if v[2] == 0 then
+			ease
+			{v[1]-0.1,0.1,inQuad,-5,'skewy'}
+			{v[1],0.125,outQuad,30,'skewy'}
+			{v[1]+0.125,0.375,inQuad,0,'skewy'}
+			{v[1]-0.1,0.1,inQuad,-5,'skewx'}
+			{v[1],0.125,outQuad,22.5,'skewx'}
+			{v[1]+0.125,0.375,inQuad,0,'skewx'}
+			{v[1]-0.1,0.1,inQuad,-5,'rotationx'}
+			{v[1],0.125,outQuad,22.5,'rotationx'}
+			{v[1]+0.125,0.375,inQuad,0,'rotationx'}
+		elseif v[2] == 1 then
+			ease
+			{v[1]-0.1,0.1,inQuad,5,'skewy'}
+			{v[1],0.125,outQuad,-30,'skewy'}
+			{v[1]+0.125,0.375,inQuad,0,'skewy'}
+			{v[1]-0.1,0.1,inQuad,5,'skewx'}
+			{v[1],0.125,outQuad,-22.5,'skewx'}
+			{v[1]+0.125,0.375,inQuad,0,'skewx'}
+			{v[1]-0.1,0.1,inQuad,5,'rotationx'}
+			{v[1],0.125,outQuad,-22.5,'rotationx'}
+			{v[1]+0.125,0.375,inQuad,0,'rotationx'}
+		elseif v[2] == 2 then
+			ease
+			{v[1]-0.1,0.1,inQuad,-5,'skewy'}
+			{v[1],1/24,outQuad,15,'skewy'}
+			{v[1]+1/24,3/24,inQuad,0,'skewy'}
+			{v[1]-0.1,0.1,inQuad,-5,'skewx'}
+			{v[1],1/24,outQuad,22.5,'skewx'}
+			{v[1]+1/24,3/24,inQuad,0,'skewx'}
+			{v[1]-0.1,0.1,inQuad,-5,'rotationx'}
+			{v[1],1/24,outQuad,22.5,'rotationx'}
+			{v[1]+1/24,3/24,inQuad,0,'rotationx'}
+		else
+			ease
+			{v[1]-0.1,0.1,inQuad,5,'skewy'}
+			{v[1],1/24,outQuad,-15,'skewy'}
+			{v[1]+1/24,3/24,inQuad,0,'skewy'}
+			{v[1]-0.1,0.1,inQuad,5,'skewx'}
+			{v[1],1/24,outQuad,-22.5,'skewx'}
+			{v[1]+1/24,3/24,inQuad,0,'skewx'}
+			{v[1]-0.1,0.1,inQuad,5,'rotationx'}
+			{v[1],1/24,outQuad,-22.5,'rotationx'}
+			{v[1]+1/24,3/24,inQuad,0,'rotationx'}
+		end
+	end
+	ease
+	{76,0.5,inQuad,25*pi,'confusionoffset'}
+	{76.5,1.5,outQuad,-200*pi,'confusionoffset'}
+	set {78,0,'confusionoffset'}
+	for i,v in ipairs(pralinejump) do
+		ease
+		{v[1]-0.1,0.1,inQuad,80-(i*5),'zoom'}
+		{v[1],0.25,outQuad,120+(i*10),'zoom'}
+		{v[1]+0.25,0.25,inQuad,100,'zoom'}
+		{v[1]-0.1,0.1,inQuad,-15+(i*5),'rotationz'}
+		{v[1],0.25,outQuad,50-(i*30),'rotationz'}
+		{v[1]+0.25,0.25,inQuad,0,'rotationz'}
+		{v[1]-0.1,0.1,inQuad,80-(i*5),'zoomy'}
+		{v[1],0.25,outQuad,150-(i*10),'zoomy'}
+		{v[1]+0.25,0.25,inQuad,100,'zoomy'}
+	end
+	set {80,1,'wheelrotation',200,'wheelsize'}
+	ease
+	{80,2.5,inSine,0,'wheelrotation'}
+	{80,2.5,inSine,0,'wheelsize'}
+	func{80,2.5,function(beat,poptions)
+		poptions[2].rotationz = poptions[2].rotationz + math.cos((beat-80.5)*math.pi/4)*30
+	end}
+	ease
+	{82,0.5,outExpo,80,'zoomy'}
+	{82,0.5,outExpo,140,'zoomx'}
+	{82.5,0.5,outExpo,125,'zoomy'}
+	{82.5,0.5,outExpo,80,'zoomx'}
+	{83,0.5,outExpo,100,'zoomy'}
+	{83,0.5,outExpo,100,'zoomx'}
+	-- return to bitter for a bit
+	set {84,125,'arrowpathdrawdistanceback',125,'arrowpathdrawdistance'}
+	ease
+	{84,0.25,outQuad,100,'arrowpath'}
+	{84.25,0.25,inQuad,50,'arrowpath'}
+	{84,0.25,outQuad,400,'arrowpathwidth'}
+	{84.25,0.25,inQuad,200,'arrowpathwidth'}
+	{84,0.5,outExpo,30,'tipsy'}
+	{84,2,inQuad,30,'rotationz'}
+	{86,2,outQuad,-30,'rotationz'}
+	for i,v in ipairs(pralineiiwa) do
+		if v[2] == 0 then
+			ease
+			{v[1],0.5,outQuad,15,'rotationz'}
+		else
+			ease
+			{v[1],0.5,outQuad,-15,'rotationz'}
+		end
+	end
+	func {84,12,function(beat,poptions)
+    	poptions[2].drunk = math.sin((beat/4)*math.pi)*69
+	end}
+	func {84,12,function(beat,poptions)
+    	poptions[2].flip = poptions[1].flip + math.sin((beat/4)*math.pi)*10
+	end}
+	func {84,12,function(beat,poptions)
+    	poptions[2].x = poptions[2].x + math.sin(beat/4*math.pi)*-sw/16
+	end}
+	ease
+	{90.5,0.5,outQuad,0,'rotationz'}
+	{90.5,0.25,outQuad,-200,'tiny'}
+	{90.75,0.5,outQuad,50,'tiny'}
+	{91,0.25,inQuad,0,'tiny'}
+	{94,2,inQuad,2,'xmod'}
+	{95,1,inQuad,-100,'centered2'}
+	{93.5,0.25,outQuad,-100,'tiny'}
+	{93.75,0.75,inQuad,0,'tiny'}
+	{93.5,1,outBack,200*pi,'confusionoffset'}
+	{95,0,instant,0,'confusionoffset'}
+	if slumpo then
+		ease{98,2,inQuad,2.75,'xmod'}
+	else
+		ease{98,2,inQuad,2.25,'xmod'}
+	end
+	for i = 96,98,2 do
+		ease
+		{i,1,inQuad,200,'centered2'}
+		{i+1,1,outQuad,0,'centered2'}
+	end
+	ease
+	{99,1,inQuad,0,'x'}
+	{98,0.25,outQuad,30,'rotationz'}
+	{98.25,0.75,inQuad,0,'rotationz'}
+	{99,0.25,outQuad,-30,'rotationz'}
+	{99.25,0.75,inQuad,0,'rotationz'}
+	{99.5,0.5,outQuad,0,'arrowpath'}
+	plr = 1
+	reset {99,1,outQuad,exclude = {'xmod', 'x'}}
+	set {99,sw,'x'}
+	ease
+	{99,0.75,outQuad,-sw/8,'x'}
+	{99.75,0.25,inOutBack,0,'x'}
+	{99,0.75,outQuad,25,'rotationz'}
+	{99.75,0.25,inOutBack,-12.5,'rotationz'}
+	{100,0.5,outQuad,0,'rotationz'}
+	-- transitioning into Caramel
+	plr = 1
+	set {100,sw/4,'x',-0.5,'wheelrotation'}
+	plr = 2
+	set {100,-sw/4,'x',0.5,'wheelrotation',0,'tipsy'}
+	plr = nil
+	set {100,160,'wheelsize'}
+	-- Caramelldansen
+	plr = 1
+	ease -- there's most likely a cleaner way to do this
+	{100,2,inSine,0.1,'wheelrotation'}
+	{102,2,outSine,-0.5,'wheelrotation'}
+	{104,2,inSine,-1.1,'wheelrotation'}
+	{106,2,outSine,-0.5,'wheelrotation'}
+	{100,2,inSine,15,'rotationz'}
+	{102,2,outSine,0,'rotationz'}
+	{104,2,inSine,-15,'rotationz'}
+	{106,2,outSine,0,'rotationz'}
+	{104,2,inSine,50,'stealth'}
+	{104,2,inSine,50,'stealthpastreceptors'}
+	{106,2,outSine,0,'stealth'}
+	{106,2,outSine,0,'stealthpastreceptors'}
+	plr = 2
+	ease 
+	{100,2,inSine,1.1,'wheelrotation'}
+	{102,2,outSine,0.5,'wheelrotation'}
+	{104,2,inSine,-0.1,'wheelrotation'}
+	{106,2,outSine,0.5,'wheelrotation'}
+	{100,2,inSine,-15,'rotationz'}
+	{102,2,outSine,0,'rotationz'}
+	{104,2,inSine,15,'rotationz'}
+	{106,2,outSine,0,'rotationz'}
+	{100,2,inSine,50,'stealth'}
+	{100,2,inSine,50,'stealthpastreceptors'}
+	{102,2,outSine,0,'stealth'}
+	{102,2,outSine,0,'stealthpastreceptors'}
+	plr = nil
+	for i=101,106 do
+		ease
+		{i-0.1,0.1,outExpo,95.2,'zoomy'}
+		{i-0.1,0.1,outExpo,110,'zoomx'}
+		{i,0.25,outQuad,105,'zoomy'}
+		{i,0.25,outQuad,95.2,'zoomx'}
+		{i+0.25,0.75,inQuad,100,'zoomy'}
+		{i+0.25,0.75,inQuad,100,'zoomx'}
+		{i-0.1,0.1,outExpo,1,'reverse'}
+		{i,0.25,outQuad,-2,'reverse'}
+		{i+0.25,0.75,inQuad,0,'reverse'}
+	end
+	plr = 1
+	ease
+	{108,0.5,outQuad,15,'rotationz'}
+	{108,0.5,outQuad,-15,'reverse'}
+	{108.5,3.5,inQuad,0,'reverse'}
+	{108,4,outQuad,0.5,'wheelrotation'}
+	{108.5,1.5,inQuad,0,'rotationz'}
+	{110,2,outQuad,-15,'rotationz'}
+	for i,v in ipairs(carameltrumpet) do
+		ease
+		{v[1],0.25,outQuad,10,'reverse'..v[2]}
+		{v[1]+0.25,0.25,inQuad,0,'reverse'..v[2]}
+	end
+	ease
+	{111.5,1,outQuad,-sw/4,'x'}
+	{114.5,0.5,outQuad,0,'x'}
+	plr = 2
+	ease
+	{108,0.5,outQuad,-15,'rotationz'}
+	{108,4,outQuad,1.5,'wheelrotation'}
+	{108.5,1.5,inQuad,0,'rotationz'}
+	{110,2,outQuad,15,'rotationz'}
+	for i,v in ipairs(carameltrumpet) do
+		if i%2 == 0 then
+			ease {v[1],0.25,outQuad,15,'rotationz'}
+		else
+			ease {v[1],0.25,inQuad,-15,'rotationz'}
+		end
+	end
+	ease
+	{111.5,1,outQuad,sw/4,'x'}
+	{114.5,0.5,outQuad,0,'x'}
+	plr = nil
+	ease
+	{111.5,0.5,outQuad,75,'zoomy'}
+	{112,2,outQuad,125,'zoomy'}
+	{114,0.25,outQuad,80,'zoomy'}
+	{114.25,0.25,inQuad,100,'zoomy'}
+	{114.5,0.5,outQuad,0,'rotationz'}
+	-- everyone is back together except...
+	plr = 2
+	ease
+	{116.667,0.135,inQuad,37.5,'flip'}
+	{116.667,0.135,inQuad,-20,'tiny'}
+	{116.667,0.135,inQuad,50,'stealth'}
+	{116.667,0.135,inQuad,50,'stealthpastreceptors'}
+	{116.667,0.135,inQuad,-sh/4,'y'}
+	{116.792,1.208,inQuad,100,'tiny'}
+	{116.792,1.208,outQuad,-50,'flip'}
+	{116.792,1.208,outQuad,-50,'cross'}
+	{116.792,1.208,outQuad,-50,'reverse'}
+	{116.792,1.208,outQuad,sh,'y'}
+	{116.667,1.333,outQuad,45,'rotationz'}
+	{116.667,1.333,inQuad,sw*3/4,'x'}
+	plr = 1
+	set{120,100,'gayholds'}
+	ease
+	{116.667,1.333,outBack,200*pi,'confusionoffset'}
+	{116.667,0.25,outQuad,-100,'tiny'}
+	{116.917,0.75,inQuad,0,'tiny'}
+	{116.667,1.333,bounce,20,'rotationz'}
+	{118,1.5,bounce,-20,'rotationz'}
+	{119.5,0.5,bounce,10,'rotationz'}
+	{120,4,linear,360,'rotz'}
+	{120,2,outQuint,100,'flip'}
+	{122,2,outQuint,0,'flip'}
+	func {116,4,function(beat,poptions)
+    	poptions[1].drunk = math.sin((beat/2)*math.pi)*69
+	end}
+	func {116,8,function(beat,poptions)
+    	poptions[1].flip = poptions[1].flip + math.sin((beat/4)*math.pi)*10
+	end}
+	func {116,8,function(beat,poptions)
+    	poptions[1].x = poptions[1].x + math.sin((beat/4)*math.pi)*sw/16
+	end}
+	plr = nil
+	reset {124,exclude = {'x','xmod'}}
+	plr = 1
+	set {124,sw/4,'x'}
+	plr = 2
+	set {124,sw/2,'x'}
+	plr = nil
+	set {124,50,'tipsy',200,'tipsyspeed'}
+	ease 
+	{124,1,outBack,0,'x'}
+	{124,0.25,outQuad,30,'rotationz'}
+	{124.25,0.75,inQuad,0,'rotationz'}
+	{125,0.5,bounce,-15,'rotationz'}
+	{125.5,0.5,outQuad,0,'tipsy'}
+	for i = 125.5,125+5/6,1/6 do
+		if i%1/3 == 1/6 then
+			ease
+			{i,1/6,outQuad,-20,'split'}
+			{i,1/6,outQuad,10,'reverse'}
+		else
+			ease
+			{i,1/6,outQuad,20,'split'}
+			{i,1/6,outQuad,-10,'reverse'}
+		end
+	end
+	ease
+	{126,1/6,outQuad,0,'split'}
+	{126,1/6,outQuad,0,'reverse'}
+	{126.4,0.1,inQuad,80,'zoom'}
+	{126.5,0.25,outQuad,150,'zoom'}
+	{126.75,0.25,inQuad,75,'zoom'}
+	{127,0.5,outQuad,-25*pi,'confusionoffset'}
+	{127.5,0.25,outQuad,150,'zoom'}
+	{127.5,0.25,outQuad,-100,'tiny'}
+	{127.5,0.25,outQuad,25*pi,'confusionoffset'}
+	{127.75,1.25,inQuad,100,'zoom'}
+	{127.75,1.25,outQuad,0,'tiny'}
+	{127.75,1.25,inQuad,0,'confusionoffset'}
+	plr = 1
+	set {128.5,0.5,'wheelrotation',sw/4,'x'}
+	ease
+	{128.5,1.5,linear,1.5,'wheelrotation'}
+	{130.5,1.5,linear,0.5,'wheelrotation'}
+	plr = 2
+	set {128.5,-0.5,'wheelrotation',-sw/4,'x'}
+	ease
+	{128.5,1.5,linear,0.5,'wheelrotation'}
+	{130.5,1.5,linear,-0.5,'wheelrotation'}
+	plr = nil
+	set {128.5,160,'wheelsize'}
+	ease 
+	{128.5,1.5,linear,0,'wheelsize'}
+	{130.5,1.5,linear,160,'wheelsize'}
+	{130,1,bounce,125,'zoomy'}
+	-- CANDY☆ by Luv UNLIMITED
+	plr = 1
+	ease
+	{132,0.5,outQuad,sw*5/6,'x'}
+	{132,0.5,outQuad,-30,'rotationz'}
+	set {132.5,100,'stealth',100,'stealthpastreceptors'}
+	set {135,-sw*5/6,'x',30,'rotationz',0,'stealth',0,'stealthpastreceptors'}
+	ease
+	{135.5,0.5,outQuad,-sw/4,'x'}
+	{135.5,0.5,outQuad,0,'rotationz'}
+	plr = 2
+	add {132,4,linear,1,'wheelrotation'}
+	ease
+	{132,4,bounce,30,'rotationz'}
+	for i,v in ipairs(candyjump) do
+		ease
+		{v[1],0.25,outQuad,125,'zoom'}
+		{v[1]+0.25,0.25,inQuad,80,'zoom'}
+		ease
+		{v[1]+8,0.25,outQuad,125,'zoom'} -- I'm lazy
+		{v[1]+8.25,0.25,inQuad,80,'zoom'}
+	end
+	ease
+	{136,0.25,outQuad,100,'zoom'}
+	-- yeah the slumpage is gonna be harder
+	if slumpo then
+		drivendropplr = 2
+		normalplr = 1
+	else
+		drivendropplr = 1
+		normalplr = 2
+	end
+	plr = drivendropplr
+	ease
+	{136,0.5,inQuad,-10,'reverse'}
+	{136.5,0.5,outQuad,0,'reverse'}
+	{136.5,3,linear,900,'centered2'}
+	{136.5,3,linear,600*pi,'confusionoffset'}
+	plr = normalplr
+	ease
+	{136,0.5,outQuad,30,'rotationz'}
+	{136.5,0.5,inQuad,45,'rotationz'}
+	{137,0.5,outQuad,-30,'rotationz'}
+	{137.5,0.5,inQuad,-45,'rotationz'}
+	{138,0.5,outQuad,0,'rotationz'}
+	{138.292,0.208,outQuad,50,'tiny'}
+	{138.5,0.25,outQuad,-200,'tiny'}
+	{138.75,0.5,outQuad,0,'tiny'}
+	for i,v in ipairs(candytap) do
+		ease
+		{v[1],0.25,outQuad,-200,'tiny'..v[2]}
+		{v[1]+0.25,0.25,inQuad,0,'tiny'..v[2]}
+	end
+	-- the next section is going to have jej code because of the slumpage split
+	if slumpo then
+		set {140,sw/4,'x',-0.5,'wheelrotation'}
+		add {140,4,linear,1,'wheelrotation'}
+		ease {140,4,bounce,30,'rotationz'}
+		for i,v in ipairs(candyjump) do -- just because this is player 1
+			ease
+			{v[1]+8,0.25,outQuad,125,'zoom'} 
+			{v[1]+8.25,0.25,inQuad,80,'zoom'}
+		end
+		plr = 2
+		set {143,-sw*4/3,'x',0,'centered2',30,'rotationz'}
+		ease 
+		{143.5,0.5,outQuad,-sw*3/4,'x'}
+		{143.5,0.5,outQuad,0,'rotationz'}
+	else
+		add {140,4,linear,-1,'wheelrotation'}
+		ease {140,4,bounce,-30,'rotationz'}
+		plr = 1
+		set {143,sw*5/6,'x',0,'centered2',-30,'rotationz'}
+		ease 
+		{143.5,0.5,outQuad,sw*1/4,'x'}
+		{143.5,0.5,outQuad,0,'rotationz'}
+	end
+	-- at this point things are going to get too confusing so I'm resetting lmao
+	plr = nil
+	reset {144,exclude = {'xmod'}}
+	set {144,80,'zoom'}
+	ease 
+	{144,1,outQuad,100,'zoom'}
+	{144,0.5,outQuad,15,'rotationz'}
+	{144.5,0.5,inQuad,22.5,'rotationz'}
+	{145,0.5,outQuad,-15,'rotationz'}
+	{145.5,0.5,inQuad,-22.5,'rotationz'}
+	{146,0.5,outQuad,0,'rotationz'}
+	{146,1,outQuad,120,'zoomy'}
+	{147,0.5,outQuad,80,'zoomy'}
+	{147.5,0.25,outQuad,120,'zoomy'}
+	{147.75,0.25,inQuad,100,'zoomy'}
+	{147,0.5,inQuad,50,'zoom'}
+	{147.5,0.25,outQuad,150,'zoom'}
+	{147.75,1,inQuad,100,'zoom'}
+	plr = 1
+	ease 
+	{147.5,0.25,outQuad,-30,'rotationz'}
+	{147.75,3.25,inQuad,0,'rotationz'}
+	plr = 2
+	ease 
+	{147.5,0.25,outQuad,30,'rotationz'}
+	{147.75,3.25,inQuad,0,'rotationz'}
+	plr = nil
+	ease
+	{151,0.25,outQuad,100,'tiny2'}
+	{151,0.25,outQuad,100,'tiny3'}
+	{151.25,0.25,outQuad,100,'tiny0'}
+	{151.25,0.25,outQuad,100,'tiny1'}
+	for c = 0,3 do
+		ease {151.5,0.25,outQuad,0,'tiny'..c}
+	end
+	for i = 151.5,153.5 do
+		ease
+		{i-0.1,0.1,inQuad,50,'zoom'}
+		{i,0.25,outQuad,150,'zoom'}
+		{i+0.25,0.25,inQuad,100,'zoom'}
+	end
+	-- I totally didn't steal this idea from A Song About After The Rain
+	plr = 1
+	set {154,-0.5,'wheelrotation',sw/4,'x'}
+	plr = 2
+	set {154,0.5,'wheelrotation',-sw/4,'x'}
+	plr = nil
+	set {154,160,'wheelsize',200,'arrowpathdrawdistanceback',125,'drawdistance',125,'arrowpathdrawdistance',100,'arrowpathwidth',125,'drawdistanceback'}
+	add {154,32,linear,8,'wheelrotation'}
+	func {154,34,function(beat,poptions)
+    	poptions[1].drunk = math.sin((beat/4)*math.pi)*100
+		poptions[2].drunk = math.sin(-(beat/4)*math.pi)*100
+		poptions[1].tornado = math.sin(-(beat/4)*math.pi)*25
+		poptions[2].tornado = math.sin((beat/4)*math.pi)*25
+	end}
+	func {154,32,function(beat,poptions)
+		poptions[1].rotationz = math.sin(-((beat+2)/4)*math.pi)*22.5
+		poptions[2].rotationz = math.sin(((beat+2)/4)*math.pi)*22.5
+	end}
+	ease 
+	{155.5,0.25,outQuad,100,'arrowpath'}
+	{155.75,0.75,inQuad,50,'arrowpath'}
+	{155,0.5,inQuad,100,'tiny'}
+	{155.5,0.25,outQuad,-200,'tiny'}
+	{155.75,0.75,inQuad,0,'tiny'}
+	{155.5,0.25,outQuad,-10,'reverse'}
+	{155.75,0.75,inQuad,0,'reverse'}
+	for i = 170,171,0.5 do
+		ease
+		{i,0.125,outQuad,-20,'reverse'}
+		{i+0.125,0.375,inQuad,0,'reverse'}
+	end
+	for i,v in ipairs(wheeljump) do
+		ease
+		{v[1]-0.1,0.1,inQuad,90,'zoomy'}
+		{v[1],0.25,outQuad,125,'zoomy'}
+		{v[1]+0.25,0.25,inQuad,100,'zoomy'}
+	end
+	ease 
+	{171,0.292,inQuad,80,'zoom'}
+	{172,0.25,outQuad,120,'zoom'}
+	{172.25,0.25,inQuad,100,'zoom'}
+	{172.375,0.5,outQuad,220*pi,'confusionoffset'}
+	{172.875,0.375,inQuad,200*pi,'confusionoffset'}
+	{173.25,0,instant,0,'confusionoffset'}
+	{181.25,0.25,inQuad,50,'tiny'}
+	{181.5,0.25,outQuad,-150,'tiny'}
+	{181.75,0.5,inQuad,0,'tiny'}
+	{186,1,outQuad,200*pi,'confusionoffset'}
+	for i,v in ipairs(selfishtap) do
+		ease
+		{v[1]-0.15,0.15,inQuad,-5,'reverse'..v[2]}
+		{v[1],0.25,outQuad,10,'reverse'..v[2]}
+		{v[1]+0.25,0.25,outQuad,0,'reverse'..v[2]}
+	end
+	ease
+	{187,1,outQuad,0,'wheelsize'}
+	{187,1,outQuad,0,'arrowpath'}
+	--how to spoon
+	{188,1,bounce,30,'rotationz'}
+	{189,1,bounce,-30,'rotationz'}
+	for i = 188,189 do
+		ease
+		{i,1,bounce,-sw/8,'y'}
+		{i,1,bounce,-100,'tiny'}
+	end
+	ease
+	{190,0.5,outQuad,160,'wheelsize'}
+	plr = 1
+	ease
+	{190,0.396,outQuint,-30,'rotationz'}
+	{190.396,0.396,inQuad,0,'rotationz'}
+	{190.792,0.354,outQuad,30,'rotationz'}
+	{191.146,0.354,inQuad,-15,'rotationz'}
+	{193,0.5,inQuint,-30,'rotationz'}
+	plr = 2
+	ease
+	{190,0.396,outQuint,30,'rotationz'}
+	{190.396,0.396,inQuad,0,'rotationz'}
+	{190.792,0.354,outQuad,-30,'rotationz'}
+	{191.146,0.354,inQuad,15,'rotationz'}
+	{193,0.5,inQuint,30,'rotationz'}
+	plr = nil
+	ease
+	{190.792,0.708,bounce,-sw/8,'y'}
+	{190.792,0.708,bounce,-100,'tiny'}
+	{191.5,0.5,outQuad,0,'rotationz'}
+	{191.5,0.125,outQuad,10,'reverse'}
+	{191.625,0.375,inQuad,0,'reverse'}
+	{191.5,0.25,outQuad,75,'zoomy'}
+	{191.75,0.75,inQuad,100,'zoomy'}
+	{192.5,1,bounce,0,'wheelsize'}
+	{193.5,0.5,outQuint,200,'wheelsize'}
+	{194,0.5,inQuad,160,'wheelsize'}
+	{194,0.5,inQuad,0,'rotationz'}
+	{193.5,1,bounce,-sw/8,'y'}
+	{193.5,1,bounce,-100,'tiny'}
+	for i,v in ipairs(spoonspeen) do
+		ease
+		{v[1],0.25,outQuad,50,'tiny'..v[2]}
+		{v[1]+0.25,0.25,inQuad,0,'tiny'..v[2]}
+		{v[1],0.5,outQuad,200*pi,'confusionoffset'..v[2]}
+		{v[1]+0.5,0,instant,0,'confusionoffset'..v[2]}
+	end
+	set {196,69,'drunk',50,'drunkperiod'}
+	add {196,2,linear,-1,'wheelrotation'}
+	ease 
+	{196,2,linear,0,'wheelsize'}
+	{197.5,0.5,outQuad,0,'drunk'}
+	{198,0.5,bounce,-22.5,'rotationz'}
+	{198.5,0.5,bounce,22.5,'rotationz'}
+	{198.5,0.5,outQuad,120,'zoom'}
+	{199,1,linear,400*pi,'confusionoffset'}
+	{199,1,inQuad,50,'zoom'}
+	for i,v in ipairs(spoonjump) do
+		ease
+		{v[1],0.25,outQuad,110*(i^0.25),'zoom'}
+		{v[1]+0.25,0.25,outQuad,90*(i^0.1),'zoom'}
+		{v[1],0.25,outQuad,(22.5-(i*7.5))*1.5,'rotationz'}
+	end
+	ease
+	{203,0.292,outQuad,0,'rotationz'}
+	{203,0.292,outQuad,172.1,'zoom'}
+	{203.292,0.458,outQuint,60,'zoom'}
+	{203.75,0.5,inOutQuad,150,'zoom'}
+	{204.25,0.25,inQuad,100,'zoom'}
+	{203.292,0.708,inQuint,160,'wheelsize'}
+	add {204,8,linear,2,'wheelrotation'}
+	func {204,8,function(beat,poptions)
+    	poptions[1].drunk = math.sin((beat/4)*math.pi)*100
+		poptions[2].drunk = math.sin(-(beat/4)*math.pi)*100
+		poptions[1].tornado = math.sin(-(beat/4)*math.pi)*25
+		poptions[2].tornado = math.sin((beat/4)*math.pi)*25
+		poptions[1].rotationz = math.sin(-((beat+2)/4)*math.pi)*22.5
+		poptions[2].rotationz = math.sin(((beat+2)/4)*math.pi)*22.5
+	end}
+	ease
+	{204,0.25,outQuad,100,'arrowpath'}
+	{204.25,0.75,inQuad,50,'arrowpath'}
+	{209,1,inOutCubic,-10,'reverse'}
+	{210,0.5,inOutCubic,0,'reverse'}
+	plr = 1
+	set {212,22.5,'rotationz'}
+	ease 
+	{212,1.5,inQuint,-22.5,'rotationz'}
+	{213.5,0.25,outQuint,10,'rotationz'}
+	{212,1.5,inQuint,-22.5*pi,'confusionoffset'}
+	{213.5,0.25,outQuint,10*pi,'confusionoffset'}
+	plr = 2
+	set {212,-22.5,'rotationz'}
+	ease 
+	{212,1.5,inQuint,22.5,'rotationz'}
+	{213.5,0.25,outQuint,-10,'rotationz'}
+	{212,1.5,inQuint,22.5*pi,'confusionoffset'}
+	{213.5,0.25,outQuint,-10*pi,'confusionoffset'}
+	plr = nil
+	set {212,69,'drunk'}
+	ease
+	{212,0.5,outQuad,0,'arrowpath'}
+	{213.25,0.25,inQuad,50,'tiny'}
+	{213.5,0.25,outQuad,-100,'tiny'}
+	{213.75,0.5,inQuad,0,'tiny'}
+	{213.75,0.5,inQuad,0,'rotationz'}
+	{213.75,0.5,inQuad,0,'confusionoffset'}
+	{214.5,1.292,outQuad,0,'drunk'}
+	{214.5,1,inQuad,0,'wheelsize'}
+	{215.5,0.5,outQuad,160,'wheelsize'}
+	{214.5,1,inQuad,80,'zoom'}
+	{215.5,0.5,outQuad,100,'zoom'}
+	{214.5,1,inQuad,25,'flip'}
+	{215.5,0.5,outQuad,0,'flip'}
+	{218.5,0.5,outQuad,0,'rotationz'}
+	{218.5,0.5,outQuad,100,'zoom'}
+	for i,v in ipairs(spoonendtrumpet) do
+		ease
+		{v[1],0.25,outQuad,110*(i^0.25),'zoom'}
+		{v[1]+0.25,0.25,outQuad,90*(i^0.1),'zoom'}
+		{v[1],0.25,outQuad,(22.5-(i*7.5))*1.5,'rotationz'}
+	end
+	-- I have officially run out of ideas
+	ease
+	{219,1,inQuad,50,'zoom'}
+	{220,0.25,outQuad,150,'zoom'}
+	{220.25,0.75,inQuad,100,'zoom'}
+	{218.5,1,outQuad,0,'wheelsize'}
+	{219.5,0.5,inQuad,180,'wheelsize'}
+	{220,0.5,outQuad,160,'wheelsize'}
+	{240,4,linear,0,'wheelsize'}
+	{220,0.25,outQuad,100,'arrowpath'}
+	{220.25,0.75,inQuad,50,'arrowpath'}
+	{240,4,linear,0,'arrowpath'}
+	add
+	{218.5,1,outQuad,0.5,'wheelrotation'}
+	{219.5,0.5,inQuad,-0.5,'wheelrotation'}
+	{220,24,linear,-6,'wheelrotation'}
+	for i = 234,235,0.5 do
+		ease {i,0.5,bounce,-15,'reverse'}
+	end
+	ease
+	{236,0.5,bounce,135,'zoom'}
+	{238,0.792,outQuad,20*pi,'confusionoffset'}
+	{238.792,0.708,outQuad,-20*pi,'confusionoffset'}
+	{239.5,0.5,outQuad,220*pi,'confusionoffset'}
+	{240,0.5,inQuad,200*pi,'confusionoffset'}
+	{240.5,0,instant,0,'confusionoffset'}
+	func {220,24,function(beat,poptions)
+    	poptions[1].drunk = math.sin(-(beat/4)*math.pi)*100
+		poptions[2].drunk = math.sin((beat/4)*math.pi)*100
+		poptions[1].tornado = math.sin((beat/4)*math.pi)*25
+		poptions[2].tornado = math.sin(-(beat/4)*math.pi)*25
+		poptions[1].rotationz = math.sin((beat/4)*math.pi)*22.5
+		poptions[2].rotationz = math.sin(-(beat/4)*math.pi)*22.5
+	end}
+	-- OH FUCK YES IT'S FINALLY OVER MY SOUL IS LIFTED
+	add
+	{244,0.5,outQuad,-sw/4,'x'}
+	{244,0.5,outQuad,-10,'rotationz'}
+	for i,v in ipairs(endingjump) do
+		ease
+		{v[1]-0.1,0.1,inQuad,80,'zoom'}
+		{v[1],0.2,outQuad,120,'zoom'}
+		{v[1]+0.2,0.2,inQuad,100,'zoom'}
+	end
+	plr = 1
+	ease
+	{246,0.5,outQuad,sw/2,'x'}
+	{248,2,inOutSine,sw/4,'x'}
+	{246,0.5,outQuad,10,'rotationz'}
+	{248,1,inQuad,-10,'rotationz'}
+	plr = 2
+	ease
+	{248,2,inOutQuad,-sw/4,'x'}
+	{248,1,inQuad,10,'rotationz'}
+	plr = nil
+	ease
+	{249,1,outQuad,0,'rotationz'}
+	{249.75,0.25,outQuad,80,'zoom'}
+	{250,0.25,outQuint,125,'zoom'}
+	{250.25,0.25,inQuad,80,'zoom'}
+	{250.5,0.25,outQuint,150,'zoom'}
+	{250.75,0.25,inQuad,80,'zoom'}
+	{251,0.5,outQuad,200,'zoom'}
+	{251.5,0.5,inQuad,0,'zoom'}
+	set {248,100,'hidemines'}
+	set {252,100,'disablemines'} 
+	--spell the number card
+	function send_spellcards(cards)
+		if table.getn(cards) == 0 or tonumber(GAMESTATE:GetVersionDate()) < 20170714 then return false end
+		local s = GAMESTATE:GetCurrentSong()
+		s:SetNumSpellCards(table.getn(cards))
+		for i=1,table.getn(cards) do
+			local a = cards[i]
+			s:SetSpellCardTiming(i-1,a[1],a[2])
+			s:SetSpellCardName(i-1,a[3])
+			s:SetSpellCardDifficulty(i-1,a[4])
+			s:SetSpellCardColor(i-1,a[5][1],a[5][2],a[5][3],a[5][4])
+		end
+	end
+	spicycards = {
+		{20, 36, 'Whoa who turned up the heat', 6, {0xEE/255, 0x3C/255, 0x29/255, 1}},
+		{36, 68, 'Bursts? You mean Starbursts, don\'t you', 5, {0xBE/255, 0x2A/255, 0xD0/255, 1}},
+		{68, 100, 'How many ECFA 2021 points is this chart worth', 3553, {0xCE/255,0x0B/255,0x98/255,1}},
+		{100, 132, 'This isn\'t easy modo at all wtf rakkii', 8, {0xEB/255,0xC3/255,0x5A/255,1}},
+		{132, 155.5, 'The candy has melted and your legs have too', 9, {0xFF/255,0x80/255,0x4E/255,1}},
+		{155.5, 188, 'Treat Yourself Technically', 10, {0xF4/255, 0x54/255, 0x54/255, 1}},
+		{188, 220, 'A Spoonful of Your Kneecaps', 10, {0xFF/255,0x7A/255,0x9C/255,1}},
+		{220, 252, 'I once had a Mexican candy called Pulparindo\nand it might have inspired this chart', 10, {0xF6/255,0xDA/255,0x17/255,1}},						
+	}
+	spellcards = {
+		{20, 36, 'A Sweet Story', 3, {0xFC/255, 0x4C/255, 0x4B/255, 1}}, --done
+		{36, 68, 'Platonically Bittersweet', 1, {0x76/255, 0x5F/255, 0x49/255, 1}}, --done
+		{68, 100, 'Small Pralines', 2, {0xE3/255,0xBA/255,0x7E/255,1}}, --done
+		{100, 132, 'Caramel Playfulness', 3, {0xF2/255,0x8C/255,0x30/255,1}}, --done
+		{132, 155.5, 'Melted Candy, Melted Hearts', 4, {0xFF/255,0x80/255,0x4E/255,1}}, --done
+		{155.5, 188, 'Treat Yourself Selfishly', 5, {0xF4/255, 0x54/255, 0x54/255, 1}}, --done
+		{188, 220, 'A Spoonful of Your Happiness', 4, {0xFF/255,0x7A/255,0x9C/255,1}}, --selfish part 2
+		{220, 252, 'An Unforgettable Bite', 5, {0xFC/255,0x4C/255,0x4B/255,1}}, --put all the concepts together in one last section
+	}
+	if slumpo then
+		send_spellcards(spicycards)
+	else
+		send_spellcards(spellcards)
+	end
+	-- be sure to like, comment, and subscribe folks, and ring that notification bell
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type = "Quad" Name = "bg_black" />
+	<Layer Type = "Quad" Name = "bg_gradient" />
+	<Layer Type = "sprite" File = "cranberry" Name='bg_cranberry' />
+	<Layer Type = "sprite" File = "cookie" Name='bg_cookie' />
+	<Layer Type = "sprite" File = "hey" Name='bg_hey' />
+	<Layer Type = "sprite" File = "hey" Name='bg_hey2' />
+	<Layer Type = "sprite" File = "comeon" Name='bg_comeon' />
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	<Layer Type = "Quad" Name = "bg_flash" />
+</children></Mods>

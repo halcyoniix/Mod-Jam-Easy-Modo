@@ -1,0 +1,517 @@
+<Mods LoadCommand = "%xero(function(self)
+	m_bl = 60 / 90
+	function RealFov(fov)
+          return 360 / math.pi * math.atan(math.tan(math.pi * fov / 360) * DISPLAY:GetDisplayWidth() / DISPLAY:GetDisplayHeight() * 0.75)
+    end
+
+	-- players
+	for pn = 1, #P do
+		P[pn]:fov(RealFov(90))
+		P[pn]:xy(scx,scy)
+		P[pn]:hidden(1)
+		
+		if pn > 2 then
+			P[pn]:SetInputPlayer(1-pn%2)
+		end
+	end
+
+	-- judgment / combo proxies
+	for pn = 1, #P do
+		if pn < 3 then
+			setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+			setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+			
+			PJ[pn]:x( scx + 160*(pn*2-3) )
+			PJ[pn]:basezoomx(0.75)
+			PJ[pn]:basezoomy(0.75)
+
+			PC[pn]:x( scx + 160*(pn*2-3) )
+			PC[pn]:basezoomx(0.75)
+			PC[pn]:basezoomy(0.75)
+		else
+			P[pn]:GetChild('Judgment'):hidden(1)
+			P[pn]:GetChild('Combo'):hidden(1)
+			P[pn]:GetChild('Judgment'):sleep(9e9)
+			P[pn]:GetChild('Combo'):sleep(9e9)
+		end
+	end
+	
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+		if pn < 3 then
+			PP[pn]:xy(0,0)
+		end
+		if pn > 2 then
+			PP[pn]:xy(0, -2*sh)
+			PP[pn]:hidden(1)
+		end
+	end
+	
+	-- your code goes here here:
+	plr = {1,2,3,4}
+	setdefault{4, 'xmod', 400, 'overhead', 100, 'approachtype', 100, 'dizzyholds', 100, 'stealthpastreceptors', 100, 'modtimer', 100, 'halgun'}
+	plr = nil
+	-- your code goes here here:
+	
+	--background quad
+	backing:xywh(scx,scy,sw,sh)
+	backing:diffuse(0,0,0,1)
+	definemod{'backdiffuse', function(d)
+		backing:diffuse(d/100,d/100,d/100,1)
+	end}
+	
+	alt_back2af:xy(scx,scy)
+	alt_back2af:hidden(1)
+	for i = 1, #alt_backing2 do
+		local xpos, ypos = -scx + ((i-1)%8)*sw/8 + sw/16, -scy + (math.floor((i-1)/8))*sh/6 + sh/12
+		alt_backing2[i]:xy(xpos,ypos)
+		--alt_backing2[i]:zoomto(sw/8, sh/6)
+		alt_backing2[i]:diffuse(.18,.26,.27,1)
+		alt_backing2[i]:hidden(1)
+	end
+	
+	--Intro bg stuff
+	cool_introbg:xy(scx,scy)
+	cool_introbg:fov(RealFov(75))
+	
+	key:xy(0,0)
+	key:rotationx(-75)
+	key:zoom(6)
+	
+	ripple:xy(0,128)
+	ripple:z(-128)
+	ripple:rotationx(-80)
+	
+	--recursive aftstuff
+	aftsprite1:SetTexture(aft1:GetTexture())
+	
+	definemod{'raftzoom', 'raftalpha', function(zm, alpha) --recursive aft
+		aftsprite1:zoom(zm/100)
+		aftsprite1:diffusealpha(alpha/100)
+	end}
+	set{0, 100, 'raftzoom', 0, 'raftalpha'}
+	
+	aft1:hidden(1)
+	aftsprite1:hidden(1)
+	
+	--mang's blend thingy
+	blendsprite:SetTexture(blendaft:GetTexture())
+	blendsprite:GetShader():uniformTexture('sampler1', exc_col:GetTexture())
+	exc_col:hidden(1)
+	
+	alt_blendsprite2:SetTexture(blendaft:GetTexture())
+	alt_blendsprite2:GetShader():uniformTexture('sampler1', dodge_col:GetTexture())
+	alt_blendsprite2:ztestmode('writeonfail')
+	dodge_col:hidden(1)
+	alt_blendsprite2:hidden(1)
+	
+	definemod{'opacity_ex', 'opacity_dg', function(op_e, op_d)
+		blendsprite:GetShader():uniform1f('opacity',op_e/100)
+		alt_blendsprite2:GetShader():uniform1f('opacity',op_d/100)
+	end}
+	set{0, 95, 'opacity_ex', 95, 'opacity_dg'}
+	
+	--masking..?
+	alt_maskback:xywh(scx,scy,sw,sh)
+	alt_maskback:clearzbuffer(1)
+	alt_maskback:blend('noeffect')
+	alt_maskback:hidden(1)
+	
+	alt_keyholemask:xy(scx,scy)
+	alt_keyholemask:zwrite(1)
+	alt_keyholemask:blend('noeffect')
+	alt_keyholemask:hidden(1)
+	
+	alt_keyhole:xy(scx,scy)
+	alt_keyhole:diffuse(0,0,0,1)
+	alt_keyhole:hidden(1)
+	
+	--lazy transition white quad
+	wquad:xywh(scx,scy,sw,sh)
+	wquad:diffuse(1,1,1,0)
+	wquad:hidden(1)
+	
+	alt_wquad2:xywh(scx,scy,sw,sh)
+	alt_wquad2:diffuse(1,1,1,1)
+	alt_wquad2:ztestmode('writeonfail')
+	alt_wquad2:hidden(1)
+	
+	--starfield stuff
+	starfield:SetTexture(blendaft:GetTexture()) --reusing aft (might need to change if needed)
+	local function nextpow2(x)return math.pow(2, math.ceil(math.log(x)/math.log(2))) end
+	starfield:GetShader():uniform1f('vscale',DISPLAY:GetDisplayHeight()/nextpow2(DISPLAY:GetDisplayHeight()))
+	starfield:GetShader():uniform1f('hscale',DISPLAY:GetDisplayWidth()/nextpow2(DISPLAY:GetDisplayWidth()))
+	starfield:GetShader():uniform1f('speed', 3)
+	starfield:GetShader():uniform1f('glowRad', 0)
+	starfield:blend('add')
+	starfield:hidden(1)
+	
+	definemod{'starfalpha', function(alp)
+		starfield:diffusealpha(alp/100)
+	end}
+	
+	spikyaf:xy(scx,scy)
+	spikyaf:fov(RealFov(75))
+	spikyaf:zbuffer(1)
+	spikyaf:SetFarDist(9000)
+	
+	for i = 1, #spiky do
+		local xpos, ypos = 96*math.cos(2*math.pi*(i-1)/#spiky), 96*math.sin(2*math.pi*(i-1)/#spiky)
+	
+		spiky[i]:xy(xpos,ypos)
+		spiky[i]:z(384*(1-i))
+		spiky[i]:zoom(1)
+	end
+	spikyaf:hidden(1)
+	
+	--stars on the background
+	alt_staraf:xy(scx,scy)
+	alt_staraf:SetFarDist(1000)
+	alt_staraf:hidden(1)
+	
+	star = {}
+	function initstar(s)
+		table.insert(star, s)
+	end
+	
+	func {0, function() 
+		for i=1,#star do
+			local s = star[i]
+			s:SetTexture(star_tex:GetTexture())
+			s:basezoomy(1.1)
+			s:zoom( rand.float(0.01, 0.025) )
+
+			s:xy(rand.float(-scx, scx), rand.float(-2*scx, 0))
+			s:z(rand.float(-500, 500))
+
+			s:pulse()
+			s:effectperiod( math.random(2*100, 10*100)/100 )
+
+			s:diffuse(1, 1, .5, 1)
+		end
+	end}
+	
+	--another 3d model
+	alt_railaf:xy(scx, scy)
+	alt_railaf:fov(RealFov(90))
+	alt_railaf:SetFarDist(2900)
+	alt_railaf:hidden(1)
+	
+	local lrail_x,lrail_y = -0.55*sw, 150*(sh/480)
+	alt_lrailaf:xy(lrail_x, lrail_y)
+	alt_lrailaf:rotationy(90)
+	for i = 1, #alt_lrail do
+		local zm = 8
+	
+		alt_lrail[i]:xy(-100*zm*(i-1),0) --rail length : ~86pix at zoom 1 / ~344pix at zoom 4
+		alt_lrail[i]:rotationy(0)
+		alt_lrail[i]:rotationx(0)
+		alt_lrail[i]:zoom(zm)
+		alt_lrail[i]:zoomz(zm)
+	end
+	
+	local rrail_x,rrail_y = 0.55*sw, 150*(sh/480)
+	alt_rrailaf:xy(rrail_x, rrail_y)
+	alt_rrailaf:rotationy(90)
+	for i = 1, #alt_rrail do
+		local zm = 8
+	
+		alt_rrail[i]:xy(-100*zm*(i-1),0)
+		alt_rrail[i]:rotationy(0)
+		alt_rrail[i]:rotationx(0)
+		alt_rrail[i]:zoom(zm)
+		alt_rrail[i]:zoomz(zm)
+	end
+	
+	--wheels
+	alt_wheelaf:zbuffer(1)
+	alt_lwheel:xy(-0.55*sw+26.5*8,-150*(sh/480)-36)
+	alt_lwheel:z(-64)
+	alt_rwheel:xy( 0.55*sw-26.5*8,-150*(sh/480)-36)
+	alt_rwheel:z(-64)
+	
+	--water bg
+	alt_water:xywh(0, 250, 12*sw, 2*sh)
+	alt_water:z(-1200)
+	alt_water:zoomz(10)
+	alt_water:rotationx(-90)
+	alt_water:fadetop(0.9)
+	alt_water:customtexturerect(0,0,3,4)
+	alt_water:texcoordvelocity(0,-0.5)
+	
+	--time for fishing
+	alt_wave:SetTexture(aft1:GetTexture())
+	alt_wave:hidden(1)
+	
+	alt_hookaf:xy(scx,0)
+	alt_hook:xy(0,-scy)
+	alt_hook:diffuse(.5,.5,.5,1)
+	alt_hook:zoom(0.85)
+	alt_hook:hidden(1)
+	
+	--I forgot to add vignette????
+	alt_vig:xywh(scx,scy,sw,sh)
+	alt_vig:diffuse(0,0,0,0.4)
+	alt_vig:hidden(0)
+	
+	--ending title
+	alt_title:xy(scx,scy)
+	alt_title:zoom(0.75)
+	alt_title:hidden(1)
+	
+	--ending  time
+	if tonumber(GAMESTATE:GetVersionDate()) <= 20210711 then
+      GAMESTATE:SetSongEndTime(152.825 * GAMESTATE:GetMusicRate())
+    else
+      GAMESTATE:SetSongEndTime(152.825)
+    end
+	
+	--spellcards
+	card{15 ,  25, 'hey mang can I get uhh 0.5-2.0*(B-0.5)*(A-0.5)', 7, '#2F4447'}
+		{25 ,  37, 'starfield.frag strikes again', 7, '#274147'}
+		{37 ,  61, 'On A Rail (Half Life any%)', 7, '#1E3D46'}
+		{61 ,  85, 'F ISHing', 7, '#163946'}
+		{85 , 115, 'hey wanna see how hard i can squareoffset', 7, '#0D3646'}
+		{115, 139, 'Unlocked', 7, '#053346'}
+		{139, 187, 'The other side', 7, '#00283A'}
+		{187, 220, 'Altale', 7, '#002131'}
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer File = "mrcool909090/mrcool.xml"/>
+	<Layer File = "PlasticRainbow/plasticrainbow.xml"/>
+	
+	<Layer Type = "Quad" Name = "backing"/>
+	<Layer Type = "ActorFrame" Name = "alt_back2af"><children>
+		<Layer Type = "Quad" Name = "alt_backing2[1]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[2]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[3]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[4]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[5]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[6]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[7]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[8]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[9]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[10]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[11]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[12]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[13]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[14]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[15]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[16]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[17]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[18]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[19]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[20]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[21]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[22]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[23]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[24]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[25]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[26]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[27]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[28]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[29]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[30]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[31]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[32]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[33]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[34]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[35]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[36]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[37]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[38]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[39]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[40]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[41]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[42]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[43]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[44]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[45]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[46]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[47]"/>
+		<Layer Type = "Quad" Name = "alt_backing2[48]"/>
+	</children></Layer>
+	
+	<Layer Type = "Sprite" InitCommand = "%xero.sprite" Name = "aftsprite1"/>
+	
+	<Layer Type = "ActorFrame" Name = "alt_staraf"><children>
+		<Layer Type="Sprite" Texture="star" Name="star_tex" InitCommand="hidden,1" />
+	
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+		<Layer Type="Sprite" InitCommand="queuecommand,A" ACommand="%function(self) xero() initstar(self) end" />
+	</children></Layer>
+	
+	<Layer Type = "ActorFrame" Name = "alt_particleaf" InitCommand = "%function(self)
+		scx = SCREEN_CENTER_X
+		scy = SCREEN_CENTER_Y
+	
+		self:xy(scx,scy)
+		self:fov(45)
+		self:hidden(1)
+		
+		alt_particletable = {}
+		function alt_makeparticle(obj)
+			obj:hidden(1)
+			obj:xy(math.random(-SCREEN_WIDTH, SCREEN_WIDTH), math.random(-SCREEN_HEIGHT, SCREEN_HEIGHT))
+			obj:zoom(math.random() * 0.1 + 0.15)
+			obj:diffusealpha(math.random() * 0.25 + 0.15)
+			table.insert(alt_particletable, obj)
+		end
+		
+	end" FarDist="9E9"><children>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+		<Layer File = "bokeh.png" InitCommand = "%alt_makeparticle"/>
+	</children></Layer>
+	
+	<Layer Type = "ActorFrame" Name = "cool_introbg"><children>
+		<Layer File = "ripple.png" Name = "ripple"/>
+		<Layer File = "key.txt" Name = "key"/>
+	</children></Layer>
+	
+	<Layer Type = "ActorFrame" Name = "alt_hookaf"><children>
+		<Layer File = "hook.png" Name = "alt_hook"/>
+	</children></Layer>
+	
+	<Layer Type = "ActorFrame" Name = "spikyaf"><children>
+		<Layer File = "spiky.png" Name = "spiky[1]"/>
+		<Layer File = "spiky.png" Name = "spiky[2]"/>
+		<Layer File = "spiky.png" Name = "spiky[3]"/>
+		<Layer File = "spiky.png" Name = "spiky[4]"/>
+		<Layer File = "spiky.png" Name = "spiky[5]"/>
+		<Layer File = "spiky.png" Name = "spiky[6]"/>
+		<Layer File = "spiky.png" Name = "spiky[7]"/>
+		<Layer File = "spiky.png" Name = "spiky[8]"/>
+	</children></Layer>
+	
+	<Layer Type = "ActorFrame" Name = "alt_railaf"><children>
+		<Layer File = "water.png" Name = "alt_water"/>
+		<Layer Type = "ActorFrame" Name = "alt_lrailaf"><children>
+			<Layer File = "rail.txt" Name = "alt_lrail[1]"/>
+			<Layer File = "rail.txt" Name = "alt_lrail[2]"/>
+			<Layer File = "rail.txt" Name = "alt_lrail[3]"/>
+			<Layer File = "rail.txt" Name = "alt_lrail[4]"/>
+			<Layer File = "rail.txt" Name = "alt_lrail[5]"/>
+		</children></Layer>
+		<Layer Type = "ActorFrame" Name = "alt_rrailaf"><children>
+			<Layer File = "rail.txt" Name = "alt_rrail[1]"/>
+			<Layer File = "rail.txt" Name = "alt_rrail[2]"/>
+			<Layer File = "rail.txt" Name = "alt_rrail[3]"/>
+			<Layer File = "rail.txt" Name = "alt_rrail[4]"/>
+			<Layer File = "rail.txt" Name = "alt_rrail[5]"/>
+		</children></Layer>
+		<Layer Type = "ActorFrame" Name = "alt_wheelaf"><children>
+			<Layer File = "holder.png" Name = "alt_lwheel"/>
+			<Layer File = "holder.png" Name = "alt_rwheel"/>
+		</children></Layer>
+	</children></Layer>
+	
+	<Layer File = "title.png" Name = "alt_title"/>
+
+	<Layer Type = "ActorProxy" Name = "PP[1]"/>
+	<Layer Type = "ActorProxy" Name = "PP[2]"/>
+	<Layer Type = "ActorProxy" Name = "PP[3]"/>
+	<Layer Type = "ActorProxy" Name = "PP[4]"/>
+	<Layer Type = "ActorProxy" Name = "PC[1]"/>
+	<Layer Type = "ActorProxy" Name = "PC[2]"/>
+	<Layer Type = "ActorProxy" Name = "PJ[1]"/>
+	<Layer Type = "ActorProxy" Name = "PJ[2]"/>
+	
+	
+	<Layer File = "exc.png" Name = "exc_col"/>
+	<Layer File = "dodge.png" Name = "dodge_col"/>
+	<Layer Type = "ActorFrameTexture" InitCommand="%xero.aft" Name = "blendaft"/>
+	
+	<Layer Type = "Sprite" Frag = "shaders/exclusion.frag" InitCommand = "%xero.sprite" Name = "blendsprite"/>
+	<Layer Type = "Quad" Name = "alt_maskback"/>
+	<Layer File = "keyhole.png" Name = "alt_keyholemask"/>
+	<Layer File = "keyhole.png" Name = "alt_keyhole"/>
+	<Layer Type = "Sprite" Frag = "shaders/colordodge.frag" InitCommand = "%xero.sprite" Name = "alt_blendsprite2"/>
+	<Layer Type = "Quad" Name = "alt_wquad2"/>
+	<Layer Type = "Sprite" Frag = "shaders/starfield.frag" InitCommand = "%xero.sprite" Name = "starfield"/>
+	
+	<Layer Type = "ActorFrameTexture" InitCommand = "%xero.aft" Name = "aft1"/>
+	<Layer Type = "Sprite" Frag = "shaders/purupuru.frag" InitCommand = "%xero.sprite" Name = "alt_wave"/>
+	
+	<Layer File = "vignette.png" Name = "alt_vig"/>
+	<Layer Type = "Quad" Name = "wquad"/>
+</children></Mods>

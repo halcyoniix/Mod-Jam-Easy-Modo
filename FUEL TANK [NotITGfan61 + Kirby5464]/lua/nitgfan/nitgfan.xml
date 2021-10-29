@@ -1,0 +1,949 @@
+<Mods LoadCommand="%xero(function(self)
+	-- car ??????????????????????????????????????????????????????????????????????
+	
+	-- card {start, end, name, difficulty, color}
+	-- let's you add spellcards to a chart.
+	-- color can be in {r, g, b, a} or hexcode.
+	
+	-- Example:
+	-- card{0, 4, 'hit the jump (not clickbait)', 0, {1, 0, 0, 1}}
+	-- {227, 229, 'ejdehfdjkhnfjksjda', 20, '#FF0000'}
+	
+	local SineS, CubicS, QuintS, CircS, ElasticS, QuadS, QuartS, ExpoS, BackS, BounceS,
+	SineO, CubicO, QuintO, CircO, ElasticO, QuadO, QuartO, ExpoO, BackO, BounceO,
+	SineI, CubicI, QuintI, CircI, ElasticI, QuadI, QuartI, ExpoI, BackI, BounceI  
+	= inOutSine, inOutCubic, inOutQuint, inOutCirc, inOutElastic, inOutQuad, inOutQuart, inOutExpo, inOutBack, inOutBounce,
+	outSine, outCubic, outQuint, outCirc, outElastic, outQuad, outQuart, outExpo, outBack, outBounce,
+	inSine, inCubic, inQuint, inCirc, inElastic, inQuad, inQuart, inExpo, inBack, inBounce
+	local Smooth = inOutElastic.params(1, 1)
+	
+	Glass:zoomtowidth(SCREEN_WIDTH*1.5)
+	Glass:zoomtoheight(SCREEN_HEIGHT*1.5)
+	Glass:x(SCREEN_CENTER_X)
+	Glass:y(SCREEN_CENTER_Y)
+	Glass:vibrate()
+	Glass:effectperiod(0.25)
+	Glass:effectclock('beat')
+	
+	ascend = {
+	{21.250,0,2,length=0.750},
+	{23.250,0,2,length=0.750},
+	{37.250,0,2,length=0.750},
+	{39.250,0,2,length=0.750},
+	{101.250,0,2,length=0.750},
+	{103.250,0,2,length=0.750},
+	{117.250,0,2,length=0.750},
+	{119.250,0,2,length=0.750},
+	{197.250,0,2,length=0.750},
+	{199.250,0,2,length=0.750},
+	{213.250,0,2,length=0.750},
+	{215.250,0,2,length=0.750},
+	}
+	
+	funkybeat = {
+	{13.000,3,1},
+	{14.000,0,1},
+	{15.000,3,1},
+	{16.000,0,1},
+	{17.000,3,1},
+	{18.000,0,1},
+	{20.000,0,1},
+	{21.000,3,1},
+	{22.000,0,1},
+	{23.000,3,1},
+	{24.000,0,1},
+	{25.000,3,1},
+	{26.000,0,1},
+	{28.000,0,1},
+	{29.000,3,1},
+	{30.000,0,1},
+	{31.000,3,1},
+	{32.000,0,1},
+	{33.000,3,1},
+	{34.000,0,1},
+	}
+	
+	bwomp = {
+	{12.000,0,1},
+	{28.000,0,1},
+	{92.000,0,1},
+	{108.000,0,1},
+	{124.000,0,1},
+	{140.000,0,1},
+	{220.000,0,1},
+	{236.000,0,1},
+	}
+	
+	bwamp = {
+	{125.000,0,2,length=1.000},
+	{126.000,3,2,length=0.750},
+	{126.750,0,2,length=0.750},
+	{127.500,3,2,length=0.750},
+	{128.250,0,2,length=0.750},
+	{129.000,3,2,length=0.667},
+	{129.667,0,2,length=0.833},
+	{130.500,3,2,length=0.750},
+	{131.250,0,2,length=0.750},
+	{141.000,0,2,length=1.000},
+	{142.000,3,2,length=0.750},
+	{142.750,0,2,length=0.750},
+	{143.500,3,2,length=0.750},
+	{144.250,0,2,length=0.750},
+	{145.000,3,2,length=0.667},
+	{145.667,0,2,length=0.833},
+	{146.500,3,2,length=0.750},
+	{147.250,0,2,length=0.750},
+	{221.000,0,2,length=1.000},
+	{222.000,3,2,length=0.750},
+	{222.750,0,2,length=0.750},
+	{223.500,3,2,length=0.750},
+	{224.250,0,2,length=0.750},
+	{225.000,3,2,length=0.667},
+	{225.667,0,2,length=0.833},
+	{226.500,3,2,length=0.750},
+	{227.250,0,2,length=0.750},
+	{237.000,0,2,length=1.000},
+	{238.000,3,2,length=0.750},
+	{238.750,0,2,length=0.750},
+	{239.500,3,2,length=0.750},
+	{240.250,0,2,length=0.750},
+	{241.000,3,2,length=0.667},
+	{241.667,0,2,length=0.833},
+	{242.500,3,2,length=0.750},
+	{243.250,0,2,length=0.750},
+	}
+	
+	murder = {
+	{124.000,0,1},
+	{126.000,3,1},
+	{128.000,0,1},
+	{130.000,3,1},
+	{131.000,0,1},
+	{131.500,3,1},
+	{132.000,0,1},
+	{134.000,3,1},
+	{140.000,0,1},
+	{142.000,3,1},
+	{144.000,0,1},
+	{146.000,3,1},
+	{147.000,0,1},
+	{147.500,3,1},
+	{220.000,0,1},
+	{222.000,3,1},
+	{224.000,0,1},
+	{226.000,3,1},
+	{227.000,0,1},
+	{227.500,3,1},
+	{228.000,0,1},
+	{230.000,3,1},
+	{236.000,0,1},
+	{238.000,3,1},
+	{240.000,0,1},
+	{242.000,3,1},
+	{243.000,0,1},
+	{243.500,3,1},
+	}
+	
+	danceflow = {
+	{124.750,0,1},
+	{126.750,0,1},
+	{128.750,0,1},
+	{132.750,0,1},
+	{134.750,0,1},
+	{140.750,0,1},
+	{142.750,0,1},
+	{144.750,0,1},
+	{220.750,0,1},
+	{222.750,0,1},
+	{224.750,0,1},
+	{228.750,0,1},
+	{230.750,0,1},
+	{236.750,0,1},
+	{238.750,0,1},
+	{240.750,0,1},
+	}
+	
+	scratch = {
+	{191.250,0,2,length=0.500},
+	{196.250,3,2,length=0.500},
+	{198.250,3,2,length=0.500},
+	{207.250,3,2,length=0.500},
+	{212.250,0,2,length=0.500},
+	{213.250,0,2,length=0.500},
+	{214.250,0,2,length=0.500},
+	{215.250,0,2,length=0.500},
+	{216.250,0,2,length=0.500},
+	{217.250,0,2,length=0.500},
+	{218.250,0,2,length=0.500},
+	}
+	
+	lazer = {
+	{189.000,0,1},
+	{189.500,3,1},
+	{190.000,0,1},
+	{190.750,3,1},
+	{192.000,0,1},
+	{192.500,3,1},
+	{193.000,0,1},
+	{193.500,3,1},
+	{194.000,0,1},
+	{194.750,3,1},
+	{205.000,0,1},
+	{205.500,3,1},
+	{206.000,0,1},
+	{206.750,3,1},
+	{208.000,0,1},
+	{208.500,3,1},
+	{208.750,0,1},
+	{209.000,3,1},
+	{209.500,0,1},
+	{210.000,3,1},
+	{210.500,0,1},
+	{211.000,3,1},
+	{211.500,0,1},
+	}
+	
+	click = {
+	{194.000,0,1},
+	{194.167,3,1},
+	{194.667,0,1},
+	{202.000,3,1},
+	{202.167,0,1},
+	{202.333,3,1},
+	{202.500,0,1},
+	{210.000,0,1},
+	{210.167,3,1},
+	{210.677,0,1},
+	{218.000,3,1},
+	{218.167,0,1},
+	{218.333,3,1},
+	{218.500,0,1},
+	}
+	
+	descend = {
+	{133.250,0,2,length=0.750},
+	{135.250,0,2,length=0.750},
+	{229.250,0,2,length=0.750},
+	{231.250,0,2,length=0.750},
+	}
+	
+	tap = {
+	{194.000,0,1},
+	{194.250,1,1},
+	{194.750,0,1},
+	{202.000,0,1},
+	{202.167,1,1},
+	{202.333,0,1},
+	{202.500,1,1},
+	{210.250,0,1},
+	{210.750,1,1},
+	{218.000,0,1},
+	{218.167,1,1},
+	{218.333,0,1},
+	{218.500,1,1},
+	}
+	
+	wamp = {
+	{165.000,0,1},
+	{165.250,3,1},
+	{165.500,0,1},
+	{166.000,3,1},
+	{166.500,0,1},
+	{167.000,3,1},
+	{169.000,0,1},
+	{169.500,3,1},
+	{261.000,0,1},
+	{261.250,3,1},
+	{261.500,0,1},
+	{262.000,3,1},
+	{262.500,0,1},
+	{263.000,3,1},
+	{265.000,0,1},
+	{265.500,3,1},
+	}
+	
+	womp = {
+	{180.500,0,1},
+	{180.750,3,1},
+	{181.000,0,1},
+	{181.250,3,1},
+	{181.500,0,1},
+	{182.000,3,1},
+	{182.500,0,1},
+	{183.000,3,1},
+	{276.500,0,1},
+	{276.750,3,1},
+	{277.000,0,1},
+	{277.250,3,1},
+	{277.500,0,1},
+	{278.000,3,1},
+	{278.500,0,1},
+	{279.000,3,1},
+	}
+	
+	card{0, 43, 'arrrows be groovin', 4, {1, 0, 0, 1}}
+	card{124, 151, 'second degree murder of the dance floor', 9, {1, 0, 0, 1}}
+	card{184, 219, 'fuck you im going to break your screen', 6, {1, 0, 0, 1}}
+	card{220, 247, 'first degree murder of the dance floor', 9, {1, 0, 0, 1}}
+	
+	definemod {'shakex','shakey','shakez', function(p,p2,p3)
+		for pn = 1,2 do
+		P[pn]:vibrate()
+		P[pn]:effectperiod(0.25)
+		P[pn]:effectclock('beat')
+		P[pn]:effectmagnitude(p,p2,p3)
+		end
+	end}
+	
+	definemod {'bgzoom','bgkick', function(p,pp)
+		TankBg:zoom(1+p+pp)
+	end}
+	
+	definemod {'bgrotx','bgroty','bgrotz', function(p,pp,ppp)
+		TankBg:rotationx(p)
+		TankBg:rotationy(pp)
+		TankBg:rotationz(ppp)
+	end}
+	
+	definemod {'glassdiffuse', function(ass)
+		Glass:diffusealpha(ass)
+	end}
+	
+	local function bgkick(beat,len,step)
+		for i = beat, beat+len, step do
+			kick(i,0.25,0.5,'Quart','Quart',0,0.3,'bgkick')
+		end
+	end
+	
+	local function gun(beat)
+		kick(beat,0.5,1,'Expo','Back',0,500,'z')
+		kick(beat,0.5,1,'Expo','Back',0,-500,'tinyx')
+		kick(beat,0.5,1,'Expo','Back',0,-500,'tinyy')
+	end
+	
+	local function zoomkick(beat,len)
+		for i = beat, beat+len do
+			kick(i,0.5,1,'Expo','Expo',100,200,'zoomx')
+		end
+	end
+	
+	local function clicktransition(beat)
+		kick(beat,0.5,1,'Expo','Expo',100,200,'zoomx')
+		kick(beat+0.5,0.5,1,'Expo','Expo',100,200,'zoomx')
+		kick(beat+1,0.5,1,'Expo','Expo',100,200,'zoomx')
+		kick(beat+1.5,0.5,1,'Expo','Expo',100,200,'zoomx')
+		bgkick(beat,2,0.5)
+		ease {beat, 4, SineS, -200, 'mini'}
+		wiggle(beat, 2, 0.5, bounce, 100, 'drunk')
+		wiggle(beat+2, 2, 0.125, bounce, 100, 'drunk')
+		ease2 (beat+4, 1, QuartS, 0, 'mini')
+	end
+	
+	
+----------------------- mods start here
+	
+	clicktransition(148)
+	clicktransition(244)
+	
+	bgkick(93,107-93,1)
+	
+	bgkick(109,10,1)
+	
+	bgkick(120,3,0.5)
+	
+	bgkick(200,2,1)
+	
+	gun(164)
+	gun(180)
+	gun(260)
+	gun(276)
+	
+	zoomkick(156,161-156)
+	zoomkick(164,161-156)
+	zoomkick(172,183-172)
+	
+	zoomkick(252,161-156)
+	zoomkick(260,161-156)
+	zoomkick(268,183-172)
+	
+	
+	ease {76, 8, outSine, 200, 'z'}
+	ease {76, 8, outSine, 30, 'stealth'}
+	ease2 (88, 1, QuartS, 0, 'z')
+	ease2 (88, 1, QuartS, 0, 'stealth')
+	
+	mod_bounce(88,4,0, 1,'bgzoom','Expo','Expo')
+	
+	ease2 (90, 2, flip(ExpoS), 360, 'bgrotz')
+	ease2 (90, 2, flip(ExpoS), 360, 'rotationz')
+	
+	
+	ease2 (139, 1, QuartS, 100, 'flip')
+	ease2 (140, 1, QuartS, 0, 'flip')
+	
+	ease2 (203, 1, QuartS, 100, 'flip')
+	ease2 (204, 1, QuartS, 0, 'flip')
+	
+	ease2 (219, 1, QuartS, 100, 'flip')
+	ease2 (220, 1, QuartS, 0, 'flip')
+	
+	ease2 (235, 1, QuartS, 100, 'flip')
+	ease2 (236, 1, QuartS, 0, 'flip')
+	
+	ease2 (152, 3, flip(QuartS), 360, 'rotationz')
+	ease2 (152, 3, flip(QuartS), 360, 'bgrotz')
+	kick(152,0.5,3,'Quart','Cubic',0, 50,'shakex')
+	kick(152,0.5,3,'Quart','Sine',0, 350,'tipsy')
+	kick(152,0.5,3,'Quart','Sine',0, 100,'centered')
+	kick(152,0.5,3,'Quart','Sine',0, -700,'tiny')
+	mod_bounce(152,2,0, 300,'z','Expo','Expo')
+	mod_bounce(152,2,0, 1,'bgzoom','Expo','Sine')
+	
+	
+	ease2 (248, 3, flip(QuartS), -360, 'rotationz')
+	ease2 (248, 3, flip(QuartS), -360, 'bgrotz')
+	kick(248,0.5,3,'Quart','Cubic',0, 50,'shakex')
+	kick(248,0.5,3,'Quart','Sine',0, 350,'tipsy')
+	kick(248,0.5,3,'Quart','Sine',0, -700,'tiny')
+	mod_bounce(248,2,0, 300,'z','Expo','Expo')
+	mod_bounce(248,2,0, 1,'bgzoom','Expo','Sine')
+	
+	
+	local f = 1
+	for i =1, table.getn(ascend) do
+	local beat = ascend[i][1]
+		ease {beat, 0.75, outCubic, -300, 'mini'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'mini'}
+		
+		ease {beat, 0.75, outCubic, 35, 'flip'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'flip'}
+		
+		ease {beat, 0.75, outCubic, 50, 'brake'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'brake'}
+		
+		ease {beat, 0.75, outCubic, 0.3, 'bgzoom'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'bgzoom'}
+		
+		ease {beat, 0.75, outCubic, 25, 'stealth'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'stealth'}
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i =1, table.getn(funkybeat) do
+	local beat = funkybeat[i][1]
+	local col = funkybeat[i][2]
+		if col == 3 then
+			mod_kick(beat,1,100, 175,'zoomx','Quart','Back')
+		end
+		BeatX(beat,250)
+		kick(beat,0.25,0.25,'Quart','Quart',0, 0.2,'bgkick')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(bwomp) do
+	local beat = bwomp[i][1]
+		ease {beat, 1.25, flip(outElastic.params(1, 0.05)), 500, 'movex'}
+		ease {beat, 1, flip(outCubic), -10000, 'tinyz'}
+		ease2 (beat, 1, inverse, -500, 'z')
+		ease2 (beat, 1, QuartS, -0.5, 'bgzoom')
+		ease2 (beat+1, 1, QuartS, 0, 'bgzoom')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(wamp) do
+	local beat = wamp[i][1]
+		kick(beat,0.25,0.25,'Cubic','Quart',100, 150,'zoom')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(womp) do
+	local beat = womp[i][1]
+		kick(beat,0.25,0.25,'Quart','Quart',100, 75,'zoom')
+	f = f*-1
+	end
+	
+	add2 (13, 1, CubicS, 25, 'mini')
+	add2 (14, 1, CubicS, 25, 'mini')
+	add2 (15, 1, CubicS, 25, 'mini')
+	add2 (16, 1, CubicS, 25, 'mini')
+	add2 (17, 1, CubicS, 25, 'mini')
+	add2 (18, 1, CubicS, 25, 'mini')
+	ease2 (19, 1, CubicS, 0, 'mini')
+	
+	
+	add2 (29, 1, CubicS, 25, 'mini')
+	add2 (30, 1, CubicS, 25, 'mini')
+	add2 (31, 1, CubicS, 25, 'mini')
+	add2 (32, 1, CubicS, 25, 'mini')
+	add2 (33, 1, CubicS, 25, 'mini')
+	add2 (34, 1, CubicS, 25, 'mini')
+	ease2 (35, 1, CubicS, 0, 'mini')
+	
+	
+	add2 (13, 1, CubicS, 0.125, 'bgzoom')
+	add2 (14, 1, CubicS, 0.125, 'bgzoom')
+	add2 (15, 1, CubicS, 0.125, 'bgzoom')
+	add2 (16, 1, CubicS, 0.125, 'bgzoom')
+	add2 (17, 1, CubicS, 0.125, 'bgzoom')
+	add2 (18, 1, CubicS, 0.125, 'bgzoom')
+	ease2 (19, 1, CubicS, 0, 'bgzoom')
+	
+	add2 (29, 1, CubicS, 0.125, 'bgzoom')
+	add2 (30, 1, CubicS, 0.125, 'bgzoom')
+	add2 (31, 1, CubicS, 0.125, 'bgzoom')
+	add2 (32, 1, CubicS, 0.125, 'bgzoom')
+	add2 (33, 1, CubicS, 0.125, 'bgzoom')
+	add2 (34, 1, CubicS, 0.125, 'bgzoom')
+	ease2 (35, 1, CubicS, 0, 'bgzoom')
+	
+	
+	ease2 (13, 1, QuartS, 15, 'rotationz')
+	ease2 (14, 1, QuartS, -15, 'rotationz')
+	ease2 (15, 1, QuartS, 15, 'rotationz')
+	ease2 (16, 1, QuartS, -15, 'rotationz')
+	ease2 (17, 1, QuartS, 15, 'rotationz')
+	ease2 (18, 1, QuartS, -15, 'rotationz')
+	ease2 (19, 1, QuartS, 0, 'rotationz')
+	
+	ease2 (29, 1, QuartS, -15, 'rotationz')
+	ease2 (30, 1, QuartS, 15, 'rotationz')
+	ease2 (31, 1, QuartS, -15, 'rotationz')
+	ease2 (32, 1, QuartS, 15, 'rotationz')
+	ease2 (33, 1, QuartS, -15, 'rotationz')
+	ease2 (34, 1, QuartS, 15, 'rotationz')
+	ease2 (35, 1, QuartS, 0, 'rotationz')
+	
+	
+	set{0,200,'mini'}
+	add2 (8, 1, CubicS, -50, 'mini')
+	add2 (9, 1, CubicS, -50, 'mini')
+	add2 (10, 1, CubicS, -50, 'mini')
+	add2 (11, 1, CubicS, -50, 'mini')
+	
+	set{0,-1,'bgzoom'}
+	add2 (8, 1, CubicS, 0.25, 'bgzoom')
+	add2 (9, 1, CubicS, 0.25, 'bgzoom')
+	add2 (10, 1, CubicS, 0.25, 'bgzoom')
+	add2 (11, 1, CubicS, 0.25, 'bgzoom')
+	
+	
+	ease2 (19.5, 1, ExpoS, 100, 'reverse')
+	ease2 (27.5, 1, ExpoS, 0, 'reverse')
+	
+	--ease2 (12, 1, ExpoS, 100, 'flip')
+	--ease2 (13, 1, ExpoS, 0, 'flip')
+	
+	
+	kick(20,0.25,1,'Quart','Quart',0,-500,'tiny')
+	kick(22,0.25,1,'Quart','Quart',0,-500,'tiny')
+	kick(36,0.25,1,'Quart','Quart',0,-500,'tiny')
+	kick(38,0.25,1,'Quart','Quart',0,-500,'tiny')
+	
+	ease {40, 2, outElastic.params(1, 0.25), 50, 'confusionoffset'}
+	ease {40.5, 2, outElastic.params(1, 0.25), -50, 'confusionoffset'}
+	ease {41, 2, outElastic.params(1, 0.25), 50, 'confusionoffset'}
+	ease {41.5, 2, outElastic.params(1, 0.25), -50, 'confusionoffset'}
+	
+	ease {40, 2, outElastic.params(1, 0.25), 50, 'tipsy'}
+	ease {40.5, 2, outElastic.params(1, 0.25), -50, 'tipsy'}
+	ease {41, 2, outElastic.params(1, 0.25), 25, 'skewx'}
+	ease {41.5, 2, outElastic.params(1, 0.25), -25, 'skewx'}
+	
+	--kick(20,0.25,1,'Quart','Quart',0,-500,'tiny')
+	
+	ease {42, 1, outElastic.params(1, 0.5), 0, 'skewx', 0, 'tipsy',0,'confusionoffset'}
+	
+	kick(40,0.5,1,'Expo','Back',0,500,'z')
+	kick(40,0.5,1,'Expo','Back',0,0.5,'bgkick')
+	
+	
+	func {44-1, 2, ExpoS, scy, scy*3, function(p) TankBg:y(p) end}
+	func {87.5, 1, instant, scy, scy, function(p) TankBg:y(p) end}
+	ease2 (88, 1, flip(ExpoS), -1, 'bgzoom')
+	
+	kick(35,0.5,1,'Expo','Expo',100,500,'zoomx')
+	
+	local f = 1
+	for i=36,39 do
+		kick(i,0.25,0.5,'Quart','Quart',0,500*f,'tipsy')
+	f = f * -1
+	end
+	
+	ease2 (42, 0.5, CubicS, 100, 'reverse')
+	ease2 (43.5, 0.5, CubicS, 0, 'reverse')
+	
+	ease2 (42.5, 1, ExpoS, 100, 'invert')
+	ease2 (43, 1, ExpoS, 0, 'invert')
+	
+	ease2 (44, 0.75, inverse, 500, 'movey')
+	
+--------------------- section 4 and 7 --------------------------
+	
+	set{124,500,'zoomz'}
+	
+	local f = 1
+	for i =1, table.getn(bwamp) do
+	local beat = bwamp[i][1]
+	local shit = bwamp[i].length
+		ease {beat, shit, flip(outSine), 150, 'mini'}
+		ease {beat, shit, flip(outSine), -1, 'bgzoom'}
+		ease {beat, shit, flip(outSine), 20*f, 'rotationz'}
+		ease {beat, shit, flip(outSine), 10*f, 'bgrotz'}
+		ease {beat, shit, flip(outSine), 50, 'brake'}
+		ease {beat, shit, flip(linear), -300, 'tiny'}
+		ease {beat, shit, flip(linear), 15, 'stealth'}
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(murder) do
+	local beat = murder[i][1]
+	local col = murder[i][2]
+		if col == 0 then
+			--ease2 (beat, 0.5, ExpoS, 100, 'invert')
+		elseif col == 3 then
+			--ease2 (beat, 0.5, ExpoS, 0, 'invert')
+		end
+		--BeatX(beat,250)
+		--kick(beat,0.25,0.25,'Quart','Quart',0, 0.2,'bgkick')
+		ease2 (beat, 1, Smooth, 10*f, 'rotationy')
+		ease2 (beat, 1, Smooth, -15*f, 'skewy')
+		ease2 (beat, 1, Smooth, -30*f, 'skewx')
+		ease2 (beat, 1, Smooth, 15*f, 'noteskewy')
+		ease2 (beat, 1, Smooth, 30*f, 'noteskewx')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(danceflow) do
+	local beat = danceflow[i][1]
+	local col = danceflow[i][2]
+		if col == 0 then
+			ease2 (beat, 0.75, ExpoS, 100, 'invert')
+			ease2 (beat+0.5, 0.75, ExpoS, 0, 'invert')
+		elseif col == 3 then
+			--ease2 (beat, 1, Smooth, 0, 'flip')
+		end
+		--BeatX(beat,250)
+		--kick(beat,0.25,0.25,'Quart','Quart',0, 0.2,'bgkick')
+		--ease2 (beat, 1, QuartS, 20*f, 'rotationx')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(descend) do
+	local beat = descend[i][1]
+		ease {beat, 0.75, outCubic, -1000, 'z'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'z'}
+		
+		
+		ease {beat, 0.75, outCubic, 50, 'brake'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'brake'}
+		
+		ease {beat, 0.75, outCubic, -0.5, 'bgzoom'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'bgzoom'}
+		
+		ease {beat, 0.75, outCubic, -5000, 'tinyz'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'tinyz'}
+		ease {beat, 0.75, outCubic, -500, 'tiny'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'tiny'}
+		
+		ease {beat, 0.75, outCubic, 25, 'stealth'}
+		ease {beat+0.75, 1, outElastic.params(1, 1), 0, 'stealth'}
+	f = f*-1
+	end
+	
+	ease2 (136, 1, ExpoS, 0, 'rotationy')
+	ease2 (136, 1, ExpoS, 0, 'skewy')
+	ease2 (136, 1, ExpoS, 0, 'skewx')
+	ease2 (136, 1, ExpoS, 0, 'noteskewy')
+	ease2 (136, 1, ExpoS, 0, 'noteskewx')
+	
+	ease2 (148, 1, ExpoS, 0, 'rotationy')
+	ease2 (148, 1, ExpoS, 0, 'skewy')
+	ease2 (148, 1, ExpoS, 0, 'skewx')
+	ease2 (148, 1, ExpoS, 0, 'noteskewy')
+	ease2 (148, 1, ExpoS, 0, 'noteskewx')
+	
+	ease2 (232, 1, ExpoS, 0, 'rotationy')
+	ease2 (232, 1, ExpoS, 0, 'skewy')
+	ease2 (232, 1, ExpoS, 0, 'skewx')
+	ease2 (232, 1, ExpoS, 0, 'noteskewy')
+	ease2 (232, 1, ExpoS, 0, 'noteskewx')
+	
+	ease2 (244, 1, ExpoS, 0, 'rotationy')
+	ease2 (244, 1, ExpoS, 0, 'skewy')
+	ease2 (244, 1, ExpoS, 0, 'skewx')
+	ease2 (244, 1, ExpoS, 0, 'noteskewy')
+	ease2 (244, 1, ExpoS, 0, 'noteskewx')
+	
+	
+	
+	for i = 124,147 do
+		kick(i,0.25,0.25,'Quart','Quart',100,200,'zoomx')
+		kick(i,0.25,0.5,'Quart','Quart',0,0.15,'bgkick')
+	end
+	
+	func{124.01,function()
+		for pn = 1,2 do
+			P[pn]:x(SCREEN_CENTER_X)
+		end
+	end}
+	
+	
+	mod_bounce(132,2,0, 100,'movex','Expo','Expo')
+	mod_bounce(134,2,0, -100,'movex','Expo','Expo')
+	
+	mod_bounce(228,2,0, 100,'movex','Expo','Expo')
+	mod_bounce(230,2,0, -100,'movex','Expo','Expo')
+	
+	for i = 220,220+23 do
+		kick(i,0.25,0.25,'Quart','Quart',100,200,'zoomx')
+		kick(i,0.25,0.5,'Quart','Quart',0,0.15,'bgkick')
+	end
+	
+	mod_bounce(136,4,0, 0.5,'bgzoom','Cubic','Expo')
+	mod_bounce(136,4,0, 70,'brake','Cubic','Expo')
+	mod_bounce(136,4,0, 70,'movez','Cubic','Expo')
+	wiggle(136-0.5, 4, 1, CubicS, 15, 'rotationz')
+	
+	mod_bounce(232,4,0, 0.5,'bgzoom','Cubic','Expo')
+	mod_bounce(232,4,0, 70,'brake','Cubic','Expo')
+	mod_bounce(232,4,0, 70,'movez','Cubic','Expo')
+	wiggle(232-0.5, 4, 1, CubicS, -15, 'rotationz')
+	
+	
+	mod_bounce(24,4,0, 0.5,'bgzoom','Cubic','Expo')
+	mod_bounce(24,4,0, 70,'brake','Cubic','Expo')
+	mod_bounce(24,4,0, 150,'z','Cubic','Expo')
+	mod_bounce(24,4,0, -150,'tiny','Cubic','Expo')
+	wiggle(24-0.5, 4, 1, CubicS, -15, 'rotationz')
+	
+	ease2 (186, 0.25, CubicS, 100, 'invert')
+	ease2 (186.25, 0.25, CubicS, 0, 'invert')
+	ease2 (186.5, 0.25, CubicS, 100, 'invert')
+	ease2 (186.75, 0.25, CubicS, 0, 'invert')
+	ease2 (187, 0.25, CubicS, 100, 'invert')
+	ease2 (187.5, 0.25, CubicS, 0, 'invert')
+	
+--------------------------------------- section 6 -------------------------------------------------
+	
+	
+	local f = 1
+	for i =1, table.getn(scratch) do
+	local beat = scratch[i][1]
+	local shit = scratch[i].length
+		wiggle(beat-0.25, shit*2, 0.25, outCubic, 15*f, 'rotationz')
+		wiggle(beat-0.25, shit*2, 0.25, outCubic, 15*f, 'bgrotz')
+		
+		if beat > 211 then
+		add2 (beat, 1, Smooth, 0.1, 'bgkick')
+		add2 (beat, 1, Smooth, 50, 'z')
+		end
+		
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(lazer) do
+	local beat = lazer[i][1]
+		--ease2 (beat, 1, inOutElastic.params(1, 0.5), 50*f, 'skewx')
+		--ease2 (beat, 1, inOutElastic.params(1, 0.5), -50*f, 'noteskewx')
+		kick(beat,0.1,0.5,'Quart','Quart',0, 0.2,'bgkick')
+		kick(beat,0.1,0.5,'Quart','Quart',0, -300,'tinyy')
+		kick(beat,0.1,0.5,'Quart','Quart',0, 50*f,'noteskewx')
+		kick(beat,0.1,0.5,'Quart','Quart',0, 50*f,'confusionoffset')
+		kick(beat,0.1,0.5,'Quart','Quart',0, -100,'tiny')
+		kick(beat,0.1,0.5,'Quart','Quart',0, -1000,'tinyz')
+		--kick(beat,0.25,0.5,'Quart','Quart',0, -100,'tiny')
+		--kick(beat,0.25,0.5,'Quart','Quart',0, -200,'tiny')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i =1, table.getn(tap) do
+	local beat = tap[i][1]
+	local col = tap[i][2]
+		if col == 0 then
+			--ease {beat-0.25, 0.25, outExpo, 100, 'invert'}
+		elseif col == 1 then
+			--ease {beat-0.25, 0.25, outExpo, 0, 'invert'}
+		end
+		--BeatX(beat,250)
+		kick(beat,0.125,0.125,'Sine','Sine',0, 100,'movez')
+		--ease {beat, 0.5, flip(outExpo), 50, 'movez'}
+	f = f*-1
+	end
+	
+	
+	func{184,function()
+		for pn = 1,2 do
+			P[pn]:x(SCREEN_CENTER_X)
+		end
+	end}
+	
+	
+	set{184,100,'hidenoteflash', plr = 1}
+	set{184,50,'orient'}
+	
+	local drunkb = 0
+	definemod {'drunkbitch', function(p)
+		drunkb = p
+	end}
+	
+	
+	func {184, 100, function(beat, poptions)
+	local sin = math.sin(beat*math.pi*0.25)
+	local cos = math.cos(beat*math.pi*0.25)
+		for pn = 1,2 do
+		--poptions[pn].rotationx = 10 * cos
+		--poptions[pn].rotationy = 10 * sin
+		end
+		for c = 0,3 do
+            GAMESTATE:ApplyGameCommand('mod,*-1 '..(drunkb)*math.sin((math.pi*2*(c/8)) + beat*math.pi*0.5) ..'% drunk'..c,2);
+            GAMESTATE:ApplyGameCommand('mod,*-1 '..(-drunkb/2)*math.cos((math.pi*2*(c/8)) + beat*math.pi*0.5) ..'% drunky'..c,2);
+        end
+		
+	end}
+	
+	local f = 1
+	for i=190,190+4,2 do
+		kick(i,0.25,0.5,'Quart','Quart',0,100*f,'movex')
+	f = f * -1
+	end
+	
+	--ease {188, 6.75, linear, 360*2, 'blacksphere'}
+	
+	mod_bounce(184,4,2.5, 0.5,'xmod','Expo','Cubic')
+	
+	mod_bounce(202,2,2.5, 1,'xmod','Expo','Cubic')
+	
+	ease2 (186, 2, Smooth, -500, 'z')
+	ease2 (188, 2, Smooth, 0, 'z',2)
+	
+	ease2 (186, 2, Smooth, -0.4, 'bgkick')
+	ease2 (188, 2, Smooth, 0, 'bgkick')
+	
+	
+	ease {196, 1, outSine, -0.5, 'bgzoom'}
+	ease {196, 1, outSine, -700, 'z'}
+	ease {197.25, 0.75, outCubic, 0, 'z'}
+	
+	ease {198, 1, outSine, -0.5, 'bgzoom'}
+	ease {198, 1, outSine, -700, 'z'}
+	ease {199.25, 0.75, outCubic, 0, 'z'}
+	
+	---screen shatter
+	kick(188,0.5,2,'Expo','Expo',0,3,'bgzoom')
+	kick(188,0.5,2,'Expo','Expo',0,-50,'bgrotz')
+	
+	func {188, 2, outElastic.params(1, 0.05), scx+100, scx, function(p) TankBg:x(p) end}
+	
+	hide{188, 2, plr = 1}
+	
+	ease2 (188, 2, Smooth, 500, 'z',1)
+	ease2 (188, 2, Smooth, -50, 'rotationz',1)
+	ease2 (188, 2, Smooth, 100, 'centered',1)
+	
+	ease {188, 1.25, flip(outElastic.params(1, 0.05)), 200, 'movex'}
+	ease {188, 1, inSine, 100, 'dark', plr = 1}
+	
+	ease {189, 1, instant, 0, 'dark', 0 , 'centered', 0, 'rotationz', 0, 'z', plr = 1}
+	
+	
+	kick(204,0.5,2,'Expo','Expo',0,3,'bgzoom')
+	kick(204,0.5,2,'Expo','Expo',0,-50,'bgrotz')
+	
+	func {204, 2, outElastic.params(1, 0.05), scx+100, scx, function(p) TankBg:x(p) end}
+	
+	hide{204, 2, plr = 1}
+	
+	ease2 (204, 1.5, Smooth, 500, 'z',1)
+	ease2 (204, 1.5, Smooth, 50, 'rotationz',1)
+	ease2 (204, 1.5, Smooth, 100, 'centered',1)
+	
+	ease {204, 1.25, flip(outElastic.params(1, 0.05)), 200, 'movex'}
+	ease {204, 1, inSine, 100, 'dark', plr = 1}
+	
+	ease {205, 1, instant, 0, 'dark', 0 , 'centered', 0, 'rotationz', 0, 'z', plr = 1}
+	
+	
+	kick(188,0.75,1,'Expo','Expo',0,-2500,'tiny')
+	kick(204,0.75,1,'Expo','Expo',0,-2500,'tiny')
+	
+	kick(188,0.75,1,'Expo','Expo',0,300,'movez')
+	kick(204,0.75,1,'Expo','Expo',0,300,'movez')
+	
+	ease {188, 1, flip(outSine), 628, 'confusionoffset'}
+	ease {204, 1, flip(outSine), -628, 'confusionoffset'}
+	
+	ease {189, 1, instant, 100, 'hide' , plr = 1}
+	ease {195, 1, instant, 0, 'hide' , plr = 1}
+	
+	ease {205, 1, instant, 100, 'hide' , plr = 1}
+	ease {212, 1, instant, 0, 'hide' , plr = 1}
+	
+	ease2 (188, 2, Smooth, 200, 'drunkbitch')
+	ease2 (194.75, 2, Smooth, 0, 'drunkbitch')
+	
+	ease2 (204, 2, Smooth, 200, 'drunkbitch')
+	ease2 (211.5, 2, Smooth, 0, 'drunkbitch')
+	
+	ease {188,1.5,flip(outSine),1,'glassdiffuse'}
+	ease {204,1.5,flip(outSine),1,'glassdiffuse'}
+	
+	--ease2 (188, 2, Smooth, 350, 'x',2)
+	
+	ease2 (195, 0.5, CubicS, 100, 'invert')
+	ease2 (196, 0.5, CubicS, 0, 'invert')
+	
+	mod_bounce(195,1,0, 100,'movez','Cubic','Cubic')
+	
+	
+	ease2 (219, 2, Smooth, 0, 'bgkick')
+	ease2 (219, 2, Smooth, 0, 'z')
+	
+	ease2 (202, 1, flip(CubicS), 360, 'rotationz')
+	
+	ease2 (202, 2, Smooth, 50, 'centered')
+	ease2 (202, 2, Smooth, -100, 'mini')
+	
+	ease2 (203, 2, Smooth, 0, 'centered')
+	ease2 (203, 2, Smooth, 100, 'mini')
+	ease2 (204, 2, Smooth, 0, 'mini')
+	
+	
+	kick(200,0.25,0.5,'Quart','Quart',0,500,'tipsy')
+	kick(201,0.25,0.5,'Quart','Quart',0,-500,'tipsy')
+	
+	ease2 (218, 1, flip(CubicS), -360, 'rotationz')
+	
+	ease2 (218, 2, Smooth, 100, 'centered')
+	ease2 (219, 2, Smooth, 0, 'centered')
+	
+	ease2 (219, 2, Smooth, 100, 'mini')
+	ease2 (220, 2, Smooth, 0, 'mini')
+	
+	func {284, 4, outCubic, 1, 0, function(p) boom:diffusealpha(p) end}
+	
+	func {284, 298-284, linear, 1, 0, function(p) fire:diffusealpha(p) end}
+	func {284, 298-284, linear, 1, 0, function(p) TankBg:diffusealpha(p) end}
+	ease {284, 298-284, outSine, 100, 'dark'}
+	
+	mod_bounce(283,1,0, -700,'movez','Cubic','Cubic')
+	
+	set{285,100,'disablemines'}
+	
+	ease {284, 1, flip(outSine), 1, 'bgkick'}
+	
+	
+end)"
+	Type = "ActorFrame"
+><children>
+
+</children></Mods>

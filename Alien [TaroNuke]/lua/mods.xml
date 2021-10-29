@@ -1,0 +1,1275 @@
+<Mods LoadCommand = "%xero(function(self)
+	
+	nitg_version = FUCK_EXE and tonumber(GAMESTATE:GetVersionDate()) >= 20210420 --NotITG version number to check for, v3 by default
+	
+	if not nitg_version then
+		SCREENMAN:SystemMessage('Outdated version of NotITG detected, mods will not work')
+		return
+	end
+
+	slumpo = false
+	for pn=1,2 do
+		if GAMESTATE:IsPlayerEnabled(pn-1) then
+			if GAMESTATE:GetCurrentSteps(pn-1):GetDifficulty() == 3 then
+				slumpo = true
+			end
+		end
+	end
+	
+	if slumpo then
+		for i=1,table.getn(tintstuff) do
+			tintstuff[i]:diffuse(1,.6,.6,1)
+		end
+		for i=1,table.getn(tintstuff2) do
+			tintstuff2[i]:diffuse(.4,.2,.2,1)
+		end
+		for i=1,table.getn(lighting) do
+			lighting[i]:diffuse(1,.2,.2,.1)
+		end
+	end
+	
+	--SCREENMAN:GetTopScreen():GetChild('SongBackground'):hidden(1)
+	
+	--card {start, end, 'spellcard name', (diff as int), '#420699'}
+	if not slumpo then
+		card{32,64,'Uhu~ Uhuhu~',3,'#f959ff'}
+		card{64,80,'Did you know we added column specific\nscroll speed to nitg v4.2?',5,'#6426ff'}
+		card{80,96,'TurndDown',4,'#db26ff'}
+		card{96,128,'OK no turn it back up',4,'#6426ff'}
+		card{128,192,'Watashi wa Alien desu',4,'#ff7dd8'}
+		card{192,216,'Did you know we added column specific\nscroll speed to nitg v4.2?\nReally! We did!',5,'#6426ff'}
+		card{216,224,'BABY FLASH BACK KIMI GA COUNT DOWN',5,'#4448b8'}
+		card{224,256,'S-Bahn but easier',6,'#f959ff'}
+		card{256,288,'Boku wa Alien desu',6,'#ff7dd8'}
+		card{288,320,'I want off Mx. Vinespha\'s wild ride',7,'#ff21bc'}
+	else
+		card{0,32,'No!!!!!!!!!!',11,'#f959ff'}
+		card{32,64,'Rithm game with alien music,',7,'#f959ff'}
+		card{64,80,'Column Specific Mental Breakdown',8,'#6426ff'}
+		card{80,96,'TurndUp',8,'#db26ff'}
+		card{96,128,'OK no turn it back down',8,'#6426ff'}
+		card{128,192,'Watakushi wa Alien desu',9,'#ff7dd8'}
+		card{192,216,'This is just peekaboo with extra steps',7,'#6426ff'}
+		card{216,224,'BABY FLASH BACK KIMI GA COUNT DOWN',6,'#4448b8'}
+		card{224,256,'L-Bahn',10,'#f959ff'}
+		card{256,288,'Ore wa Alien desu',12,'#ff7dd8'}
+		card{288,320,'Treeline Algorithm Grid',13,'#ff21bc'}
+	end
+	
+	function strsplit(str, delim, maxNb)
+		-- Eliminate bad cases...
+		if string.find(str, delim) == nil then
+			return { str }
+		end
+		if maxNb == nil or maxNb < 1 then
+			maxNb = 0    -- No limit
+		end
+		local result = {}
+		local pat = '(.-)' .. delim .. '()'
+		local nb = 0
+		local lastPos
+		for part, pos in string.gfind(str, pat) do
+			nb = nb + 1
+			result[nb] = part
+			lastPos = pos
+			if nb == maxNb then break end
+		end
+		-- Handle the last field
+		if nb ~= maxNb then
+			result[nb + 1] = string.sub(str, lastPos)
+		end
+		return result
+	end
+
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+		setupJudgeProxy(PJ[pn+2], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn+2], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	-- your code goes here here:
+	
+	function message(tab)
+		func{tab[1], function() MESSAGEMAN:Broadcast(tab[2]) end}
+	end
+	
+	spb = 60/135
+	
+	-- treeline algorithm grid
+	
+	tiles = {}
+	
+	lefttexcol = 2/640 * 960/1024
+	
+	function make_tile(obj)
+		
+		local which = table.getn(tiles)
+		table.insert(tiles,obj)
+		
+		local xp = math.mod(which,6)
+		local yp = math.floor(which/6)
+		
+		local size = 40
+		local depth = 10
+		
+		local texx1 = (20+(100-size*2)/2 + 100*(xp))/640*(960/1024)
+		local texx2 = (20-(100-size*2)/2 + 100*(xp+1))/640*(960/1024)
+		local texy1 = (40+(100-size*2)/2 + 100*(yp))/480*(720/1024)
+		local texy2 = (40-(100-size*2)/2 + 100*(yp+1))/480*(720/1024)
+		
+	
+		obj:SetTexture(tex:GetTexture())
+		
+		obj:SetNumVertices(20)
+		obj:SetDrawMode('quads')
+		
+		--top
+		obj:SetVertexPosition(0,size+-size,-size,-depth)
+		obj:SetVertexPosition(1,size+size,-size,-depth)
+		obj:SetVertexPosition(2,size+size,-size,0)
+		obj:SetVertexPosition(3,size+-size,-size,0)
+		
+		--right
+		obj:SetVertexPosition(4,size+size,-size,-depth)
+		obj:SetVertexPosition(5,size+size,size,-depth)
+		obj:SetVertexPosition(6,size+size,size,0)
+		obj:SetVertexPosition(7,size+size,-size,0)
+		
+		--bottom
+		obj:SetVertexPosition(8,size+size,size,-depth)
+		obj:SetVertexPosition(9,size+-size,size,-depth)
+		obj:SetVertexPosition(10,size+-size,size,0)
+		obj:SetVertexPosition(11,size+size,size,0)
+		
+		--left
+		obj:SetVertexPosition(12,size-size,size,-depth)
+		obj:SetVertexPosition(13,size-size,-size,-depth)
+		obj:SetVertexPosition(14,size-size,-size,0)
+		obj:SetVertexPosition(15,size-size,size,0)
+		
+		for i=0,15 do
+			obj:SetVertexTexCoord(i,lefttexcol,texy1)
+			obj:SetVertexColor(i,.5,.5,.5,1)
+		end
+		
+		--froent
+		obj:SetVertexPosition(16,size+-size,-size,0)
+		obj:SetVertexPosition(17,size+size,-size,0)
+		obj:SetVertexPosition(18,size+size,size,0)
+		obj:SetVertexPosition(19,size+-size,size,0)
+		
+		obj:SetVertexTexCoord(16,texx1,texy1)
+		obj:SetVertexTexCoord(17,texx2,texy1)
+		obj:SetVertexTexCoord(18,texx2,texy2)
+		obj:SetVertexTexCoord(19,texx1,texy2)
+		
+		if slumpo then
+			obj:diffuse(1,.6,.6,1)
+		end
+		
+		obj:hidden(0)
+		obj:xy(scx-300+(100-size*2)/2+xp*100,90+yp*100)
+		obj:aux(1)
+		--obj:cmd('aux,0;rotationy,-90;zoomz,0')
+		
+		obj:addcommand('Open',function(self)
+			self:cmd('finishtweening;aux,0;zoom,1;rotationy,-30;zoomz,.66;sleep,.1;rotationy,-80;zoomz,.33;sleep,.1;rotationy,-90;zoomz,0;sleep,.1;')
+		end)
+		obj:addcommand('Close',function(self)
+			self:cmd('finishtweening;aux,1;rotationy,-80;zoomz,.33;sleep,.1;rotationy,-30;zoomz,.66;sleep,.1;rotationy,0;zoom,1.1;addx,-5;sleep,.1;zoom,1;addx,5;')
+		end)
+		
+	end
+	
+	--STYLE
+	
+	function setTile(w,state)
+		--0 = open, 1 = closed, 2 = toggle
+		if tiles[w+1] then
+			if tonumber(state) == 2 then
+				if tiles[w+1]:getaux() == 0 then
+					tiles[w+1]:playcommand('Close')
+				else
+					tiles[w+1]:playcommand('Open')
+				end
+			elseif tonumber(state) == 1 and tiles[w+1]:getaux() == 0 then
+				tiles[w+1]:playcommand('Close')
+			elseif tonumber(state) == 0 and tiles[w+1]:getaux() == 1 then
+				tiles[w+1]:playcommand('Open')
+			end
+		end
+	end
+	
+	function setTileXY(x,y,state)
+		local w = y*6+x
+		setTile(w,state)
+	end
+	
+	function setJud(state)
+		setTileXY(0,1,state)
+		setTileXY(5,1,state)
+	end
+	function setCom(state)
+		setTileXY(0,2,state)
+		setTileXY(5,2,state)
+	end
+	
+	function setRow(r,val,sides)
+		if type(val) == 'string' then
+			if string.len(val) == 4 then
+				for i=1,4 do
+					local t = r*6+i
+					setTile(t,string.sub(val,i,i))
+				end
+			elseif string.len(val) == 6 then
+				for i=1,6 do
+					local t = r*6+i-1
+					setTile(t,string.sub(val,i,i))
+				end
+			end
+		else
+			if sides then
+				for i=0,5 do
+					local t = r*6 + i
+					setTile(t,val)
+				end
+			else
+				for i=0,3 do
+					local t = r*6 + i + 1
+					setTile(t,val)
+				end
+			end
+		end
+	end
+	
+	function toggleRow(r)
+		setRow(r,2)
+	end
+	function toggleRow2(r)
+		setRow(r,2,true)
+	end
+	function toggleCol(c)
+		for i=0,3 do
+			local t = i*6 + c
+			setTile(t,2)
+		end
+	end 
+	
+	function setAllRows(val)
+		if type(val) == 'string' then
+			local subs = strsplit(val,',')
+			for i=1,4 do
+				setRow(i-1,subs[i])
+			end
+		else
+			for i=1,4 do
+				setRow(i-1,val)
+			end
+		end
+	end
+	function setAllRows2(val)
+		if type(val) == 'string' then
+			local subs = strsplit(val,',')
+			for i=1,4 do
+				setRow(i-1,subs[i])
+			end
+		else
+			for i=1,4 do
+				setRow(i-1,val,(i==2 or i==3))
+			end
+		end
+	end
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	-- mods
+	local m2 = func
+	local mpf = func
+	local m = set
+	local me = ease
+	local msg = message
+	
+	mpf{32,999,function(beat)
+		local ramp = 1-outBack(beat-math.floor(beat),0,1,1)
+		for i=1,table.getn(tiles) do
+			tiles[i]:zoom2(1 + ramp*0.05)
+			tiles[i]:x2(-ramp*2.5)
+		end
+		bgtex:zoom2(1 + ramp*0.1)
+	end
+	}
+	
+	local function sm2(tab)
+		local beat,len,eas,amt,mods,intime = tab[1],tab[2],tab[3],tab[4],tab[5],tab.intime
+		if not intime then intime = .1 end
+		if intime <= 0 then intime = .001 end
+		add{beat-intime,intime,linear,amt,mods,plr=tab.plr}
+		add{beat,len-intime,eas,-amt,mods,plr=tab.plr}
+	end
+	
+	local function bounce(tab)
+		local beat,len,eas1,eas2,amt,mods = tab[1],tab[2],tab[3],tab[4],tab[5],tab[6]
+		add{beat,len/2,eas1,amt,mods,plr=tab.plr}
+		add{beat+len/2,len/2,eas2,-amt,mods,plr=tab.plr}
+	end
+	
+	local function wiggle(tab)
+		local beat,len,num,eas,amt,mods,amt2,dolast = tab[1],tab[2],tab[3],tab[4],tab[5],tab[6],tab.amt2,tab.dolast
+		if not amt2 then amt2 = -amt end
+		--wiggle for 'num' many times, with 'len' amount of time between oscillations
+		for i=0,num-1 do
+			--use math to handle the back and forth motion using nothing but additive eases
+			local val = math.mod(i,2) == 0 and (amt-amt2) or (amt2-amt)
+			if i==0 then val = amt end
+			add{beat+i*len,len,eas,val,mods,plr=tab.plr}
+		end
+		--if we want to return to 0 after the last one or leave it where it was
+		if not tab.dolast then
+			local val = math.mod(num,2) == 1 and -amt or -amt2
+			add{beat+num*len,len,eas,val,mods,plr=tab.plr}
+		end
+	end
+	
+	setdefault {2,'xmod',100,'halgun',100,'dizzyholds',100,'stealthtype',100,'stealthpastreceptors'}
+	for i=0,3 do
+		setdefault {100,'scrollspeedmult'..i}
+	end
+	
+	for i=0,3 do
+		local i=i
+		definemod {
+			'ssm'..i,
+			function(val)
+				if val < 100 then
+					ColCov[i+1]:diffuse(0,0,1,-((val-100)/100))
+				else
+					ColCov[i+1]:diffuse(1,0,0,((val-100)/100))
+				end
+				return val-100
+			end,
+			'scrollspeedmult'..i
+		}
+		definemod {
+			'color'..i,
+			function(val)
+				if val < 100 then
+					ColCov[i+1]:diffuse(0,0,1,-((val-100)/100))
+				else
+					ColCov[i+1]:diffuse(1,0,0,((val-100)/100))
+				end
+			end
+		}
+		setdefault {100,'color'..i}
+		setdefault {100,'ssm'..i}
+	end
+	
+	for i=0,3 do
+		local i=i
+		definemod {
+			'slicex'..i,
+			function(val)
+				slices[i+1]:x(scx+val)
+			end
+		}
+		definemod {
+			'slicezoomx'..i,
+			function(val)
+				slices[i+1]:zoomx(val/100)
+			end
+		}
+		setdefault {100,'slicezoomx'..i}
+		definemod {
+			'sliceskewx'..i,
+			function(val)
+				slices[i+1]:skewx(val)
+			end
+		}
+	end
+	
+	function spd(tab)
+		local beat,len,eas,amt,col = tab[1],tab[2],tab[3],tab[4],tab[5]
+		if not col then
+			for c=0,3 do
+				ease{beat,len,eas,amt,'scrollspeedmult'..c}
+			end
+		elseif type(col) == 'table' then
+			for c=1,table.getn(col) do
+				ease{beat,len,eas,amt,'scrollspeedmult'..col[c]}
+			end
+		else
+			ease{beat,len,eas,amt,'scrollspeedmult'..col}
+		end
+	end
+	function spd2(tab)
+		local beat,len,eas,amt,col = tab[1],tab[2],tab[3],tab[4],tab[5]
+		if not col then
+			for c=0,3 do
+				ease{beat,len,eas,amt,'ssm'..c}
+			end
+		elseif type(col) == 'table' then
+			for c=1,table.getn(col) do
+				ease{beat,len,eas,amt,'ssm'..col[c]}
+			end
+		else
+			ease{beat,len,eas,amt,'ssm'..col}
+		end
+	end
+	function spd3(tab)
+		local beat,len,eas,amt,col = tab[1],tab[2],tab[3],tab[4],tab[5]
+		if not col then
+			for c=0,3 do
+				ease{beat,len,eas,amt,'color'..c}
+			end
+		elseif type(col) == 'table' then
+			for c=1,table.getn(col) do
+				ease{beat,len,eas,amt,'color'..col[c]}
+			end
+		else
+			ease{beat,len,eas,amt,'color'..col}
+		end
+	end
+	
+	--onebeat{when,amt}
+	function onebeat(tab)
+		set{tab[1]-.5,tab[2],'beat'}
+		set{tab[1]+.5,0,'beat'}
+	end
+	--beatfromto{beat,until,amt}
+	function beatfromto(tab)
+		set{tab[1]-.5,tab[3],'beat'}
+		set{tab[2]-.5,0,'beat'}
+	end
+	
+	-- SETUP
+	
+	for i=0,5 do
+		slices[i]:SetTexture(sliceTex:GetTexture())
+		local y = scy-250+(100*i)
+		slices[i]:valign(y/480)
+		slices[i]:croptop((y-50)/480)
+		slices[i]:cropbottom(1-((y+50)/480))
+		slices[i]:y(480-y)
+		slices[i]:cropleft(0.01)
+		slices[i]:cropright(0.01)
+		--slices[i]:x(scx + 25*((i%2)*2-1))
+	end
+	
+	for pn=1,2 do
+		if PCC[pn] then
+			if slumpo then
+				PCC[pn]:hidden(1)
+			end
+		end
+		if PCC[pn+2] then
+			if not slumpo then
+				PCC[pn+2]:hidden(1)
+			end
+		end
+	end
+	for pn=1,4 do
+		if PC[pn] then
+			PC[pn]:x(scx+(250)*((pn-1)%2*2-1))
+			PC[pn]:basezoomx(.8)
+			PC[pn]:basezoomy(.8)
+			PC[pn]:y(scy+28)
+			PJ[pn]:x(scx+(250)*((pn-1)%2*2-1))
+			PJ[pn]:basezoomx(.4)
+			PJ[pn]:basezoomy(.8)
+			PJ[pn]:y(scy-26)
+		end
+	end
+	
+	for pn=1,2 do
+		if P[pn] then
+			P[pn]:x(scx)
+		end
+	end
+		
+	msg{0,'FadeIn'}
+	msg{16,'FadeInQ'}
+	
+	m2{0,function()
+		topscreen:zoom(1.5)
+		topscreen:tween(16*60/135,outCubic)
+		topscreen:zoom(1)
+	end}
+	m2{16,function()
+		topscreen:finishtweening()
+		topscreen:zoom(1)
+	end}
+	
+	set{0,-28,'flip',-19,'centered',-20,'tiny',1.25,'xmod'}
+	
+	
+	
+	-- INTRO
+	
+	if slumpo then
+		m2{0,function() toggleRow(0) end}
+		set{1,314,'dizzy',128,'flip'}
+		me{29,4,inOutCubic,0,'dizzy',-28,'flip'}
+		m2{28,function() toggleRow(0) end}
+		
+		m2{29.5,function() setJud(0) end}
+		m2{30.5,function() setCom(0) end}
+	end
+	
+	m2
+	{10,function() toggleRow(0) end}
+	{10.75,function() toggleRow(1) end}
+	{11.5,function() toggleRow(2) end}
+	{12,function() toggleRow(3) end}
+	
+	me{24,6,inOutCubic,.75,'xmod'}
+	
+	spd{28,1.5,flip(linear),150,2}
+	spd{29.5,1,flip(linear),150,2}
+	spd{30.5,1,flip(linear),150,2}
+	
+	me{31,1,inOutCubic,2,'xmod'}
+	set{0,80,'tiny',80,'wave'}
+	me{31,1,inOutCubic,0,'tiny',0,'wave'}
+	
+	--wiggle{beat,len,num,eas,amt,mods,amt2=float,dolast=bool}
+	wiggle{0,.5,32*5,linear,100,'bumpy'}
+	
+	-- VERSE 1
+	
+	beatfromto{32,80,60}
+	
+	function doweeow(tab)
+		local b,amt,amt2 = tab[1],tab[2],tab[3]
+		me{b-.25,.25,linear,amt,'brake'}
+		me{b,.5,outCubic,amt2,'brake'}
+		me{b+.5,3,outElastic,0,'brake'}
+	end
+	function dowow(tab)
+		local b,amt,amt2 = tab[1],tab[2],tab[3]
+		me{b,.5,outCubic,amt,'brake'}
+		me{b+.5,3,outElastic,0,'brake'}
+	end
+	
+	for i=0,3 do
+		doweeow{34+8*i,60,-30}
+		if i%2 == 0 then
+			dowow{38+8*i,60,-30}
+		end
+	end
+	
+	if slumpo then
+		m2{34,function() setRow(1,'101010') setRow(2,'010101') end}
+		for i=1,6 do
+			m2{34+4*i,function() toggleRow2(1) toggleRow2(2) end}
+		end
+		m2{34+28,function() setAllRows2(0) end}
+	end
+	
+	me {45.5,1,outCubic,150,'tiny'}
+	m {46.5,100,'tiny'}
+	m {47,50,'tiny'}
+	m {47.5,0,'tiny'}
+	
+	me {51.5,.5,outExpo,-40,'confusionoffset'}
+	me {52.0,.75,outExpo,157,'confusionoffset'}
+	me {52.75,.75,outExpo,314,'confusionoffset'}
+	me {53.5,1,outExpo,471,'confusionoffset'}
+	me {54.5,1,outExpo,628,'confusionoffset'}
+	
+	m {56,0,'confusionoffset'}
+	
+	me {56,4,inOutCubic,1.5,'xmod'}
+	me {60,2,linear,200*1.5,'centered2'}
+	me {60,2,flip(linear),628,'confusionoffset'}
+	me {62,4,outCubic,2,'xmod'}
+	me {62,2,outExpo,0,'centered2'}
+	
+	aux {'aux1','aux2'}
+	if not slumpo then
+		me {64,12,linear,.4,'aux1'}
+		me {64,8,outCubic,.6,'aux2'}
+	else
+		me {64,12,linear,.4,'aux1'}
+		me {64,4,outCubic,.8,'aux2'}
+	end
+	
+	me {78,2,inOutQuad,0,'aux1'}
+	me {78,2,inOutQuad,0,'aux2'}
+	
+	mpf {64,80,function(beat,mods)
+		
+		for pn=1,2 do
+			
+			local val = mods[pn]['aux1']+mods[pn]['aux2']
+			
+			for i=0,3 do
+				mods[pn]['ssm'..i] = 100 - val*20 + val*40*math.sin(beat*math.pi*0.5 + i*math.pi*0.25)
+			end
+			
+		end
+		
+	end, mode='end'}
+	
+	-- BUILD UP 1
+	
+	if slumpo then
+		m2{80,function() setRow(0,1) setRow(3,1) end}
+		m2{96,function() setRow(1,'001010') setRow(2,'010100') end}
+		m2{123,function() setAllRows2(0) end}
+	end
+	
+	local e2 = outCubic
+	if slumpo then e2 = inCubic end
+	for i=80,95,2 do
+		onebeat{i,100*(i%4-1)}
+		local amp = 20 + 20*((i-80)/15)
+		if slumpo then amp = 35 + 10*((i-80)/15) end
+		local cols1,cols2 = {2,3},{0,1}
+		if i >= 88 then cols1,cols2 = {1,3},{0,2} end
+		spd2{i+.5,.75,outCubic,100+amp*(i%4-1),cols1}
+		spd2{i+1.25,.75,e2,100,cols1}
+		spd2{i+.5,.75,outCubic,100-amp*(i%4-1),cols2}
+		spd2{i+1.25,.75,e2,100,cols2}
+	end
+	
+	--wiggle{beat,len,num,eas,amt,mods,amt2=float,dolast=bool}
+	for i=96,111 do
+		wiggle{i+.5,.25,2,outExpo,60,'drunk'}
+		sm2{i,1,outCubic,40,'brake',intime=.25}
+	end
+	wiggle{112,.5,16,outExpo,60,'drunk',dolast=false}
+	for i=112,119.5,.5 do
+		sm2{i,1,outCubic,50,'brake'}
+	end
+	wiggle{120,.25,15,outExpo,60,'drunk'}
+	for i=120,123.75,.25 do
+		sm2{i,1,outCubic,50,'brake'}
+	end
+	
+	me{120,4,outCubic,1,'xmod'}
+	me{124,3,outCubic,2,'xmod'}
+	set{127,1.75,'xmod'}
+	me{127,2,flip(outCubic),0,'xmod'}
+	--spd{beat,len,eas,amt,col}
+	
+	-- CHORUS 1
+	
+	if not slumpo then
+		m2{124,function () setRow(0,'0110') end}
+		m2{124.5,function () setRow(0,1) setRow(1,'0110') end}
+		m2{125,function () setRow(1,1) setRow(2,'0110') end}
+		m2{125.5,function () setRow(2,1) setRow(3,'0110') end}
+		
+		m2{126,function () setRow(3,1) end}
+		m2{127,function () setRow(0,0) setRow(1,0) end}
+		spd2{127,1,outCubic,75}
+		
+		m2{135,function () setAllRows(0) end}
+		m2{136,function () setRow(0,1) setRow(1,1) end}
+		spd2{134.5,1,inOutCubic,100}
+		spd2{135.5,1,inOutCubic,110}
+		
+		m2{143,function () setAllRows(0) end}
+		m2{144,function () setAllRows('1100,0000,0000,0011') end}
+		spd2{142.5,1,inOutCubic,100}
+		me{142.5,1,inOutCubic,30,'brake'}
+		spd3{143.5,1,inOutCubic,90,{2,3}}
+		spd3{143.5,1,inOutCubic,110,{0,1}}
+		
+		m2{151,function () setAllRows(0) end}
+		m2{152,function () setAllRows('0011,0000,0000,1100') end}
+		spd3{150.5,1,inOutCubic,100}
+		me{150.5,1,inOutCubic,0,'brake'}
+		me{151.5,1,inOutCubic,30,'brake'}
+		spd3{151.5,1,inOutCubic,90,{0,1}}
+		spd3{151.5,1,inOutCubic,110,{2,3}}
+		
+		m2{159,function () setAllRows(0) end}
+		m2{160,function () setAllRows('1111,1100,0000,0011') end}
+		spd3{158.5,1,inOutCubic,100}
+		me{158.5,1,inOutCubic,0,'brake'}
+		me{159.5,1,inOutCubic,40,'brake'}
+		spd3{159.5,1,inOutCubic,120,{0,1}}
+		spd3{159.5,1,inOutCubic,80,{2,3}}
+		
+		m2{167,function () setAllRows(0) end}
+		m2{168,function () setAllRows('1111,0011,0000,1100') end}
+		spd3{166.5,1,inOutCubic,100}
+		me{166.5,1,inOutCubic,0,'brake'}
+		me{167.5,1,inOutCubic,40,'brake'}
+		spd3{167.5,1,inOutCubic,80,{0,1}}
+		spd3{167.5,1,inOutCubic,120,{2,3}}
+		
+		m2{175,function () setAllRows(0) end}
+		m2{176,function () setAllRows('0101,1010,0101,1010') end}
+		spd3{174.5,1,inOutCubic,100}
+		me{174.5,1,inOutCubic,0,'brake'}
+		
+		m2{183,function () setAllRows(0) end}
+		m2{184,function () setAllRows('0101,0101,1010,1010') end}
+		spd3{182.5,1,inOutCubic,100}
+		me{182.5,1,inOutCubic,0,'brake'}
+		me{183.5,1,inOutCubic,40,'brake'}
+		spd3{183.5,1,inOutCubic,75,{0,2}}
+		spd3{183.5,1,inOutCubic,133,{1,3}}
+		
+		me{188,4,inOutCubic,2,'xmod'}
+		
+		m2{191,function () setAllRows(0) end}
+		spd3{190.5,1,inOutCubic,100}
+		me{190.5,1,inOutCubic,0,'brake'}
+		
+		me{128,24,outCubic,15,'drunk',30,'wave'}
+		me{160,8,outCubic,30,'drunk',60,'wave'}
+		me{172,8,inOutCubic,0,'drunk',0,'wave'}
+	else
+		m2{124,function () setRow(0,'0110') end}
+		m2{124.5,function () setRow(0,1) setRow(1,'0110') end}
+		m2{125,function () setRow(1,1) setRow(2,'0110') end}
+		m2{125.5,function () setRow(2,1) setRow(3,'0110') end}
+		
+		m2{126,function () setRow(3,1) end}
+		m2{127,function () setRow(1,0) setRow(2,0) end}
+		m2{128,function () setAllRows('1100,1100,0011,0011') end}
+		spd2{127,1,outCubic,75}
+		spd2{127.5,1,inOutCubic,80,{2,3}}
+		spd2{127.5,1,inOutCubic,120,{0,1}}
+		
+		m2{135,function () setAllRows(0) end}
+		m2{136,function () setAllRows('0011,0011,1100,1100') end}
+		spd2{134.5,1,inOutCubic,100}
+		spd2{135.5,1,inOutCubic,120,{2,3}}
+		spd2{135.5,1,inOutCubic,80,{0,1}}
+		
+		m2{143,function () setAllRows(0) end}
+		m2{144,function () setAllRows('1010,1010,0101,0101') end}
+		spd2{142.5,1,inOutCubic,100}
+		spd2{143.5,1,inOutCubic,133,{0,2}}
+		spd2{143.5,1,inOutCubic,75,{1,3}}
+		
+		m2{151,function () setAllRows(0) end}
+		m2{152,function () setAllRows('0101,0101,1010,1010') end}
+		spd2{150.5,1,inOutCubic,100}
+		spd2{151.5,1,inOutCubic,75,{0,2}}
+		spd2{151.5,1,inOutCubic,133,{1,3}}
+		
+		m2{159,function () setAllRows(0) end}
+		m2{160,function () setAllRows('1100,1100,0011,0011') end}
+		spd2{158.5,1,inOutCubic,100}
+		me{159.5,1,inOutCubic,60,'brake'}
+		spd2{159.5,1,inOutCubic,80}
+		
+		m2{162,function () setAllRows('1101,1110,0111,1011') end}
+		m2{163,function () setAllRows('1110,1101,1011,0111') end}
+		m2{164,function () setAllRows('1101,1110,0111,1011') end}
+		
+		m2{167,function () setAllRows(0) end}
+		m2{168,function () setAllRows('0011,0011,1100,1100') end}
+		spd2{166.5,1,inOutCubic,100}
+		me{166.5,1,inOutCubic,0,'brake'}
+		me{167.5,1,inOutCubic,60,'brake'}
+		spd2{167.5,1,inOutCubic,80,{0,1}}
+		
+		m2{170,function () setAllRows('1011,0111,1110,1101') end}
+		m2{171,function () setAllRows('0111,1011,1101,1110') end}
+		m2{172,function () setAllRows('1011,0111,1110,1101') end}
+		
+		m2{175,function () setAllRows(0) end}
+		m2{176,function () setAllRows('0101,1010,0101,1010') end}
+		spd2{174.5,1,inOutCubic,100}
+		me{174.5,1,inOutCubic,0,'brake'}
+		
+		m2{183,function () setAllRows(0) end}
+		m2{184,function () setAllRows('1111,0111,1010,1101') end}
+		spd2{182.5,1,inOutCubic,100}
+		spd2{183.5,1,inOutCubic,75,{0}}
+		spd2{183.5,1,inOutCubic,100,{1,3}}
+		spd2{183.5,1,inOutCubic,133,{2}}
+		
+		me{188,4,inOutCubic,2,'xmod'}
+		
+		m2{191,function () setAllRows(0) end}
+		spd2{190.5,1,inOutCubic,100}
+		me{190.5,1,inOutCubic,0,'brake'}
+		
+		--[[
+		me{128,24,outCubic,15,'drunk',30,'wave'}
+		me{160,8,outCubic,30,'drunk',60,'wave'}
+		me{172,8,inOutCubic,0,'drunk',0,'wave'}
+		]]
+	end
+	
+	-- VERSE 2
+	
+	local slowcols = {1,0,2,0,2,3,1,3,2,0,1,0}
+	if slumpo then
+		slowcols = {0,1,2,1,3,1,2,3,1,0,2,0}
+	end
+	
+	for i=1,table.getn(slowcols) do
+		local c = slowcols[i]
+		for j=0,3 do
+			local j = j
+			if j==c then
+				spd2{192+2*(i-1),.5,linear,50,j}
+				m2{192+2*(i-1),function()
+					setTileXY(j+1,2,1)
+					setTileXY(j+1,3,1)
+					if slumpo then
+						setTileXY(j+1,0,0)
+						setTileXY(j+1,1,0)
+					end
+				end}
+			else
+				spd2{192+2*(i-1),.5,linear,100,j}
+				m2{192+2*(i-1),function()
+					setTileXY(j+1,2,0)
+					setTileXY(j+1,3,0)
+					if slumpo then
+						setTileXY(j+1,0,1)
+						setTileXY(j+1,1,1)
+					end
+				end}
+			end
+		end
+	end
+	
+	spd2{216,.5,linear,100,0}
+	if slumpo then
+		m2{216,function() setAllRows2(1) end}
+		m2{217,function() setAllRows2(0) end}
+		m2{218,function() setAllRows2(1) end}
+		m2{219,function() setAllRows2(0) end}
+		m2{220,function() setAllRows2(1) end}
+		m2{221,function() setAllRows2(0) end}
+	else
+		m2{216,function() setAllRows(1) end}
+		m2{217,function() setAllRows(0) end}
+		m2{218,function() setAllRows(1) end}
+		m2{219,function() setAllRows(0) end}
+		m2{220,function() setAllRows(1) end}
+		m2{221,function() setAllRows(0) end}
+	end
+	
+	msg{219,'FlashbackOn'}
+	msg{221,'FlashbackOff'}
+	
+	beatfromto{127,223,50}
+	beatfromto{240,254,50}
+	
+	if not slumpo then
+		set{219,128,'flip'}
+		set{221,-28,'flip',0,'invert',0,'reverse'}
+	else
+		set{217,128,'flip'}
+		set{219,128,'flip',-156,'invert',0,'reverse'}
+		set{221,-28,'flip',0,'invert',0,'reverse'}
+	end
+	
+	set{224,50,'orient'}
+	
+	if not slumpo then
+		for j=0,1 do
+			for i=0,3 do
+				me{224+8*j,1,outExpo,25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				me{225+8*j,1,outExpo,0,'slicex'..i}
+				me{226+8*j,1,outExpo,-25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				me{227+8*j,1,outExpo,0,'slicex'..i}
+				me{228+8*j,1,outExpo,25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				me{229+8*j,1,outExpo,0,'slicex'..i}
+				me{230+8*j,.75,outExpo,-50*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				me{230.75+8*j,1.25,outExpo,0,'slicex'..i}
+			end
+			wiggle{224+8*j,.5,4,outCubic,80,'drunk'}
+			wiggle{226+8*j,.5,4-j,outCubic,80,'tipsy'}
+			wiggle{228+8*j,.5,4,outCubic,80,'drunk'}
+			me{230+8*j,.75,outCubic,-100,'tiny'}
+			me{230.75+8*j,2,outElastic,0,'tiny'}
+		end
+		for i=0,3 do
+			wiggle{240,.5,4,outExpo,25*(i%2*2-1),'slicex'..i,amt2=0,dolast=false}
+			wiggle{242,.5,4,outExpo,-25*(i%2*2-1),'slicex'..i,amt2=0,dolast=false}
+			wiggle{244,.5,4,outExpo,25*(i%2*2-1),'slicex'..i,amt2=0,dolast=false}
+			me{246,1,outExpo,25*(i%2*2-1),'slicex'..i}
+			me{248,1,outExpo,-25*(i%2*2-1),'slicex'..i}
+			me{250,1,outExpo,25*(i%2*2-1),'slicex'..i}
+			me{252,1,outExpo,12.5*(i%2*2-1),'slicex'..i}
+			me{253,1,outExpo,0,'slicex'..i}
+			me{254,.5,outCubic,50*(i%2*2-1),'slicex'..i}
+			me{254.5,1,inOutCubic,-50*(i%2*2-1),'slicex'..i}
+			me{255.5,.5,inCubic,0,'slicex'..i}
+		end
+	else
+		for j=0,1 do
+			for i=0,3 do
+				me{224+8*j,1,outCubic,50*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				me{230+8*j,.75,outExpo,100*(i%2*2-1)*(j%2*2-1),'slicex'..i,75,'slicezoomx'..i}
+				me{230.75+8*j,1.25,outExpo,0,'slicex'..i,100,'slicezoomx'..i}
+			end
+			wiggle{224+8*j,.5,4,outCubic,80,'drunk'}
+			wiggle{226+8*j,.5,4-j,outCubic,80,'tipsy'}
+			wiggle{228+8*j,.5,4,outCubic,80,'drunk'}
+			me{230+8*j,.75,outCubic,-100,'tiny'}
+			me{230.75+8*j,2,outElastic,0,'tiny'}
+		end
+		for i=0,3 do
+		
+			me{240,1,outCubic,50*(i%2*2-1),'slicex'..i}
+			me{242,1,outCubic,0*(i%2*2-1),'slicex'..i}
+			me{244,1,outCubic,-50*(i%2*2-1),'slicex'..i}
+		
+			wiggle{240,.5,4,outExpo,25*(i%2*2-1),'slicezoomx'..i,amt2=0,dolast=false}
+			wiggle{242,.5,4,outExpo,-25*(i%2*2-1),'slicezoomx'..i,amt2=0,dolast=false}
+			wiggle{244,.5,4,outExpo,25*(i%2*2-1),'slicezoomx'..i,amt2=0,dolast=false}
+
+			--wiggle{240,.5,4,outExpo,.5*(i%2*2-1),'sliceskewx'..i,amt2=0,dolast=false}
+			--wiggle{242,.5,4,outExpo,-.5*(i%2*2-1),'sliceskewx'..i,amt2=0,dolast=false}
+			--wiggle{244,.5,4,outExpo,.5*(i%2*2-1),'sliceskewx'..i,amt2=0,dolast=false}
+			me{246,1,outExpo,150*(i%2*2-1),'slicex'..i}
+			me{248,1,outExpo,-150*(i%2*2-1),'slicex'..i}
+			me{250,1,outExpo,150*(i%2*2-1),'slicex'..i}
+			me{252,1,outExpo,50*(i%2*2-1),'slicex'..i}
+			me{253,1,outExpo,0,'slicex'..i}
+			me{254,.5,outCubic,.5*(i%2*2-1),'sliceskewx'..i}
+			me{254.5,1,inOutCubic,-.5*(i%2*2-1),'sliceskewx'..i}
+			me{255.5,.5,inCubic,0,'sliceskewx'..i}
+		end
+	end
+	
+	-- CHORUS 2 (kind of want to condense this further but there's no time)
+	m{255.5,50,'beat'}
+	me{256,2,outCubic,20,'drunk'}
+	
+	if not slumpo then
+		m{254,50,'drunkperiod',0,'orient'}
+		me{254,.5,outCubic,100,'holdtiny',78,'confusionoffset',60,'drunk'}
+		me{254.5,1,inOutCubic,-100,'holdtiny',78-314,'confusionoffset',-60,'drunk'}
+		me{255.5,.5,inCubic,0,'holdtiny',0,'drunk'}
+		me{255.5,1,inOutCubic,0,'confusionoffset'}
+		
+		me{254,4,inOutCubic,1.5,'xmod'}
+		m2{254,function () setRow(0,1) end}
+		m2{255,function () setRow(1,1) end}
+		m2{256,function () setRow(3,1) end}
+		spd2{255.5,1,inOutCubic,120}
+		
+		m2{263,function () setRow(3,0) end}
+		m2{264,function () setRow(2,1) end}
+		spd2{262.5,2,inOutCubic,130}
+		
+		m2{271,function () setAllRows(0) end}
+		m2{272,function () setAllRows('0011,0011,1100,1100') end}
+		spd2{270.5,1,inOutCubic,100}
+		spd3{271.5,1,inOutCubic,75,{0,1}}
+		spd3{271.5,1,inOutCubic,133,{2,3}}
+		me{270.5,1,inOutCubic,0,'brake'}
+		me{271.5,1,inOutCubic,40,'brake'}
+		
+		m2{279,function () setAllRows(0) end}
+		m2{280,function () setAllRows('1100,1100,0011,0011') end}
+		spd3{278.5,1,inOutCubic,100}
+		spd3{279.5,1,inOutCubic,133,{0,1}}
+		spd3{279.5,1,inOutCubic,75,{2,3}}
+		me{278.5,1,inOutCubic,0,'brake'}
+		me{279.5,1,inOutCubic,40,'brake'}
+		
+		m2{287,function () setAllRows(0) end}
+		m2{288,function () setAllRows('0101,0101,1010,1010') end}
+		spd3{286.5,1,inOutCubic,100}
+		spd3{287.5,1,inOutCubic,75,{0,2}}
+		spd3{287.5,1,inOutCubic,133,{1,3}}
+		me{286.5,1,inOutCubic,0,'brake'}
+		me{287.5,1,inOutCubic,50,'brake'}
+		
+		m2{295,function () setAllRows(0) end}
+		m2{296,function () setAllRows('1010,1010,0101,0101') end}
+		spd3{294.5,1,inOutCubic,100}
+		spd3{295.5,1,inOutCubic,133,{0,2}}
+		spd3{295.5,1,inOutCubic,75,{1,3}}
+		me{294.5,1,inOutCubic,0,'brake'}
+		me{295.5,1,inOutCubic,50,'brake'}
+		
+		m2{303,function () setAllRows(0) end}
+		m2{304,function () setAllRows('0101,1010,0101,1010') end}
+		spd3{302.5,1,inOutCubic,100}
+		me{302.5,1,inOutCubic,0,'brake'}
+		
+		m2{311,function () setAllRows(0) end}
+		m2{312,function () setAllRows('0110,0110,1001,1001') end}
+		spd3{310.5,1,inOutCubic,100}
+		spd3{311.5,1,inOutCubic,133,{1,2}}
+		spd3{311.5,1,inOutCubic,75,{0,3}}
+		me{310.5,1,inOutCubic,0,'brake'}
+		me{311.5,1,inOutCubic,50,'brake'}
+		
+		for j=0,7 do
+			for i=0,3 do
+				add{288+4*j,1,outExpo,12.5*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{288.5+4*j,1,outExpo,12.5*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{290+4*j,1,outExpo,-12.5*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{290.5+4*j,1,outExpo,-12.5*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+			end
+		end
+	else
+		m{254,50,'drunkperiod',0,'orient'}
+		me{254,.5,outCubic,100,'holdtiny',78,'confusionoffset',60,'drunk'}
+		me{254.5,1,inOutCubic,-100,'holdtiny',78-314,'confusionoffset',-60,'drunk'}
+		me{255.5,.5,inCubic,0,'holdtiny',0,'drunk'}
+		me{255.5,1,inOutCubic,0,'confusionoffset'}
+		
+		me{255,6,inOutCubic,60,'brake'}
+		
+		me{254,4,inOutCubic,1.5,'xmod'}
+		m2{254,function () setRow(0,1) end}
+		m2{255,function () setRow(1,1) end}
+		m2{256,function () setRow(3,1) end}
+		spd2{255.5,1,inOutCubic,120}
+		
+		m2{263,function () setRow(3,0) end}
+		m2{264,function () setRow(2,1) end}
+		spd2{262.5,2,inOutCubic,130}
+		
+		m2{271,function () setAllRows('1111,1111,0000,0000') end}
+		m2{272,function () setAllRows('1111,1111,0101,1010') end}
+		spd2{270.5,1,inOutCubic,100}
+		me{270.5,1,inOutCubic,40,'brake'}
+		me{271.5,1,inOutCubic,50,'brake'}
+		
+		m2{279,function () setAllRows('1111,1111,0000,0000') end}
+		m2{280,function () setAllRows('1111,1111,1010,0101') end}
+		spd3{278.5,1,inOutCubic,100}
+		me{278.5,1,inOutCubic,40,'brake'}
+		me{279.5,1,inOutCubic,50,'brake'}
+		
+		m2{288,function () setCom(1) setJud(1) end}
+		
+		m2{287,function () setAllRows(0) end}
+		m2{288,function () setAllRows('1111,1101,0010,1101') end}
+		spd3{286.5,1,inOutCubic,100}
+		spd3{287.5,1,inOutCubic,75,{0,2}}
+		spd3{287.5,1,inOutCubic,133,{1,3}}
+		me{287.5,1,inOutCubic,50,'brake'}
+		
+		m2{295,function () setAllRows(0) end}
+		m2{296,function () setAllRows('1111,1011,0100,1011') end}
+		spd3{294.5,1,inOutCubic,100}
+		spd3{295.5,1,inOutCubic,133,{0,2}}
+		spd3{295.5,1,inOutCubic,75,{1,3}}
+		me{294.5,1,inOutCubic,0,'brake'}
+		me{295.5,1,inOutCubic,50,'brake'}
+		
+		m2{303,function () setAllRows(0) end}
+		m2{304,function () setAllRows('0111,0011,1100,1110') end}
+		spd3{302.5,1,inOutCubic,100}
+		me{302.5,1,inOutCubic,0,'brake'}
+		spd2{303.5,1,inOutCubic,80}
+		
+		m2{311,function () setAllRows(0) end}
+		m2{312,function () setAllRows('0110,0110,1001,1001') end}
+		spd2{310.5,1,inOutCubic,100}
+		spd3{311.5,1,inOutCubic,133,{1,2}}
+		spd3{311.5,1,inOutCubic,75,{0,3}}
+		me{310.5,1,inOutCubic,0,'brake'}
+		me{311.5,1,inOutCubic,50,'brake'}
+		
+		for j=0,7 do
+			for i=0,3 do
+				add{288+4*j,1,outExpo,25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{288.5+4*j,1,outExpo,25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{290+4*j,1,outExpo,-25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+				add{290.5+4*j,1,outExpo,-25*(i%2*2-1)*(j%2*2-1),'slicex'..i}
+			end
+		end
+
+	end
+	
+	if not slumpo then
+		m2{320,function() setAllRows(1) end}
+	else
+		m2{320,function() setAllRows2(1) end}
+		me{316,1,inOutCubic,156,'invert'}
+	end
+	msg{320,'FadeOut'}
+	m{349,100,'disablemines',100,'hidemines'}
+	
+	-- MISC PASS
+	
+	function fshhh(tab)
+		for i=0,7 do
+			local i=i
+			bounce{tab[1]+i,1,linear,outCubic,30 - 20*(i/6),'stealth'}
+		end
+	end
+	function sheow(tab)
+		sm2{tab[1]+.25,intime=.5,1,linear,50,'stealth'}
+	end
+	function psss(tab)
+		sm2{tab[1]+.25,intime=.5,4,linear,50,'stealth'}
+	end
+	
+	fshhh{32}
+	sheow{49}
+	sheow{73}
+	sheow{97}
+	sheow{113}
+	fshhh{128}
+	sheow{145}
+	psss{161}
+	sheow{177}
+	sheow{193}
+	sheow{209}
+	sheow{241}
+	fshhh{256}
+	sheow{273}
+	psss{289}
+	sheow{305}
+	
+	local dr = 1
+	for i=1,table.getn(snare) do
+		local a = snare[i]
+		if a[2] == 0 then
+			if a[1] < 80 or a[1] > 96 then
+				sm2{a[1],intime=0,.25,outCubic,-80,'tiny'}
+			else
+				sm2{a[1],intime=0,.25,outCubic,-40,'tiny'}
+			end
+		elseif a[2] == 1 then
+			sm2{a[1],intime=0,.25,outCubic,-160,'tiny'}
+		elseif a[2] == 2 then
+			me{a[1],intime=0,1,outElastic,0,'drunk'}
+		elseif a[2] == 3 then
+			me{a[1],intime=0,.5,outCubic,100*dr,'drunk'}
+			dr = dr*-1
+		end
+	end
+	
+	self:zbuffer(1)
+	self:fov(60)
+end)"
+Type = "ActorFrame"
+Name="topscreen" 
+OnCommand="x,SCREEN_CENTER_X;y,SCREEN_CENTER_Y;"
+><children>
+<Layer Type="ActorFrame" OnCommand="fov,60;zbuffer,1;x,-SCREEN_CENTER_X;y,-SCREEN_CENTER_Y;"><children>
+	
+	<!--Code
+		StepP1Action1PressMessageCommand="%xero(function(self) toggleRow(0) end)"
+		StepP1Action2PressMessageCommand="%xero(function(self) toggleRow(1) end)"
+		StepP1Action3PressMessageCommand="%xero(function(self) toggleRow(2) end)"
+		StepP1Action4PressMessageCommand="%xero(function(self) toggleRow(3) end)"
+		StepP1Action5PressMessageCommand="%xero(function(self) toggleCol(1) end)"
+		StepP1Action6PressMessageCommand="%xero(function(self) toggleCol(2) end)"
+		StepP1Action7PressMessageCommand="%xero(function(self) toggleCol(3) end)"
+		StepP1Action8PressMessageCommand="%xero(function(self) toggleCol(4) end)"
+	/-->
+	
+	<Code File="snare.xml" />
+	
+	<Layer File="gradient" Name="tintstuff2[1]" OnCommand="stretchto,0,0,xero.sw,xero.sh;diffuse,.3,.3,.3,1;" />
+	<Layer File="bgtex" Name="bgtex" OnCommand="xy,xero.scx,xero.scy;customtexturerect,0,0,6,6;zoom,5;texcoordvelocity,.1,.1;diffusealpha,.08;" />
+	
+	<Layer File="flashback" OnCommand="hidden,1;stretchto,0,0,xero.sw,xero.sh;diffuse,.5,.5,.5,1"
+	FlashbackOnMessageCommand="hidden,0" FlashbackOffMessageCommand="hidden,1" />
+	
+	<Layer File="behind" Name="tintstuff[1]" OnCommand="halign,0;xy,0,xero.scy;zoomto,(xero.sw-640)/2+20,xero.sh" />
+	<Layer File="behind" Name="tintstuff[2]" OnCommand="halign,1;xy,xero.sw,xero.scy;zoomto,(xero.sw-640)/2+20,xero.sh" />
+	
+	<Layer Type="Quad" OnCommand="%xero(function(self) self:diffuse(1,1,1,0) self:stretchto(0,0,sw,sh) self:clearzbuffer(1) end)" />
+
+	<Layer Type="ActorProxy" Name="PP[1]" />
+	<Layer Type="ActorProxy" Name="PP[2]" />
+	
+	<Layer Type = "ActorFrame" Name = "PCC[3]" ><children>
+		<Layer Type = "ActorProxy" Name = "PC[3]" />
+		<Layer Type = "ActorProxy" Name = "PJ[3]" />
+	</children></Layer>
+	<Layer Type = "ActorFrame" Name = "PCC[4]" ><children>
+		<Layer Type = "ActorProxy" Name = "PC[4]" />
+		<Layer Type = "ActorProxy" Name = "PJ[4]" />
+	</children></Layer>
+	
+	<Layer Type="Quad" Name="ColCov[1]" OnCommand="blend,add;diffuse,0,0,0,0;xy,SCREEN_CENTER_X-150,SCREEN_CENTER_Y;zoomto,100,SCREEN_HEIGHT" />
+	<Layer Type="Quad" Name="ColCov[2]" OnCommand="blend,add;diffuse,0,0,0,0;xy,SCREEN_CENTER_X-50,SCREEN_CENTER_Y;zoomto,100,SCREEN_HEIGHT" />
+	<Layer Type="Quad" Name="ColCov[3]" OnCommand="blend,add;diffuse,0,0,0,0;xy,SCREEN_CENTER_X+50,SCREEN_CENTER_Y;zoomto,100,SCREEN_HEIGHT" />
+	<Layer Type="Quad" Name="ColCov[4]" OnCommand="blend,add;diffuse,0,0,0,0;xy,SCREEN_CENTER_X+150,SCREEN_CENTER_Y;zoomto,100,SCREEN_HEIGHT" />
+	
+	<Layer Type="Quad" OnCommand="%xero(function(self) self:diffuse(1,1,1,0) self:stretchto(0,0,sw,sh) self:clearzbuffer(1) end)" />
+	
+	<Layer File="ctex1" Name="tex" OnCommand="%xero(function(self) self:hidden(1) self:scaletofit(0,0,sw,sh) end)" />
+	
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	<Layer Type="Polygon" OnCommand="hidden,1;queuecommand,Make" MakeCommand="%xero(function(self) make_tile(self) end)" />
+	
+	<Layer Type="Quad" OnCommand="%xero(function(self) self:diffuse(1,1,1,0) self:stretchto(0,0,sw,sh) self:clearzbuffer(1) end)" />
+	
+	<Layer File="cover" Name="tintstuff[3]" InitCommand="hidden,0" OnCommand="%xero(function(self) self:scaletofit(0,0,sw,sh) end)"
+	CoverOnMessageCommand="hidden,0" />
+	
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="sliceTex" />
+	
+	<Layer File="behind" Name="tintstuff[4]" OnCommand="stretchto,0,0,xero.sw,xero.sh" />
+	
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[0]" />
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[1]" />
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[2]" />
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[3]" />
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[4]" />
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="slices[5]" />
+	
+	<Layer File="lighting" Name="lighting[1]"
+	OnCommand="blend,add;zoom,1.6;diffusealpha,.1;customtexturerect,0,0,2,2;xy,xero.scx,xero.scy;texcoordvelocity,.05,.01" />
+	<Layer File="lighting" Name="lighting[2]"
+	OnCommand="blend,add;zoom,2.4;basezoomx,-1;basezoomy,-1;diffusealpha,.1;customtexturerect,0,0,2,2;xy,xero.scx,xero.scy;texcoordvelocity,.04,.016" />
+	
+	<Layer Type = "ActorFrame" Name = "PCC[1]" ><children>
+		<Layer Type = "ActorProxy" Name = "PC[1]" />
+		<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	</children></Layer>
+	<Layer Type = "ActorFrame" Name = "PCC[2]" ><children>
+		<Layer Type = "ActorProxy" Name = "PC[2]" />
+		<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	</children></Layer>
+	
+	<Layer Type="Quad" OnCommand="%xero(function(self) self:diffuse(0,0,0,1) self:stretchto(0,0,sw,sh) end)"
+	FadeInMessageCommand="linear,16*60/135;diffusealpha,0;" FadeOutMessageCommand="linear,32*60/135;diffusealpha,1;"
+	FadeInQMessageCommand="finishtweening;diffusealpha,0;" />
+
+</children></Layer>
+</children></Mods>

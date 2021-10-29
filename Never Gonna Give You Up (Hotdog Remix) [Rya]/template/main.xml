@@ -1,0 +1,41 @@
+<ActorFrame
+	Condition = "(function()
+		_G.xero = {}
+		return true
+	end)()"
+	InitCommand = "%function(self)
+		xero.foreground = self
+		self:sleep(9e9)
+	end"
+>
+	<children>
+		
+		<!-- Std library -->
+		<Code File = "std.xml" />
+		
+		<!-- Load the actual template -->
+		<Code File = "template.xml" />
+		
+		<!-- Load the Eases -->
+		<Code File = "ease.xml" />
+		
+		<!-- Load the Plugins -->
+		<Code File = "plugins.xml" />
+		
+		<!-- Load the User's code -->
+		<Code Condition="GAMESTATE:IsPlayerEnabled(2)" File = "../lua/mods.xml" />
+		
+		<!-- Condition above checks if player 2 is enabled, otherwise warn the player that they need 2 players enabled. -->
+		<Code Condition="not GAMESTATE:IsPlayerEnabled(2)" LoadCommand = "%xero(function(self)
+			SCREENMAN:SystemMessage('This modchart requires 2 players.')
+			self:sleep(3)
+			self:queuecommand('ShutUp')
+		end)"
+		ShutUpCommand = "%xero(function(self)
+			SCREENMAN:SystemMessage('Use quickplay if you\'re playing alone!')
+			GAMESTATE:FinishSong()
+		end)"
+		/>
+		
+	</children>
+</ActorFrame>

@@ -1,0 +1,351 @@
+<Layer Type="Quad" LoadCommand="%xero(function(self)
+	---------------------------------------------------------
+	---------MODHELPER.XML DOCUMENTATION---------------------
+	---------------------------------------------------------
+	
+	--function perframe(start_beat, end_beat, f)
+		--return true if the current beat is between 'beat' and 'endBeat'
+		
+	--function message(beat, msg, p)
+		--insert something into func.
+		--msg can also be a function. If string, a message gets broadcast at that beat
+		--if 'p' is true, message will run even if editor starts at any beat past it
+		--if 'p' is a number, messege will run even if editor starts 'p' beats past it
+		
+	--function wiggle(beat, length, step, ease_func, percent, mod, plr)
+		--alternates a mod's value between negative and postive before resetting to 0
+		
+	--function wiggle2lua(notedata, ease_func, percent, mod, plr)
+		--similar to wiggle, but used for chart2lua
+		
+	--function wiggle0(beat, length, step, ease_func, percent, mod, plr)
+		--alternates a mod's value between 'percent' and 0 before resetting
+		
+	--function wiggle2lua0(notedata, ease_func, percent, mod, plr)
+		--similar to wiggle0, but used for chart2lua
+	
+		--function switcheroo(beat, length, ease, which, plr)
+			--adds a column swap at the desired beat
+			--[[
+				'normal', 'ldur', 'reset', -- resets the column swaps
+				'flip', 'rudl', -- represents 100% flip
+				'invert', 'dlru', -- represents 100% invert
+				'ludr', 'rdul', 'drlu', 'ulrd', 'urld', etc. -- other possible column swaps
+			]]
+	
+	--function modulo(a, b)
+		--returns the remainder when a is divided by b, works properly with negatives unlike math.mod
+		
+	--function drivendrop(beat, length, step, speedmod, plr)
+		--an instant function used to do drivendrop
+		
+	--function sugarkiller(beat, length, step, minstealth, maxstealth, plr)
+		--portable version of the effect from sugarkill X
+		
+	---------------------------------------------------------
+	--------END DOCUMENTATION--------------------------------
+	---------------------------------------------------------
+	
+	---------------------------------------------------------
+	----------------------DON'T TOUCH IT KIDDO---------------
+	---------------------------------------------------------
+	
+	function modulo(a, b)
+		return a - math.floor(a / b) * b
+	end
+	
+	function perframe(start_beat, end_beat, f)
+		func{start_beat, end_beat, f, mode = 'end'}
+	end
+	
+	function message(beat, msg, p)
+		p = p or 1
+		func{beat, function(beat)
+			if (p == true) or p < beat then
+				if type(msg) == 'string' then
+					MESSAGEMAN:Broadcast(msg)
+				else
+					msg()
+				end
+			end
+		end}
+	end
+	
+	local switcheroos = {}
+	
+	local function permute(tab, callback, temp, temp2, temp3)
+		local j = temp3 or 1
+		local n = temp2 or table.getn(tab)
+		temp = temp or {}
+		for i = 0, n do
+			if tab[i] then
+				temp[j] = tab[i]
+				tab[i] = nil
+				if j == n then
+					callback(temp)
+				else
+					permute(tab, callback, temp, n, j + 1)
+				end
+				tab[i] = temp[j]
+			end
+		end
+	end
+	
+	local lookup = {l = 1, d = 2, u = 3, r = 4}
+	
+	permute({'l', 'd', 'u', 'r'}, function(t)
+		local entry = {}
+		for i, v in ipairs(t) do
+			local offset = i - lookup[v]
+			entry[lookup[v]] = offset * 100
+		end
+		switcheroos[table.concat(t)] = entry
+	end)
+	
+	switcheroos.normal = switcheroos.ldur
+	switcheroos.reset = switcheroos.ldur
+	switcheroos.invert = switcheroos.dlru
+	switcheroos.flip = switcheroos.rudl
+	
+	function switcheroo(beat, length, ease_func, which, plr)
+		which = switcheroos[which]
+		if which then
+			ease{beat, length, ease_func, which[1], 'movex0', which[2], 'movex1', which[3], 'movex2', which[4], 'movex3', plr = plr}
+		else
+			error('invalid column swap', 2)
+		end
+	end
+	
+	function wiggle(beat, length, step, ease_func, percent, mod, plr)
+		if length > step then
+			local val = -1
+			for i = beat, beat + length - step, step do
+				if i == beat then
+					add {i, step, ease_func, percent, mod, plr = plr}
+				elseif i > beat + length - 2 * step then
+					add {i, step, ease_func, percent * val, mod, plr = plr}
+				else
+					add {i, step, ease_func, percent * 2 * val, mod, plr = plr}
+					val = -val
+				end
+			end
+		end
+	end
+	
+	function wiggle2lua(notedata, ease_func, percent, mod, plr)
+		local val = -1
+		local len = table.getn(notedata)
+		for i = 1, len - 1 do
+			local s = notedata[i]
+			local e = notedata[i + 1]
+			s = (type(s) == 'table') and s[1] or s
+			e = (type(e) == 'table') and e[1] or e
+			if i == 1 then
+				add {s, e, ease_func, percent, mod, plr = plr, mode = 'end'}
+			elseif i == len - 1 then
+				add {s, e, ease_func, percent * val, mod, plr = plr, mode = 'end'}
+			else
+				add {s, e, ease_func, percent * 2 * val, mod, plr = plr, mode = 'end'}
+				val = -val
+			end
+		end
+	end
+	
+	function wiggle0(beat, length, step, ease_func, percent, mod, plr)
+		if length > step then
+			local val = 1
+			for i = beat, beat + length - step, step do
+				add {i, step, ease_func, percent *  val, mod, plr = plr}
+				val = -val
+			end
+		end
+	end
+	
+	function wiggle2lua0(notedata, ease_func, percent, mod, plr)
+		local val = 1
+		local len = table.getn(notedata)
+		for i = 1, len - 1 do
+			local s = notedata[i]
+			local e = notedata[i + 1]
+			s = (type(s) == 'table') and s[1] or s
+			e = (type(e) == 'table') and e[1] or e
+			add {s, e, ease_func, percent *  val, mod, plr = plr, mode = 'end'}
+			val = -val
+		end
+	end
+	
+	function drivendrop(beat, length, step, speedmod, plr)
+		for i = beat, beat + length - step, step do
+			add
+			{i, step, linear, speedmod * step * 100, 'centered2', plr = plr}
+			{i + step, 0, instant, -speedmod * step * 100, 'centered2', plr = plr}
+		end
+	end
+	
+	function sugarkiller(beat, length, step, minstealth, maxstealth, plr)
+		if not minstealth then minstealth = 50 end;
+		if not maxstealth then maxstealth = 85 end;
+		if not step then step = 1 end;
+		if not length then length = 1 end;
+		for i = 0, math.max(length-1,0) do
+			ease
+			{beat+(i*0.5), .25/step, instant, 100, 'invert', 0, 'flip', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.25/step, .25/step, instant, 100, 'flip', 0, 'invert', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.50/step, .25/step, instant, 100, 'flip', -100, 'invert', maxstealth, 'stealth', plr = plr}
+			if i == math.max(length-1,0) then
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', 0, 'stealth', plr = plr}
+			else
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', minstealth, 'stealth', plr = plr}
+			end
+		end
+	end
+	
+	function sugarkiller_ayakashi(beat, length, step, minstealth, maxstealth, scale, plr)
+		if not minstealth then minstealth = 50 end;
+		if not maxstealth then maxstealth = 85 end;
+		if not scale then scale = -50 end;
+		if not step then step = 1 end;
+		if not length then length = 1 end;
+		for i = 0, math.max(length-1,0) do
+			ease
+			{beat+(i*0.5), .25/step, instant, 100+scale*5, 'invert', 0, 'flip', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.25/step, .25/step, instant, 100-scale, 'flip', 0, 'invert', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.50/step, .25/step, instant, 100-scale, 'flip', -100+scale*2, 'invert', maxstealth, 'stealth', plr = plr}
+			if i == math.max(length-1,0) then
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, scale, 'flip', 0, 'invert', 0, 'stealth', plr = plr}
+			else
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, scale, 'flip', 0, 'invert', minstealth, 'stealth', plr = plr}
+			end
+		end
+	end
+--------------------------------nitgfan's plugins-------------------------
+	
+	--exschwasion template mod ease
+	function mod_ease(beat, len, str1, str2, mod, t, eas, pn, sus, opt1, opt2)
+		if t == 'end' then len = len - beat end
+		set {beat, str1, mod, plr = pn}
+		ease {beat, len, eas, str2, mod, plr = pn}
+		-- intentionally ignore sus, opt1, opt2
+	end
+	
+	--mix ease
+	function mixEase(e1, e2, point)
+		if not point then point = 0.5 end
+
+		return function(a)
+			if a < point then
+				return e1(a / point) * point
+			else
+				return e2((a - point) / (1 - point)) * (1 - point) + point
+			end
+		end
+	end
+	
+	--smooth ease
+	function ease_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		ease {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod, plr = pn}
+	end
+	
+	--smooth add
+	function add_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		add {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod, plr = pn}
+	end
+	
+	--mod bounce
+	function mod_bounce(beat,length,start,apex,mod,outEase,inEase,pn)
+		mod_ease(beat, (length/2), start, apex, tostring(mod), 'len', xero['out'..outEase],pn)
+		mod_ease(beat+(length/2), (length/2), apex, start, tostring(mod), 'len', xero['in'..inEase],pn)
+	end
+	
+	--mod kick
+	function mod_kick(beat,length,start,apex,mod,inEase,outEase,pn)
+		local off = length/2
+		mod_ease(beat - off, (length/2), start, apex, tostring(mod), 'len', xero['in'..inEase],pn)
+		mod_ease((beat+(length/2)) - off, (length/2), apex, start, tostring(mod), 'len', xero['out'..outEase],pn)
+	end
+	
+	
+	--beat mods
+	function BeatX(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beat', plr = pn}
+		set {beat+.5, 0, 'beat', plr = pn}
+	end
+	
+	function BeatY(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beaty', plr = pn}
+		set {beat+.5, 0, 'beaty', plr = pn}
+	end
+	
+	
+	function BeatZ(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beatz', plr = pn}
+		set {beat+.5, 0, 'beatz', plr = pn}
+	end
+	
+	--blacksphere
+	definemod {
+    'blacksphere',
+    function(blacksphere)
+        local invert = 50 - 50 * math.cos(blacksphere * math.pi / 180)
+        local alternate = 25 * math.sin(blacksphere * math.pi / 180)
+        local reverse = -12.5 * math.sin(blacksphere * math.pi / 180)
+        return invert, alternate, reverse
+    end,
+    'invert', 'alternate', 'reverse',
+	}
+	
+	--counterrotation mod (thanks mang)
+	definemod{'rotationx2','rotationy2','rotationz2',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+	
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+	}
+	
+	function ease2 (beat,length,eas,amount,mod,pn)	
+		ease{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function add2 (beat,length,eas,amount,mod,pn)	
+		add{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function kick(Beat,inLen,outLen,inEase,outEase,Start,Apex,mod,pn)
+		set{Beat-inLen,Start,mod}
+		ease{Beat-inLen,inLen,xero['in'..inEase],Apex,mod,plr=pn}
+		ease{Beat,outLen,xero['out'..outEase],Start,mod,plr=pn}
+	end
+	
+	---------------------------------------------------------
+	----------------------END DON'T TOUCH IT KIDDO-----------
+	---------------------------------------------------------
+	
+end)"/>

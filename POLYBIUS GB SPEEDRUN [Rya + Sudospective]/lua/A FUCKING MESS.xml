@@ -1,0 +1,189 @@
+<!-- You should definitely add these ~Sudo -->
+<ActorFrame Name = "UI" InitCommand = "fov,45;x,-10000" ><children>
+	<!-- Also! If you want to mess with this go ahead ! I'm not gonna cry if you change anything! -->
+	<!-- okey then im gonna make every function needed to get the numbers working .u. -->
+	
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="SPLT: 0"
+		InitCommand="x,25;y,25;halign,0;zoom,.75"
+		LoadCommand="%xero(function(self)
+			-- Let's make a func mod that runs every frame in our file.
+			func {0, 444, function()
+				-- We need to get the seconds since the start of the file, easy enough.
+				local time = GAMESTATE:GetSongTimeVisible() -- no offset
+				-- Now let's round our number down a bit.
+				-- The code below will give us a number that goes down to the hundredths (i.e., 14.72).
+				time = math.floor(time * 100) * 0.01
+				-- We can now change our text based on this number.
+				self:settext('SPLT: '..time)
+			end}
+			-- Looks good, we can tweak how the number looks if we need. ~Sudo
+			-- SINCE WHEN CAN YOU USE FUNCS INSIDE AN INITCOMMAND
+			-- oh wait that's a loadcommand - in a bitmaptext 				...what ~rya
+		end)"
+	/>
+	<!-- how many seconds you're in the file - text color depends on spellcard -->
+	
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="CC: 0"
+		InitCommand="x,25;y,50;halign,0;zoom,.75"
+		LoadCommand="%xero(function(self)
+			-- First, we need to get our current stage stats.
+			local stats = {
+				STATSMAN:GetCurStageStats():GetPlayerStageStats(0),
+				STATSMAN:GetCurStageStats():GetPlayerStageStats(0)
+			}
+			-- Let's make a table for our notecount. I like tables.
+			local Notes = {}
+			-- Now we need to get our combo numbers.
+			-- A bit tricky, since this will be TOTAL hit notes,
+			-- and NOT current combo. It also can't include misses.
+			-- Also mines are involved somewhere???
+			func {0, 444, function()
+				for pn = 1, 2 do
+					Notes[pn] = {
+						W1 = stats[pn]:GetTapNoteScores(TNS_MARVELOUS), -- Fantastic
+						W2 = stats[pn]:GetTapNoteScores(TNS_PERFECT), -- Excellent
+						W3 = stats[pn]:GetTapNoteScores(TNS_GREAT), -- Great
+						W4 = stats[pn]:GetTapNoteScores(TNS_GOOD), -- Decent
+						W7 = stats[pn]:GetTapNoteScores(TNS_AVOIDMINE), -- Avoid Mine
+					}
+				end
+				-- So we have support for two players, but there's only one counter at the moment. Let's use Player 1's stats.
+				local total = 0
+				for _, v in pairs(Notes[1]) do
+					-- Here we add the value of every judgment in our Notes table to total.
+					total = total + v
+				end
+				self:settext('CC: '..total)
+			end}
+			-- One more down, looking goody-good ^-^ ~Sudo
+		end)"
+	/>
+	<!-- total combo of all presses (arrows and mines) - should not count misses -->
+	
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="ATT: 12111"
+		InitCommand="x,25;y,75;halign,0;zoom,.75"
+		LoadCommand="%xero(function(self)
+			--self:settext('ATT: '..(12111 + PROFILEMAN:GetMachineProfile():GetSongNumTimesPlayed(THIS_SONG)))
+			-- <!-- this doesn't work, fiek -->
+			-- This is Lua, so we need to make a Lua comment, just FYI ~Sudo
+			-- I was tired and didn't notice fhjdlsf ~rya
+			local song = GAMESTATE:GetCurrentSong()
+			local playcount = PROFILEMAN:GetMachineProfile():GetSongNumTimesPlayed(song)
+			self:settext('ATT: '..(12111 + playcount))
+			-- Sometimes it helps to take it apart and see what went wrong. ~Sudo
+			-- slumpage.lua has some blackmagik blazing in it so I never knew THIS_SONG has to be defined ~rya
+		end)"
+	/>
+	<!-- total plays + 3479 + 8632 -->
+	
+	<!--
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="SCZ: 69"
+		InitCommand="x,25;y,100;halign,0;zoom,.75"
+	/>
+	-->
+	<!-- 'cutscene' ID, basically the current ''id'' of a dialogue that's logged in the console - still have to think of some -->
+	<!-- update: revision pending -->
+	
+	<!-- This looks gross and it's pretty much the only way to do it. ~Sudo -->
+	<!-- I wouldn't blame you but I thought this was harder hha ~rya -->
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="S1NC: TOO ASS !"
+		InitCommand="x,25;y,100;halign,0;zoom,.75"
+		Fk_P1_W1MessageCommand="%function(self)
+			self:settext('S1NC: FNTSTC')
+		end"
+		Fk_P1_W2MessageCommand="%function(self)
+			self:settext('S1NC: EXCLNT')
+		end"
+		Fk_P1_W3MessageCommand="%function(self)
+			self:settext('S1NC: GREAT_')
+		end"
+		Fk_P1_W4MessageCommand="%function(self)
+			self:settext('S1NC: DECENT')
+		end"
+		Fk_P1_W5MessageCommand="%function(self)
+			self:settext('S1NC: WAYOFF')
+		end"
+		Fk_P1_W6MessageCommand="%function(self)
+			self:settext('S1NC: MISS__')
+		end"
+	/>
+	
+	<Layer
+		Type="BitmapText"
+		Font="Common Normal"
+		Text="S2NC: FOUND RAILED"
+		InitCommand="x,25;y,125;halign,0;zoom,.75"
+		Fk_P2_W1MessageCommand="%function(self)
+			self:settext('S2NC: FNTSTC')
+		end"
+		Fk_P2_W2MessageCommand="%function(self)
+			self:settext('S2NC: EXCLNT')
+		end"
+		Fk_P2_W3MessageCommand="%function(self)
+			self:settext('S2NC: GREAT_')
+		end"
+		Fk_P2_W4MessageCommand="%function(self)
+			self:settext('S2NC: DECENT')
+		end"
+		Fk_P2_W5MessageCommand="%function(self)
+			self:settext('S2NC: WAYOFF')
+		end"
+		Fk_P2_W6MessageCommand="%function(self)
+			self:settext('S2NC: MISS__')
+		end"
+	/>
+	<!-- -->
+	
+	
+	<!-- idonthavesexandneverwill -->
+	<Layer
+		Type="Quad"
+		Name="Edge[1]"
+		InitCommand="x,25/2;y,25/2;halign,0;valign,0;zoom,1;zoomx,SCREEN_WIDTH-25;zoomy,25/4;diffuse,.25,1,.35,1"
+	/>
+	<Layer
+		Type="Quad"
+		Name="Edge[2]"
+		InitCommand="x,25/2;y,25/2;halign,0;valign,0;zoom,1;zoomx,25/4;zoomy,SCREEN_HEIGHT-25;diffuse,.25,1,.35,1"
+	/>
+	
+	<!-- usu -->
+	
+	
+	<Layer
+		Type="Quad"
+		Name="bar[1]"
+		InitCommand="x,150;y,25;halign,0;valign,0;zoom,1;zoomx,100;zoomy,10;diffuse,.25,1,.35,1"
+	/>
+	<Layer
+		Type="Quad"
+		Name="bar[2]"
+		InitCommand="x,150;y,35;halign,0;valign,0;zoom,1;zoomx,100;zoomy,10;diffuse,.25,1,.35,1"
+	/>
+	<Layer
+		Type="Quad"
+		Name="bar[3]"
+		InitCommand="x,150;y,45;halign,0;valign,0;zoom,1;zoomx,100;zoomy,10;diffuse,.25,1,.35,1"
+	/>
+	<Layer
+		Type="Quad"
+		Name="bar[4]"
+		InitCommand="x,150;y,55;halign,0;valign,0;zoom,1;zoomx,100;zoomy,10;diffuse,.25,1,.35,1"
+	/>
+	
+</children></ActorFrame>

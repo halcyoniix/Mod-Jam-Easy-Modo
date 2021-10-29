@@ -1,0 +1,1 @@
+return PROFILEMAN:GetMachineProfile():GetSongNumTimesPlayed(SONGMAN:FindSong(THIS_SONG)) > 0

@@ -1,0 +1,910 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	
+	PP[3]:hidden(1)
+	PP[4]:hidden(1)
+	
+	plr = {1, 2, 3, 4}
+	
+	-- your code goes here here:
+	
+	--set {beat, percent, mod} = m()
+	--ease {beat, len, ease_fn, percent, mod} = me()
+	--add {beat, len, ease_fn, relative_percent, mod}
+	-- Scheduled Function:
+    --func {beat, function(b)} = mm()
+	-- Perframe:
+	--func {beat, len, function(b, poptions)} = mpf()
+	-- Function Eases:
+	--func {beat, len, ease_fn, function(p)}
+	--func {beat, len, ease_fn, percent, function(p)}
+	--func {beat, len, ease_fn, begin_percent, end_percent, function(p)}
+	
+	--driven drop: centered = xmod*len*100
+	
+	--{0,9999,'*2 2x, *-1 overhead, *-1 approachtype, *-1 dizzyholds, *-1 stealthpastreceptors, *-1 modtimer, *-1 -99999 cover','end'},
+	
+	--[[func{0,function()
+		
+	end}]]
+	
+	local to_rad = (math.pi/180)*100
+	
+	local p1stxpos = P[1]:GetX()
+	local p2stxpos = P[2]:GetX()
+	
+	local wr_piano = {
+		{8.000,0,1},
+		{8.750,1,1},
+		{9.500,2,1},
+		{10.500,0,1},
+		{10.563,1,1},
+		{10.625,2,1},
+		{10.688,3,1},
+		{11.250,2,1},
+		{12.000,1,1},
+		{12.750,0,1},
+		{13.500,3,1},
+		{14.250,0,1},
+		{14.500,2,1},
+		{14.750,1,1},
+		{15.000,3,1},
+		{15.250,1,1},
+		{15.500,2,1},
+		{15.750,0,1},
+		{16.250,3,1},
+		{16.750,2,1},
+		{17.500,1,1},
+		{18.250,2,1},
+		{18.500,3,1},
+		{18.750,0,1},
+		{19.000,3,1},
+		{19.250,2,1},
+		{19.500,1,1},
+		{19.750,0,1},
+		{20.000,3,1},
+		{20.500,0,1},
+		{20.750,2,1},
+		{21.250,1,1},
+		{21.500,2,1},
+		{22.250,3,1},
+		{22.500,2,1},
+		{22.750,1,1},
+		{23.000,3,1},
+		{23.250,0,1},
+		{23.500,1,1},
+		{23.750,2,1},
+		{24.000,1,1},
+		{24.250,0,1},
+		{24.500,3,1},
+		{24.750,1,1},
+		{25.000,2,1},
+		{25.250,1,1},
+		{25.500,3,1},
+		{25.750,0,1},
+		{26.000,0,1},
+		{26.500,1,1},
+		{26.750,2,1},
+		{27.250,3,1},
+		{27.500,3,1},
+		{27.750,0,1},
+		{28.250,3,1},
+		{28.500,0,1},
+		{29.000,3,1},
+		{29.125,0,1},
+		{29.250,3,1},
+		{29.375,0,1},
+		{29.750,3,1},
+		{30.250,3,1},
+		{30.500,1,1},
+		{30.750,2,1},
+		{31.000,0,1},
+		{31.250,3,1},
+		{31.500,2,1},
+		{31.750,1,1},
+	}
+	
+	local wr_percussion = {
+		{0.000,0,1},
+		{1.000,2,1},
+		{2.250,0,1},
+		{2.500,0,1},
+		{3.000,1,1},
+		{6.000,0,1},
+		{7.000,3,1},
+		{8.000,0,1},
+		{9.000,2,1},
+		{9.750,2,1},
+		{10.000,0,1},
+		{10.375,0,1},
+		{10.750,0,1},
+		{10.875,0,1},
+		{11.000,2,1},
+		{12.250,0,1},
+		{12.500,0,1},
+		{13.000,1,1},
+		{13.750,0,1},
+		{13.875,0,1},
+		{16.000,0,1},
+		{17.000,2,1},
+		{18.250,0,1},
+		{18.500,0,1},
+		{19.000,1,1},
+		{22.250,0,1},
+		{23.000,3,1},
+		{24.000,0,1},
+		{25.000,2,1},
+		{26.250,0,1},
+		{27.000,3,1},
+		{28.250,0,1},
+		{28.500,0,1},
+		{29.000,1,1},
+		{29.750,0,1},
+	}
+	
+	local wr_breaks = {
+		{4.000,0,1},
+		{4.250,1,1},
+		{4.500,0,1},
+		{4.750,1,1},
+		{4.875,0,1},
+		{5.000,1,1},
+		{5.125,0,1},
+		{5.250,1,1},
+		{5.500,0,1},
+		{5.750,1,1},
+		{6.000,2,1},
+		{14.250,0,1},
+		{14.500,1,1},
+		{14.750,0,1},
+		{15.000,1,1},
+		{15.250,0,1},
+		{15.500,1,1},
+		{15.750,2,1},
+		{20.000,0,1},
+		{20.250,1,1},
+		{20.500,0,1},
+		{20.750,1,1},
+		{20.875,0,1},
+		{21.000,1,1},
+		{21.125,0,1},
+		{21.250,1,1},
+		{21.500,0,1},
+		{21.750,1,1},
+		{22.000,2,1},
+	}
+	
+	local wr_kick2 = {
+		{40.000,0,1},
+		{42.000,0,1},
+		{42.500,0,1},
+		{44.000,0,1},
+		{46.000,0,1},
+		{46.500,0,1},
+		{48.000,0,1},
+		{48.500,0,1},
+		{50.000,0,1},
+		{50.500,0,1},
+		{52.000,0,1},
+		{52.500,0,1},
+		{54.000,0,1},
+		{54.500,0,1},
+		{56.000,0,1},
+		{58.000,0,1},
+		{58.500,0,1},
+		{60.000,0,1},
+		{62.000,0,1},
+		{62.500,0,1},
+	}
+	
+	local wr_hihat = {
+		{32.000,0,1},
+		{33.000,0,1},
+		{34.000,0,1},
+		{35.000,0,1},
+		{36.000,0,1},
+		{37.000,0,1},
+		{38.000,0,1},
+		{39.000,0,1},
+		{41.000,0,1},
+		{42.000,0,1},
+		{43.000,0,1},
+		{44.000,0,1},
+		{45.000,0,1},
+		{46.000,0,1},
+		{47.000,0,1},
+		{50.000,0,1},
+		{51.000,0,1},
+		{54.000,0,1},
+		{55.000,0,1},
+		{57.000,0,1},
+		{58.000,0,1},
+		{59.000,0,1},
+		{60.000,0,1},
+		{61.000,0,1},
+		{62.000,0,1},
+	}
+	
+	local wr_swing = {
+		{76.500,2,1},
+		{76.833,1,1},
+		{77.333,3,1},
+		{77.500,0,1},
+		{78.000,1,1},
+		{78.333,2,1},
+		{78.833,3,1},
+		{79.000,1,1},
+		{79.333,2,1},
+		{79.500,0,1},
+		{80.000,3,1},
+	}
+	
+	local wr_beeps = {
+		{81.750,2,1},
+		{82.250,2,1},
+		{82.750,1,2,length=0.250},
+		{83.750,0,1},
+		{84.250,3,1},
+		{85.000,1,1},
+		{85.500,2,1},
+		{86.000,2,2,length=0.250},
+		{88.000,1,1},
+		{88.250,0,1},
+		{88.500,1,1},
+		{88.750,2,1},
+		{89.250,3,1},
+		{89.500,0,1},
+		{90.000,2,1},
+		{90.250,1,1},
+		{90.500,2,1},
+		{90.750,0,1},
+		{91.250,3,1},
+		{91.500,2,1},
+		{92.000,1,1},
+		{92.250,0,1},
+		{92.500,1,1},
+		{92.750,2,1},
+		{93.250,3,1},
+		{93.500,0,1},
+		{94.000,3,1},
+		{94.250,1,1},
+		{94.500,2,1},
+		{94.750,0,1},
+		{95.250,2,1},
+		{95.500,1,1},
+	}
+	
+	local wr_hit = {
+		{153.000,0,1},
+		{153.000,1,1},
+		{153.750,1,1},
+		{153.750,2,1},
+		{154.500,2,1},
+		{154.500,3,1},
+		--{155.750,3,1},
+		{156.500,1,1},
+		{156.500,3,1},
+		{157.500,1,1},
+		{157.500,2,1},
+		{158.500,0,1},
+		{158.500,2,1},
+	}
+	
+	local wr_bass = {
+		{160.000,0,1},
+		{161.500,0,1},
+		{164.000,0,1},
+		{165.500,0,1},
+		{168.000,0,1},
+		{169.500,0,1},
+		{171.000,0,1},
+		{172.000,0,1},
+		{173.500,0,1},
+		{176.000,0,1},
+		{177.500,0,1},
+		{180.000,0,1},
+		{181.500,0,1},
+		{184.000,0,1},
+		{185.500,0,1},
+		{186.500,0,1},
+		{187.000,0,1},
+		{187.500,0,1},
+		{187.750,0,1},
+		{188.000,0,1},
+		{189.500,0,1},
+	}
+	
+	local wr_hat2 = {
+		{129.000,0,1},
+		{130.000,0,1},
+		{130.500,0,1},
+		{132.500,0,1},
+		{133.000,0,1},
+		{134.000,0,1},
+		{134.500,0,1},
+		{135.500,0,1},
+		{137.000,0,1},
+		{139.500,0,1},
+		{141.000,0,1},
+		{142.000,0,1},
+		{142.500,0,1},
+		{143.500,0,1},
+		{145.000,0,1},
+		{146.500,0,1},
+		{149.000,0,1},
+		{153.000,0,1},
+		{153.750,0,1},
+		{154.500,0,1},
+		{155.750,0,1},
+		{156.500,0,1},
+		{157.500,0,1},
+		{158.500,0,1},
+	}
+	
+	local wr_hat3 = {
+		{161.000,0,1},
+		{163.000,0,1},
+		{165.000,0,1},
+		{166.500,0,1},
+		{167.000,0,1},
+		{169.000,0,1},
+		{170.500,0,1},
+		{173.000,0,1},
+		{174.000,0,1},
+		{175.000,0,1},
+		{177.000,0,1},
+		{179.000,0,1},
+		{179.250,0,1},
+		{179.500,0,1},
+		{179.750,0,1},
+		{181.000,0,1},
+		{182.500,0,1},
+		{183.000,0,1},
+		{185.000,0,1},
+		{186.500,0,1},
+		{187.000,0,1},
+		{189.000,0,1},
+		{191.000,0,1},
+		{191.500,0,1},
+	}
+	
+	definemod{'rotx','roty','rotz',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+	}
+
+	local function fliperoo()
+		if (GAMESTATE:GetSongTime() * 60) % 2 < 1 then
+			return -1
+		else
+			return 1
+		end
+	end
+
+	definemod{'grid_rot', function(bg)
+		wr_grid:rotationz(bg)
+	end}
+	
+	definemod{'grid_r','grid_g','grid_b',function(r,g,b)
+		wr_grid:diffuse(r,g,b,1)
+	end}
+	
+	definemod{'grid_vx','grid_vy',function(vx,vy)
+		wr_grid:texcoordvelocity(vx,vy)
+	end}
+	
+	--wr_grid:diffuse(0.1,0.0,0.15,1)
+	wr_grid:zoomto(sw*2,sw*2)
+	wr_grid:xy(scx,scy)
+	wr_grid:SetTextureFiltering(true)
+	wr_grid:customtexturerect(0,0,20,20)
+	--wr_grid:texcoordvelocity(0.1,0.1)
+	
+	ease{32,1,outQuad,0,'grid_r',0,'grid_g',0.2,'grid_b',0.2,'grid_vx',0.2,'grid_vy'}
+	ease{64,1,outQuad,0,'grid_r',0.2,'grid_g',0.05,'grid_b',0.3,'grid_vx',0.3,'grid_vy'}
+	ease{96,1,outQuad,0.2,'grid_r',0.2,'grid_g',0,'grid_b',0.4,'grid_vx',0.4,'grid_vy'}
+	ease{128,1,outQuad,0.2,'grid_r',0.1,'grid_g',0,'grid_b',0,'grid_vx',-0.7,'grid_vy'}
+	ease{160,1,outQuad,0.2,'grid_r',0,'grid_g',0,'grid_b',0.8,'grid_vx',0,'grid_vy'}
+	
+	local wr_ang = 30
+	add{8,4,outSine,wr_ang,'grid_rot'}
+	add{16.25,4,outSine,wr_ang,'grid_rot'}
+	add{24,4,outSine,wr_ang,'grid_rot'}
+	
+	add{32,4,outSine,-wr_ang,'grid_rot'}
+	add{39.5,0.5,outSine,wr_ang/2,'grid_rot'}
+	add{40,4,outSine,-wr_ang-wr_ang/2,'grid_rot'}
+	add{48,4,outSine,-wr_ang,'grid_rot'}
+	add{55.5,0.5,outSine,wr_ang/2,'grid_rot'}
+	add{56,4,outSine,-wr_ang-wr_ang/2,'grid_rot'}
+	
+	add{64,4,outSine,wr_ang,'grid_rot'}
+	add{71.5,0.5,outSine,-wr_ang/2,'grid_rot'}
+	add{72,4,outSine,wr_ang+wr_ang/2,'grid_rot'}
+	add{80,4,outSine,wr_ang,'grid_rot'}
+	add{88,4,outSine,wr_ang,'grid_rot'}
+	
+	add{96,4,outSine,-wr_ang,'grid_rot'}
+	add{103.5,0.5,outSine,wr_ang/2,'grid_rot'}
+	add{104,4,outSine,-wr_ang-wr_ang/2,'grid_rot'}
+	add{112,8,inSine,-wr_ang,'grid_rot'}
+	add{120,4,outSine,wr_ang,'grid_rot'}
+	
+	add{128,4,outQuad,-wr_ang,'grid_rot'}
+	add{128+8-2,4,inOutExpo,90,'grid_rot'}
+	add{128+8*2-4,8,inOutSine,90,'grid_rot'}
+	add{128+8*3-2,4,inOutExpo,90,'grid_rot'}
+	add{156.5,1,outQuad,90/3,'grid_rot'}
+	add{157.5,1,outQuad,90/3,'grid_rot'}
+	add{158.5,1,outQuad,90/3,'grid_rot'}
+	
+	add{160,4,outQuad,90,'grid_rot'}
+	add{160+9,4,outExpo,-90,'grid_rot'}
+	add{160+8*2,4,outExpo,-90,'grid_rot'}
+	add{160+8*2,15,inSine,-180,'grid_rot'}
+	
+	--[[add{128+8-2,4,inOutExpo,90,'rotz'}
+	add{128+8*2-4,8,inOutSine,90,'rotz'}
+	add{128+8*3-2,4,inOutExpo,90,'rotz'}
+	add{156.5,1,outQuad,90,'rotz'}
+	add{157.5,1,outQuad,-90,'rotz'}
+	add{158.5,1,outQuad,90,'rotz'}
+	
+	add{160+9,4,outExpo,-90,'all_spin'}
+	add{160+8*2,4,outExpo,-90,'all_spin'}
+	add{160+8*2,15,inSine,-180,'all_spin'}]]
+	
+	card{0,32,'80 bpm - intro 2021 remaster',1,{0.4,0.0,0.6}}
+	card{32,64,'100 bpm - rotation ft. flicker',2,{0.0,0.0,0.8}}
+	card{64,96,'120 bpm - bouncy invert',3,{0.0,0.8,0.2}}
+	card{96,128,'140 bpm - disappearing ayakashi',5,{0.8,0.8,0.0}}
+	card{128,160,'160 bpm - try context switch!',6,{0.8,0.4,0.0}}
+	card{160,192,'180 bpm - context switch the other way',7,{0.8,0.0,0}}
+	
+	set{0,0.5,'xmod',100,'overhead',100,'dizzyholds',100,'stealthpastreceptors',100,'modtimer',100,'cover',100,'arrowpath',-50,'squareperiod',-50,'squarezperiod',0.1,'grid_r',0,'grid_g',0.15,'grid_b',0.1,'grid_vx',0.1,'grid_vy'}
+	
+	set{0,100,'dark',1000,'drunk',1000,'tipsy',500,'tornadoz',180,'rotx',180,'rotz'}
+	ease{0,8,outQuad,0,'rotx',0,'rotz',0,'drunk',0,'tipsy',0,'tornadoz',-180,'grid_rot'}
+	ease{6,2,inSine,2.25,'xmod',0,'arrowpath',75,'dark',100,'orient'}
+	
+	for pn = 1,4 do
+		local a = P[pn]
+		if a then
+			for col = 0,3 do
+				a:SetNumPathGradientPoints(col,4)
+
+				a:SetPathGradientPoint(0,col,-1.5)
+				a:SetPathGradientPoint(1,col,-0.5)
+				a:SetPathGradientPoint(2,col,5)
+				a:SetPathGradientPoint(3,col,6)
+
+				a:SetPathGradientColor(0,col,1,1,1,0)
+				a:SetPathGradientColor(1,col,1,1,1,1)
+				a:SetPathGradientColor(2,col,1,1,1,1)
+				a:SetPathGradientColor(3,col,1,1,1,0)
+				
+				a:SetNumArrowGradientPoints(col,4)
+
+				a:SetArrowGradientPoint(0,col,-1.5)
+				a:SetArrowGradientPoint(1,col,-0.5)
+				a:SetArrowGradientPoint(2,col,5)
+				a:SetArrowGradientPoint(3,col,6)
+
+				a:SetArrowGradientColor(0,col,1,1,1,0)
+				a:SetArrowGradientColor(1,col,1,1,1,1)
+				a:SetArrowGradientColor(2,col,1,1,1,1)
+				a:SetArrowGradientColor(3,col,1,1,1,0)
+			end
+		end
+	end
+	
+	local mult_1st = 1
+	for i,v in pairs(wr_piano) do
+		ease{v[1],1,pop,100,'arrowpath'..v[2],30*mult_1st,'confusionoffset'..v[2],200,'arrowpathsize'}
+		mult_1st = mult_1st*-1
+	end
+	
+	for i,v in pairs(wr_percussion) do
+		if v[2] == 0 then
+			ease{v[1],0.5,pop,-50,'tiny'}
+		end
+		
+		if v[2] == 1 then
+			ease{v[1],0.5,pop,10,'flip'}
+		end
+		
+		if v[2] == 2 then
+			ease{v[1],0.5,pop,25,'tipsy'}
+		end
+		
+		if v[2] == 3 then
+			ease{v[1],0.5,pop,-10,'flip'}
+		end
+		
+	end
+	
+	for i,v in pairs(wr_breaks) do
+		if v[2] == 0 then
+			ease{v[1],0.25,outQuart,50,'drunk'}
+		end
+		
+		if v[2] == 1 then
+			ease{v[1],0.25,outQuart,-50,'drunk'}
+		end
+		
+		if v[2] == 2 then
+			ease{v[1],0.25,outQuart,0,'drunk'}
+		end
+	end
+	
+	set{4,100,'bumpyzperiod'}
+	ease{8,30-8,outSine,100,'bumpyz'}
+	ease{8,30-8,linear,2000,'parabolaz',100,'mini'}
+	ease{30,2,inSine,0,'parabolaz',0,'mini',0,'bumpyz',50,'dark',2,'xmod'}
+	func{30,2,inQuad,p1stxpos,scx,function(p)
+		P[1]:x(p)
+	end}
+	func{30,2,inQuad,p2stxpos,scx,function(p)
+		P[2]:x(p)
+	end}
+	for i=30.25,32,0.25 do
+		ease{i,0.25,pop,25,'brake'}
+	end
+	
+	set{32,0,'orient'}
+	set{32,100,'hidenoteflashes',100,'dark',plr=2}
+	set{32,100,'stealth',plr=1}
+	for i=32,63,1 do
+		--set{i,0,'centered2',plr=1}
+		ease{i,0.5,outQuad,50,'centered2',plr=2}
+		ease{i+0.5,0.5,inQuad,0,'centered2',plr=2}
+	end
+	local wr_drunk = 0
+	for i=41,63,2 do
+		func{i,0.5,outQuad,250,0,function(p)
+			wr_drunk = p
+		end}
+		func{i,0.5,function(beat,poptions)
+			local flip = fliperoo()
+			for pn=1,2 do
+				poptions[pn].squarez = wr_drunk*flip
+			end
+		end}
+		
+	end
+	for i=40,63,4 do
+		mirror{i+1,0.5,outSine,45,'rotationy'}
+		mirror{i+3,0.5,outSine,-45,'rotationy'}
+	end
+	
+	for i,v in pairs(wr_kick2) do
+		if i%2==0 then
+			set{v[1],100,'square'}
+			ease{v[1],0.5,outQuad,0,'square'}
+		else
+			set{v[1],-100,'square'}
+			ease{v[1],0.5,outQuad,0,'square'}
+		end
+	end
+	
+	for i,v in pairs(wr_hihat) do
+		set{v[1],15,'tornado',20,'stealth',plr=2}
+		ease{v[1],0.25,outQuad,0,'tornado',0,'stealth',plr=2}
+	end
+	
+	set{56,50,'stealth',plr=2}
+	ease{56,1,outQuad,0,'stealth',plr=2}
+	
+	ease{60,4,inSine,100,'reverse'}
+	
+	ease{64,1,outQuad,0,'hidenoteflashes',0,'dark',plr=2}
+	ease{64,1,outQuad,0,'stealth',plr=1}
+	ease{64,1,outQuad,0,'rotationy',250,'invert'}
+	func{64,1,outExpo,scx,p1stxpos,function(p)
+		P[1]:x(p)
+	end}
+	func{64,1,outExpo,scx,p2stxpos,function(p)
+		P[2]:x(p)
+	end}
+	
+	--set{64,100,'orient'}
+	for i=65,94,2 do
+		ease{i,1,bounce,75,'reverse',plr=1}
+		ease{i+0.5,0.5,pop,25,'skewx',25,'stealth',plr=1}
+		ease{i+1,1,bounce,75,'reverse',plr=2}
+		ease{i+1+0.5,0.5,pop,-25,'skewx',25,'stealth',plr=2}
+		
+		set{i,-50,'tiny',100,'drunk',plr=2}
+		set{i+1,-50,'tiny',-100,'drunk',plr=1}
+		
+		ease{i,0.25,outQuad,0,'tiny',plr=2}
+		ease{i+1,0.25,outQuad,0,'tiny',plr=1}
+		
+		ease{i,0.5,outQuad,0,'drunk',plr=2}
+		ease{i+1,0.5,outQuad,0,'drunk',plr=1}
+		
+		ease{i,1,bounce,45/2,'rotationy',plr=1}
+		ease{i+1,1,bounce,-45/2,'rotationy',plr=1}
+		ease{i,1,bounce,45/2,'rotationy',plr=2}
+		ease{i+1,1,bounce,-45/2,'rotationy',plr=2}
+	end
+	
+	local mult_2nd = 1
+	for i,v in pairs(wr_swing) do
+		ease{v[1],0.5,pop,100,'arrowpath'..v[2],50*mult_2nd,'bumpyx'..v[2],200,'arrowpathsize'}
+		mult_2nd = mult_2nd*-1
+	end
+	
+	local mult_3rd = 1
+	local wr_digital = 50
+	for i,v in pairs(wr_beeps) do
+		ease{v[1],0.25,pop,100,'arrowpath'..v[2]}
+		ease{v[1],0.25,bounce,mult_3rd*wr_digital,'digital'}
+		mult_3rd = mult_3rd*-1
+		if v[1] >= 88 then
+			wr_digital = wr_digital+1
+		end
+	end
+	
+	ease{94,2,inSine,0,'reverse',0,'invert'}
+	func{94,2,inSine,p1stxpos,scx,function(p)
+		P[1]:x(p)
+	end}
+	func{94,2,inSine,p2stxpos,scx,function(p)
+		P[2]:x(p)
+	end}
+	ease{96,4,outExpo,-50,'flip'}
+	ease{96,4,outExpo,-50,'movex',plr=1}
+	ease{96,8,outExpo,50,'movex',plr=2}
+	
+	set{96,100,'orient'}
+	
+	for i=96,127,2 do
+		ease{i+0.5,0.5,outQuad,200,'tiny',100,'stealth',plr=2}
+		ease{i+1.5,0.5,outQuad,0,'tiny',0,'stealth',plr=2}
+		ease{i+0.5,0.5,outQuad,0,'tiny',0,'stealth',plr=1}
+		ease{i+1.5,0.5,outQuad,200,'tiny',100,'stealth',plr=1}
+	end
+	ease{128,0.75,outExpo,0,'tiny',0,'stealth',plr=1}
+	
+	for i=104,123,4 do
+		func{i+0.5,1,function(beat,poptions)
+			for pn=1,2 do
+				poptions[pn].drunk = (math.tan((beat+0.5)*math.pi)*100)*2
+			end
+		end}
+		func{i+2.5,1,function(beat,poptions)
+			for pn=1,2 do
+				poptions[pn].drunk = -(math.tan((beat+0.5)*math.pi)*100)*2
+			end
+		end}
+	end
+	
+	--set{104,500,'beatz'} this one's for u wild rush 2019
+	for i=104,123,2 do
+		ease{i,0.5,pop,500,'squarez'}
+		ease{i+1,0.5,pop,-500,'squarez'}
+	end
+	
+	ease{124,4,inSine,0,'movex',0,'flip',0,'orient'}
+	
+	func{128,function()
+		for pn = 3, 4 do
+			P[pn]:SetAwake(true)
+			P[pn]:SetInputPlayer(pn-3)
+			PP[pn]:hidden(0)
+			P[pn]:GetChild('Judgment'):hidden(1)
+			P[pn]:GetChild('Combo'):hidden(1)
+		end
+		for pn = 1,4 do 
+			P[pn]:SetFarDist(7000000)
+		end
+	end}
+	
+	local wr_stealth = 37.5
+	ease{128,4,outExpo,100,'centered',50,'flip',-1000,'movez',1.25,'xmod',500,'bumpy',100,'bumpyxperiod',100,'wave',15,'arrowpath'}
+	--ease{128,4,outExpo,-80,'rotx',plr=1}
+	ease{128,4,outExpo,-90,'rotz',wr_stealth,'stealth',plr=2}
+	ease{128,4,outExpo,-180,'rotz',wr_stealth,'stealth',plr=3}
+	ease{128,4,outExpo,-270,'rotz',wr_stealth,'stealth',plr=4}
+	
+	for i=128,190,8 do
+		ease{i,4,bounce,50,'bumpyx'}
+		ease{i+4,4,bounce,-50,'bumpyx'}
+	end
+	
+	--what
+	ease{128+8,4,outExpo,wr_stealth,'stealth',plr=1}
+	ease{128+8,4,outExpo,0,'stealth',plr=2}
+	ease{128+8*2,4,outExpo,wr_stealth,'stealth',plr=2}
+	ease{128+8*2,4,outExpo,0,'stealth',plr=3}
+	ease{128+8*3,4,outExpo,wr_stealth,'stealth',plr=3}
+	ease{128+8*3,4,outExpo,0,'stealth',plr=4}
+	ease{128+8*4,4,outExpo,wr_stealth,'stealth',plr=4}
+	ease{128+8*4-3.5,1,outExpo,0,'stealth',plr=1}
+	
+	add{128+8-2,4,inOutExpo,90,'rotz'}
+	add{128+8*2-4,8,inOutSine,90,'rotz'}
+	add{128+8*3-2,4,inOutExpo,90,'rotz'}
+	add{156.5,1,outQuad,90/3,'rotz'}
+	add{157.5,1,outQuad,90/3,'rotz'}
+	add{158.5,1,outQuad,90/3,'rotz'}
+	
+	add{159.5,1,instant,-360,'rotz'}
+	
+	set{128,-100,'drawsizeback',-100,'arrowpathdrawsizeback'}
+	
+	local wr_spline = 800
+	
+	func{128,4,outExpo,0,1,function(p)
+		for pn = 1,4 do
+			for col=0,3 do
+				P[pn]:SetXSpline(1, col, (-(wr_spline/2)+((wr_spline/3)*col))*p, 600, -1)
+				P[pn]:SetZSpline(1, col, 2000*p, 600, -1)
+				--print(-(wr_spline/2)+((wr_spline/3)*col))
+			end
+		end
+	end}
+	
+	func{131.5,0.5,outQuad,100,0,function(p)
+		wr_drunk2 = p
+	end}
+	func{131.5,0.5,function(beat,poptions)
+		local flip = fliperoo()
+		for pn=1,4 do
+			poptions[pn].square = wr_drunk2*flip
+		end
+	end}
+	
+	--set{150,100,'arrowpath'}
+	for i=150,151,0.5 do
+		ease{i,0.25,bounce,50,'tipsy'}
+		ease{i+0.25,0.25,bounce,-50,'tipsy'}
+	end
+	
+	for i,v in pairs(wr_hit) do
+		ease{v[1],0.5,pop,-100,'tiny'}
+	end
+	
+	for i,v in pairs(wr_hat2) do
+		if i%2==0 then
+			ease{v[1],0.5,pop,50,'noteskew'}
+		else
+			ease{v[1],0.5,pop,-50,'noteskew'}
+		end
+	end
+	
+	-- i am in hell
+	ease{160-4,4,inExpo,0,'movez',150,'z',0,'flip',1.25,'xmod',25/2,'bumpy',0,'wave',50,'tiny',50,'tinyz'}
+	ease{160,2,outExpo,0,'bumpyperiod'}
+	ease{160,2,outExpo,120,'rotx',200,'y',plr=1}
+	ease{160,2,outExpo,-120,'roty',200,'x',plr=2}
+	ease{160,2,outExpo,-120,'rotx',-200,'y',plr=3}
+	ease{160,2,outExpo,120,'roty',-200,'x',plr=4}
+	--add{128+4,4,outExpo,360,'rotz'}
+	add{160+9,4,outExpo,-90,'all_spin'}
+	add{160+8*2,4,outExpo,-90,'all_spin'}
+	add{160+8*2,15,inSine,-180,'all_spin'}
+	ease{160+8*2,15,inSine,-100,'z'}
+	
+	ease{160+9,4,outExpo,wr_stealth,'stealth',plr=1}
+	ease{160+9,4,outExpo,0,'stealth',plr=4}
+	ease{160+8*2,4,outExpo,wr_stealth,'stealth',plr=4}
+	ease{160+8*2,4,outExpo,0,'stealth',plr=3}
+	ease{160+8*3,4,outExpo,wr_stealth,'stealth',plr=3}
+	ease{160+8*3,4,outExpo,0,'stealth',plr=2}
+	ease{160+8*4-4,4,outExpo,wr_stealth,'stealth',plr=2}
+	ease{160+8*4-4,4,outExpo,0,'stealth',plr=1}
+	
+	func{160-4,4,inExpo,1,0,function(p)
+		for pn = 1,4 do
+			for col=0,3 do
+				P[pn]:SetXSpline(1, col, (-(wr_spline/2)+((wr_spline/3)*col))*p, 600, -1)
+				P[pn]:SetZSpline(1, col, 2000*p, 600, -1)
+			end
+		end
+	end}
+	
+	func{160,4,outExpo,0,1,function(p)
+		wr_spline = -300
+		for pn = 1,4 do
+			for col=0,3 do
+				P[pn]:SetXSpline(1, col, (-(wr_spline/2)+((wr_spline/3)*col))*p, 600, -1)
+			end
+		end
+	end}
+	
+	for i,v in pairs(wr_bass) do
+		ease{v[1],1,pop,-500,'tinyy'}
+	end
+	
+	for i,v in pairs(wr_hat3) do
+		if i%2==0 then
+			ease{v[1],0.5,pop,150,'noteskew'}
+		else
+			ease{v[1],0.5,pop,-150,'noteskew'}
+		end
+	end
+	
+	condorconst1 = math.sqrt(math.pow(SCREEN_WIDTH/2,2)+math.pow(SCREEN_HEIGHT/2,2))
+	condorconst2 = 180+math.deg(math.atan(SCREEN_HEIGHT/SCREEN_WIDTH))
+	local function condorrotation(ang,obj)
+		local s = obj
+		s:x(SCREEN_WIDTH/2+(condorconst1*math.cos((ang+condorconst2)/180*math.pi)));
+		s:y(SCREEN_HEIGHT/2+(condorconst1*math.sin((ang+condorconst2)/180*math.pi)));
+		s:rotationz(ang)
+	end
+	
+	definemod{'all_spin', function(rot)
+		condorrotation(rot,wr_prox_af)
+		return -rot*to_rad
+	end,'confusionzoffset'}
+	
+	reset{191,1,outExpo,exclude={'drawsizeback','disablemines'}}
+	func{191,1,outExpo,1,0,function(p)
+		for pn = 1,4 do
+			for col=0,3 do
+				P[pn]:SetXSpline(1, col, (-(wr_spline/2)+((wr_spline/3)*col))*p, 600, -1)
+			end
+		end
+	end}
+	
+	set{0,100,'disablemines',75,'hidemines'}
+	ease{191.5,0.5,outExpo,50,'reverse',50,'flip',-1000,'tiny',100,'dark'}
+	ease{192,4,outSine,200,'tiny'}
+	
+	set{191.5,50,'stealth'}
+	ease{191.5,1,outSine,0,'stealth'}
+	set{192.5,50,'stealth'}
+	ease{192.5,1,outSine,0,'stealth'}
+	set{193.5,50,'stealth'}
+	ease{193.5,2.5,outSine,100,'stealth'}
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer File = "grid" Name = "wr_grid"/>
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	
+	<Layer Type="ActorFrame" Name="wr_prox_af" ><children>
+		<Layer Type = "ActorProxy" Name = "PP[1]" />
+		<Layer Type = "ActorProxy" Name = "PP[2]" />
+		<Layer Type = "ActorProxy" Name = "PP[3]" />
+		<Layer Type = "ActorProxy" Name = "PP[4]" />
+	</children></Layer>
+</children></Mods>

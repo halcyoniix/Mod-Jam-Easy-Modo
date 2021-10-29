@@ -1,0 +1,750 @@
+<Mods LoadCommand = "%xero(function(self)
+
+--notedataaaaaaaa
+
+tunnel = {
+	{25.000,0,1},
+	{25.500,2,1},
+	{26.000,0,1},
+	{26.500,2,1},
+	{27.000,0,1},
+	{27.500,2,1},
+	{28.000,1,1},
+	{28.500,3,1},
+	{29.000,1,1},
+	{29.500,3,1},
+	{30.000,1,1},
+	{30.500,3,1},
+	{31.000,0,1},
+	{31.500,1,1},
+	{32.000,0,1},
+	{32.500,1,1},
+	{33.000,0,1},
+	{33.500,1,1},
+	{34.000,2,1},
+	{34.500,3,1},
+	{35.000,2,1},
+	{35.500,3,1},
+	{36.000,1,1},
+	{36.500,2,1},
+	{37.000,0,1},
+}
+
+--mods here
+
+--I want my code to be shorter (from kaypooma's file)
+local function mod_outin(beat, len, oute, ine, per1, per2, mod, pn)
+	ease
+	{beat, len/2, oute or outCirc, per2, mod, plr = pn}
+	{beat+len/2, len/2, ine or inCirc, per1, mod, plr = pn}
+end
+	
+local function mod_hit(beat, len, e, per, mod, pn)
+	ease
+	{beat, 0, instant, per, mod, plr = pn}
+	{beat, len, e or outCirc, 0, mod, plr = pn}
+end
+
+--intro bg
+definemod{'vigalpha', function(alp)
+	alt_vig:diffusealpha(alp/100)
+end}
+set{0, 30, 'vigalpha'}
+ease{23.5, 1.5, inCubic, 0, 'vigalpha'}
+func{25, function() alt_vig:hidden(1) end, persist=true}
+
+--starfield bg
+definemod{'flash', function(a) --white quad flash
+	wquad:diffusealpha(a/100)
+	alt_wquad2:diffusealpha(a/100)
+end}
+
+func{23.5, function() wquad:hidden(0) end, persist=true}
+mod_outin(23.5, 3, inCubic, outCubic, 0, 100, 'flash', {1,2})
+
+definemod{'glowrad', function(r)
+	starfield:GetShader():uniform1f('glowRad', r)
+end}
+
+ease{23.5, 1.5, inCubic, 0.001, 'glowRad'}
+
+func{23.5, function()
+	for pn = 1,2 do
+		P[pn]:x(scx)
+	end
+	aft1:hidden(0)
+	aftsprite1:hidden(0)
+	starfield:hidden(0)
+end, persist=true}
+ease{23.5, 1.5, inCubic, 102, 'raftzoom', 90, 'raftalpha', 100, 'starfalpha', 60, 'opacity_ex'}
+
+func{25, function()
+	spikyaf:hidden(0)
+end, persist=true}
+
+definemod{'spikyzi', 'spikyrotzi', 'spikyrotz', function(zpos, rotz, rotzf)
+	for i = 1, #spiky do
+		local zpos_i = 384*(1-i)
+		local zpos_f = (384*#spiky)*( (zpos+zpos_i-384)/(384*#spiky) - math.floor( (zpos+zpos_i-384)/(384*#spiky) ) )- (384*(#spiky-1))
+		local alpha = math.min(0.75, (zpos_f+384*(#spiky-1))/384)
+
+		spiky[i]:z(zpos_f)	
+		spiky[i]:diffusealpha(alpha)
+		spiky[i]:rotationz(rotz)
+	end
+	spikyaf:rotationz(rotzf)
+end}
+ease{25-2, 12+2, linear, 5376, 'spikyzi', -420 ,'spikyrotzi', 420*3 ,'spikyrotz'}
+mod_outin(36, 2, inCubic, outCubic, 0, 100, 'flash', {1,2})
+ease{36, 1, inCubic, 0.005, 'glowrad'}
+
+--starfield mods
+set{25, 20, 'mini', 100, 'drunk', -50, 'drunkperiod'}
+
+definemod{'rotx','roty','rotz',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+}
+
+func{25, 12, function(beat, poptions)
+	local xpos, ypos = 48*math.cos(2*math.pi*(beat-25)/8), 48*math.sin(2*math.pi*(beat-25)/8)
+	local mult = 1; if beat > 33 then mult = 1-inQuad((beat-33)/4) end
+	for pn = 1,2 do
+		P[pn]:xy(scx + xpos*mult, scy + ypos*mult)
+		
+		poptions[pn].rotx = -40*(1-0.5*math.sin(2*math.pi*(beat-25)/8))*mult
+		poptions[pn].roty = 30*math.cos(2*math.pi*(beat-25)/8)*mult
+	end
+end, persist=true}
+
+for i,v in ipairs(tunnel) do
+	mod_outin(v[1], 0.5, outSine, inSine, 0, -75, 'tiny'..v[2], {1,2})
+end
+
+--reset
+reset{37, exclude={'flash', 'opacity_ex'}}
+func{37, function()
+	starfield:hidden(1)
+	aft1:hidden(1)
+	aftsprite1:hidden(1)
+	spikyaf:hidden(1)
+end, persist=true}
+set{37, 95, 'opacity_ex'}
+
+--main A
+func{37, function()
+	alt_staraf:hidden(0)
+	alt_railaf:hidden(0)
+end, persist=true}
+
+--rail bg
+definemod{'mainA_y', 'PP_y', 'star_y', function(ypos, ypos2, ypos3)
+	alt_railaf:y(scy + ypos)
+	for pn = 1, 2 do
+		PP[pn]:y(ypos2)
+	end
+	
+	alt_staraf:y(scy + ypos3)
+end}
+
+set{37, scy, 'mainA_y', scy, 'PP_y', 0.5*scy, 'star_y'}
+ease{37, 4, outCirc, 0, 'mainA_y', 0, 'PP_y', 0, 'star_y'}
+
+definemod{'railz', function(zpos) --z position is actually x coordinate because of rotationy on the actorframe
+	for i = 1, #alt_lrail do
+		local xpos_i = -800*(i-1) --( -86*8 = -688 )
+		local xpos_m = xpos_i + zpos
+		local xpos_f = -(-800*#alt_lrail)*( (xpos_m+800)/(-800*#alt_lrail) - math.floor( (xpos_m+800)/(-800*#alt_lrail) ) ) + (-800*(#alt_lrail-1))
+		
+		alt_lrail[i]:x(xpos_f)
+		alt_rrail[i]:x(xpos_f)
+	end
+end}
+ease{37, 24, linear, -800*8*0.75, 'railz'}
+
+ease{59, 2, inCirc, 2*scy, 'mainA_y', 2*scy, 'PP_y', scy, 'star_y'}
+func{59, 2, inCirc, 2900, 0, function(a) alt_railaf:SetFarDist(a) end, persist=true} --this transition :weary:.....
+
+func{61, function()
+	alt_railaf:hidden(1)
+	for pn =1,2 do
+		PP[pn]:hidden(1)
+	end
+end, persist=true}
+
+--rail mods
+--distance between the receptor and rail is around -50 movey = 32pix????
+set{37, 1000, 'bumpyzperiod', 25, 'drawsize', 75, 'zoomz', 100, 'sudden', 175, 'suddenoffset', 100, 'receptorzbuffer', 25, 'movey', -64, 'z'} 
+set{37, 300, 'bumpyxperiod' ,plr = 1}
+set{37, 350, 'bumpyxperiod' ,plr = 2}
+
+for pn = 1,2 do --seperating both players
+	for c = 4-2*pn, 5-2*pn do
+		set{37, 100, 'stealth'..c, 100, 'dark'..c, 100, 'hidenoteflash'..c, plr = pn} 
+	end
+	set{37, (0.55*sw-26.5*8)*(2*pn-3), 'x', 100*(3-2*pn), 'movex', 50*(2*pn-3), 'bumpyx', plr = pn}
+end
+
+func{37, 24, function(beat,poptions)
+	local mult = 1; if beat < 49 then mult = outQuad((beat-37)/12) end
+	
+	local sinBeat = math.sin( 2*math.pi*(beat-37)/12 )
+	local cosBeat = math.cos( 2*math.pi*(beat-37)/12 )
+	
+	local sinBeat2 =  math.sin( 2*math.pi*(beat-37)/16 )
+	local cosBeat2 =  math.cos( 2*math.pi*(beat-37)/24 )
+	
+	poptions[1].rotationx = -15*sinBeat*mult
+	poptions[2].rotationx =  15*cosBeat*mult
+	
+	poptions[1].rotationy =  12.5*sinBeat2*mult
+	poptions[2].rotationy = -12.5*cosBeat2*mult
+	
+	--distance between scy & recetpor ~ 128pix?
+	poptions[1].movez = -300*math.tan(math.rad(poptions[1].rotationx))
+	poptions[2].movez = -300*math.tan(math.rad(poptions[2].rotationx))
+
+	alt_lwheel:rotationx(-15*sinBeat*mult)
+	alt_lwheel:rotationy(12.5*sinBeat2*mult)
+	
+	alt_rwheel:rotationx(15*cosBeat*mult)
+	alt_rwheel:rotationy(-12.5*cosBeat2*mult)
+	
+	poptions[1].bumpyz = 200*sinBeat*mult
+	poptions[2].bumpyz = 200*cosBeat*mult
+end}
+
+
+for i = 37, 60.5, 0.5 do --string accents
+	if (2*i)%3 == 2 then
+		mod_hit(i, 1, outQuad, -150, 'tiny', {1,2})
+	else
+		mod_hit(i, 0.5, outQuad, -75, 'tiny', {1,2})
+	end
+end
+
+local fluct = 0
+for i = 38.5, 39.5, 0.125 do --piano accents 1
+	local c = 3*(fluct % 2)
+	mod_hit(i, 0.25, outQuad, 90, 'noteskewx'..c, {1,2})
+	fluct = fluct + 1
+end
+
+local fluct = 0
+for i = 41.5, 42.5, 0.125 do --piano accents 2
+	local c = fluct % 4; if i > 42 then c = (10-fluct) % 4 end
+	if i < 42 then
+		mod_hit(i, 0.25, outQuad, 90, 'noteskewx'..c, {1,2})
+	else
+		mod_hit(i, 0.25, outQuad, -90, 'noteskewx'..c, {1,2})
+	end
+	fluct = fluct + 1
+end
+
+local fluct = 0
+for i = 44.5, 45.5, 0.125 do --piano accents 3
+	local c = fluct % 4
+	mod_hit(i, 0.25, outQuad, 90, 'noteskewx'..c, {1,2})
+	fluct = fluct + 1
+end
+
+local fluct = 0
+for i = 47.5, 48.5, 0.125 do --piano accents 4
+	local c = (10-fluct) % 4
+	if i < 42 then
+		mod_hit(i, 0.25, outQuad, 90, 'noteskewx'..c, {1,2})
+	else
+		mod_hit(i, 0.25, outQuad, -90, 'noteskewx'..c, {1,2})
+	end
+	fluct = fluct + 1
+end
+
+cymbal = {37, 49, 52, 55, 56.5, 58} --cymbal accents
+for i = 1, table.getn(cymbal) do
+	local cym = cymbal[i]
+	mod_hit(cym, 1, outQuad, 50, 'stealth', {1,2})
+end
+
+--main B
+
+--transition..?
+reset{61, exclude={'opacity_ex', 'star_y', 'hook_y'}}
+
+set{59, 100, 'sudden', 100, 'suddenoffset', plr = {3,4}}
+func{59, function()
+	for pn = 3,4 do
+		P[pn]:SetAwake(true)
+		P[pn]:xy(scx, scy)
+		PP[pn]:hidden(0)
+	end
+end, persist=true}
+
+ease{61, 2, outCubic, 1.5*scy, 'star_y'}
+
+func{61, 2, outCubic, -sh, 0, function(a)
+	for pn = 3,4 do
+		PP[pn]:y(a)
+	end
+end, persist=true}
+
+--main B bg
+definemod{'hook_y', 'hook_rotz', function(ypos,rotz)
+	alt_hook:y(-scy + ypos)
+	alt_hookaf:rotationz(rotz)
+end}
+
+func{61, function()
+	alt_hook:hidden(0)
+	aft1:hidden(0)
+	alt_wave:hidden(0)
+end, persist=true}
+ease{61, 8, inOutSine, 440, 'hook_y'}
+
+local fluct = 1
+for i = 61, 79, 6 do
+	mod_outin(i, 6, inOutSine, inOutSine, 8/fluct, -8/fluct, 'hook_rotz')
+	fluct = fluct * 2
+end
+
+func{84, 1, outCubic, 1, 0, function(a)
+	alt_staraf:diffusealpha(a)
+	alt_hook:diffusealpha(a)
+end, persist=true}
+
+definemod{'tsuyoi', 'frequencib', function(t,f) --another shader?????
+	alt_wave:GetShader():uniform1f('tsuyoi', t)
+	alt_wave:GetShader():uniform1f('frequencib', f)
+end}
+
+for i = 67, 79, 12 do
+	mod_hit(i, 6, outQuad, 0.015, 'tsuyoi')
+	mod_hit(i, 6, outQuad, 20, 'frequencib')
+end
+
+--main B mods
+set{61, 500, 'bumpyxperiod', 1000, 'bumpyzperiod', 75, 'zoomz', 100, 'zbuffer', 100, 'receptorzbuffer', plr = {3,4}}
+func{61, 25, function(beat, poptions)
+	local mult = 1; if beat > 77 then mult = 1-outQuad((beat-77)/8) end
+	local sinBeat = math.sin((beat-61)*math.pi/4)
+	local cosBeat = math.cos((beat-61)*math.pi/4)
+
+	for pn = 3,4 do
+		poptions[pn].x = 160*cosBeat*(2*pn-7)
+		poptions[pn].z = 60*sinBeat*(2*pn-7)
+		
+		poptions[pn].skewx = 30*sinBeat*(2*pn-7)
+		poptions[pn].noteskewx = -30*sinBeat*(2*pn-7)
+		
+		poptions[pn].rotationx = 15*cosBeat
+		poptions[pn].rotationy = 20*sinBeat
+		
+		poptions[pn].bumpyx = 100*cosBeat*(2*pn-7)
+		poptions[pn].bumpyz = 200*sinBeat*(2*pn-7)
+	end
+end}
+
+for i = 61, 84.5, 1.5 do -- :clap:
+	mod_hit(i+0.5, 0.5, outQuad, -100, 'tiny', {3,4})
+	mod_hit(i+1  , 0.5, outQuad, -100, 'tiny', {3,4})
+end
+
+mod_hit(73, 1.5, outQuad, 50, 'stealth', {3,4}) --cymbal
+mod_hit(73, 1, outCubic, -150, 'tiny', {3,4})
+mod_hit(73, 1.5, outQuad, -100, 'tipsy', {3,4})
+
+local fluct = 1
+for i = 79, 82, 1.5 do 
+	mod_hit(i, 1.5, outQuad, 50, 'stealth', {3,4})
+	mod_hit(i, 1, outCubic, -150, 'tiny', {3,4})
+	mod_hit(i, 1.5, outQuad, 100*fluct, 'tipsy', {3,4})
+	fluct = fluct * -1
+end
+
+ease{73-1.5, 3, inOutCubic, 100, 'reverse', plr = {3,4}} --the part is still not over so I just put reverse
+ease{84-1.5, 3, inOutCubic, 0, 'reverse', plr = {3,4}}
+
+--transition time
+reset{86, plr = {3,4}}
+func{85, function()
+	for pn = 1,4 do
+		if pn < 3 then
+			P[pn]:x(scx)
+			PP[pn]:xy(0,0)
+			PP[pn]:hidden(0)
+		else
+			P[pn]:SetAwake(false)
+			PP[pn]:hidden(1)
+		end
+	end
+	aft1:hidden(1)
+	alt_wave:hidden(1)
+	alt_staraf:hidden(1)
+	alt_back2af:hidden(0)
+end, persist=true}
+
+--main C
+
+--mainC bg
+local function quadzoom(beatS, quadS, Nquad, dir, mode)
+	for i = 1, Nquad do
+		local act = i + quadS - 1; if dir == 'v' then act = math.floor((act-1)/6) + 8*((act-1)%6) + 1 end
+		local beat = beatS + 3*(i-1)/48
+		
+		if mode == 'on' then
+			func{beat, function() alt_backing2[act]:hidden(0) end, persist=true}
+			func{beat, 0.5, outSine, 0, 1, function(a)
+				alt_backing2[act]:rotationz(90*a)
+				alt_backing2[act]:zoomto(sw/8*a*0.95,sh/6*a*0.95)
+			end, persist=true}
+		elseif mode == 'off' then
+			func{beat, 0.5, outSine, 1, 0, function(a)
+				alt_backing2[act]:rotationz(90*(1-a))
+				alt_backing2[act]:zoomto(sw/8*a*0.95, sh/6*a*0.95)
+			end, persist=true}
+			--func{beat+0.5, function() alt_backing2[act]:hidden(1) end, persist=true}
+		end
+	end
+end
+
+quadzoom(85    , 1 , 48, 'h', 'on' )
+quadzoom(88    , 1 , 48, 'h', 'off')
+
+quadzoom(91    , 1 , 48, 'v', 'on' )
+quadzoom(94    , 1 , 48, 'v', 'off')
+
+quadzoom(97.5  , 1 , 16, 'h', 'on' )
+quadzoom(99    , 33, 16, 'h', 'on' )
+quadzoom(100.5 , 17, 16, 'h', 'on' )
+quadzoom(101.5 , 1 , 48, 'h', 'off')
+
+quadzoom(104   , 1 , 24, 'v', 'on' )
+quadzoom(104.75, 1 , 24, 'v', 'off')
+
+for i = 1, 24 do
+	local act = 49 - i
+	act = math.floor((act-1)/6) + 8*((act-1)%6) + 1
+	local beat = 107 + 3*(i-1)/48
+	func{beat, function() alt_backing2[act]:hidden(0) end, persist=true}
+	func{beat, 0.5, outSine, 0, 1, function(a)
+		alt_backing2[act]:rotationz(90*a)
+		alt_backing2[act]:zoomto(sw/8*a*0.95,sh/6*a*0.95)
+	end, persist=true}
+end
+for i = 1, 24 do
+	local act = 49 - i
+	act = math.floor((act-1)/6) + 8*((act-1)%6) + 1
+	local beat = 107.75 + 3*(i-1)/48
+	func{beat, 0.5, outSine, 1, 0, function(a)
+		alt_backing2[act]:rotationz(90*(1-a))
+		alt_backing2[act]:zoomto(sw/8*a*0.95, sh/6*a*0.95)
+	end, persist=true}
+	--func{beat+0.5, function() alt_backing2[act]:hidden(1) end, persist=true}
+end
+
+quadzoom(109   ,  1, 24, 'h', 'on' )
+quadzoom(110.5 ,  1, 24, 'h', 'off')
+for i = 1, 24 do
+	local act = 49 - i
+	local beat = 109 + 3*(i-1)/48
+	func{beat, function() alt_backing2[act]:hidden(0) end, persist=true}
+	func{beat, 0.5, outSine, 0, 1, function(a)
+		alt_backing2[act]:rotationz(90*a)
+		alt_backing2[act]:zoomto(sw/8*a*0.95,sh/6*a*0.95)
+	end, persist=true}
+end
+for i = 1, 24 do
+	local act = 49 - i
+	local beat = 110.5 + 3*(i-1)/48
+	func{beat, 0.5, outSine, 1, 0, function(a)
+		alt_backing2[act]:rotationz(90*(1-a))
+		alt_backing2[act]:zoomto(sw/8*a*0.95, sh/6*a*0.95)
+	end, persist=true}
+	--func{beat+0.5, function() alt_backing2[act]:hidden(1) end, persist=true}
+end
+
+
+func{112, function() alt_vig:hidden(0) end, persist=true}
+ease{112, 3, outCubic, 50, 'opacity_ex', 35, 'vigalpha'}
+func{115, function() alt_back2af:hidden(1) end, persist=true}
+
+--mainC mods (most of the main one are done in mrcool.xml)
+
+for i = 97.5, 98.25, 0.25 do
+	local c = (i*4+2)%4
+	ease{i-0.5, 1, inOutCubic, 100, 'reverse'..c, plr = 1}
+end
+
+for i = 99, 99.75, 0.25 do
+	local c = (i*4)%4
+	ease{i-0.5, 1, inOutCubic, 100, 'reverse'..c, plr = 2}
+end
+
+for i = 100.5, 101.25, 0.25 do
+	local c = (i*4+2)%4
+	ease{i-0.5, 1, inOutCubic, 0, 'reverse'..c, plr = 1}
+end
+for i = 101.5, 102.25, 0.25 do
+	local c = (i*4+2)%4
+	ease{i-0.5, 1, inOutCubic, 0, 'reverse'..c, plr = 2}
+end
+
+--break B bg
+func{124, function()
+	cool_introbg:y(scy)
+	alt_staraf:hidden(0)
+	
+	alt_railaf:hidden(0)
+	alt_railaf:SetFarDist(2900)
+
+	alt_rrailaf:hidden(1)
+	alt_wheelaf:hidden(1)
+	alt_lrailaf:hidden(1)
+	
+	alt_water:texcoordvelocity(0,-0.05)
+end, persist=true}
+set{124, 0, 'keyypos', scy, 'star_y', 4*sh, 'mainA_y', 0, 'railz'}
+func{124, 1.5, outCubic, 0, -300, function(a) key:z(a) end, persist=true}
+ease{124, 1.5, inQuad, 100, 'keydiffuse', 85, 'opacity_ex'}
+
+func{125.5, function() alt_vig:hidden(1) end, persist=true}
+ease{125.5, 1.5, inQuad, 0, 'vigalpha'}
+func{125.5, 1.5, inQuad, 0, 1, function(a) alt_staraf:diffusealpha(a) end, persist=true}
+ease{125.5, 15, inOutSine, scy/4, 'star_y', sh, 'mainA_y'}
+
+--break B mods
+for pn = 1,2 do
+	for c = pn-1, pn+1, 2 do
+		set{125.5, 100, 'stealth'..c, 100, 'dark'..c, 100, 'hidenoteflash'..c, plr = pn}
+	end
+end
+
+ease{125.5, 1.5, outCubic, -50, 'flip', 50, 'brake'}
+
+ease{127, 6, inOutCubic, -180, 'rotx'}
+ease{133, 6, inOutCubic, -360, 'rotx'}
+
+func{127, 12, function(beat, poptions)
+	local sinBeat = math.sin(2*math.pi*(beat-127)/12)
+	for pn = 1,2 do
+		poptions[pn].rotationy =  20*sinBeat*(2*pn-3)
+		
+		poptions[pn].drunkz = 50*sinBeat*(2*pn-3)
+		
+		poptions[pn].bumpyx = 100*sinBeat*(2*pn-3)
+		poptions[pn].bumpyz = -100*sinBeat*(2*pn-3)
+	end
+end}
+
+ease{137.5, 1.5, outCubic, -25, 'flip', 0, 'brake'} 
+ease{139  , 1.5, outCubic,   0, 'flip'} 
+
+for pn = 1,2 do
+	for c = pn-1, pn+1, 2 do
+		set{140.5, 0, 'stealth'..c, 0, 'dark'..c, 0, 'hidenoteflash'..c, plr = pn}
+	end
+end
+
+--highlight transition
+set{139, 75, 'opacity_dg'}
+func{136, function()
+	for pn = 1,2 do
+		P[pn]:x(scx)
+	end
+	alt_keyhole:hidden(0)
+	alt_blendsprite2:hidden(0)
+	alt_wquad2:hidden(0)
+end, persist=true}
+
+definemod{'keyholezoom', 'keyholealpha', function(zm,alp)
+	alt_keyhole:zoom(zm)
+	alt_keyholemask:zoom(zm)
+	alt_keyhole:diffusealpha(alp)
+end}
+set{136, 0.25, 'keyholezoom', 0, 'keyholealpha'}
+ease{137.5, 3, outSine, 0.9, 'keyholealpha'}
+
+func{140.5, function()
+	alt_maskback:hidden(0)
+	alt_keyholemask:hidden(0)
+end, persist=true}
+ease{140.5, 1.5, inExpo, 8, 'keyholezoom', 0, 'keyholealpha', 100, 'flash', 25, 'backdiffuse'}
+set{142, 10 ,'keyholezoom'}
+ease{142, 1.5, outCubic, 0, 'flash'}
+func{142, 1.5, outCubic, 0, 1, function(a) alt_staraf:diffusealpha(a) end, persist=true}
+
+func{142, function()
+	blendsprite:hidden(1)
+end, persist=true}
+
+--highlight bg
+
+reset{187, exclude = {'opacity_ex'}}
+func{187, function() alt_blendsprite2:hidden(1) end, persist=true}
+
+ease{142, 45, inOutQuad, 4*sh, 'mainA_y', scy, 'star_y'}
+for i = 0, 62 do
+	local p = alt_particletable[(i % #alt_particletable) + 1]
+	
+	local xini = math.random()*600 -300
+	local xdes = xini + math.random() * 250 - 125
+	local yini = scy + 50
+	local ydes = -1.5*scy - math.random()*scy
+	func{140.5 + 0.75*i, function() p:hidden(0) end, persist=true}
+	func{140.5 + 0.75*i, 24, outQuad, 0, 1, function(a)
+		if p then
+			p:x( xini + (xdes-xini) * a )
+			p:y( yini + (ydes-yini) * a )
+		end
+	end, persist=true}
+end
+func{142, function() alt_particleaf:hidden(0) end, persist=true}
+func{187, function() alt_particleaf:hidden(1) end, persist=true}
+
+ease{184, 3  , inCubic , 100, 'flash'}
+ease{187, 1.5, outCubic,   0, 'flash'}
+
+func{187, 1.5, function()
+	alt_blendsprite2:hidden(1)
+	blendsprite:hidden(0)
+end, persist=true}
+set{187, 95, 'opacity_ex'}
+
+--highlight mods
+set{142, 25, 'drawsize'}
+
+local fluct = 1
+for i = 142, 184, 3 do
+	if i ~= 157 or i ~= 178 then
+		mod_outin(i, 3, outSine, inSine, 0, 15*fluct, 'rotationx')
+		fluct = fluct * -1
+	end
+end
+
+local fluct = 1
+for i = 142, 178, 6 do
+	if i~= 154 or i ~= 175 then
+		mod_outin(i, 6, outSine, inSine, 0, 15*fluct, 'rotationy')
+	else
+		mod_outin(i, 3, outSine, inSine, 0, 15*fluct, 'rotationy')
+	end
+	fluct = fluct * -1
+end
+
+for i = 157, 160, 0.75 do
+	mod_hit(i, 0.75, outCubic, -200, 'tiny'   , {1,2})
+	mod_hit(i, 0.75, outCubic,   50, 'stealth', {1,2})
+end
+
+for i = 178, 181, 0.75 do
+	mod_hit(i, 0.75, outCubic, -200, 'tiny'   , {1,2})
+	mod_hit(i, 0.75, outCubic,   50, 'stealth', {1,2})
+end
+
+--ending bg
+
+func{187, function() alt_vig:hidden(0) end, persist=true}
+set{187, 35, 'vigalpha'}
+
+set{187, 2*sh, 'mainA_y', 0.5*scy, 'star_y'}
+ease{199, 12, inOutSine, 4*sh, 'mainA_y', scy, 'star_y'}
+func{199, function() blendsprite:hidden(0) end, persist=true} --why???
+
+func{214, function()
+	cool_introbg:fov(RealFov(75))
+	
+	alt_title:hidden(0)
+	
+	key:hidden(0)
+	key:z(0)
+	key:rotationx(-120)
+	key:rotationz(0)
+end, persist=true}
+
+definemod{'titlealpha', function(a)
+	alt_title:diffusealpha(a)
+end}
+
+set{214, 100, 'keydiffuse', 0, 'keyypos', 30, 'keyrotz', 100, 'titlealpha'}
+
+func{214, 6, linear, 0, 30, function(a)
+	key:rotationx(-120 + a)
+	key:rotationz(a)
+end, persist=true}
+
+ease{220-0.75, 1.5, outCubic, 0, 'keydiffuse'}
+ease{220-0.75, 0.75, outCubic, 0, 'titlealpha'}
+
+--ending mods
+set{199, 300, 'bumpyxperiod', 300, 'bumpyperiod'}
+ease{199, 6, inOutQuad, 100, 'bumpyx', 50, 'bumpy', 25, 'tipsy'}
+ease{205, 6, inOutQuad, 0, 'bumpyx', 0, 'bumpy', 0, 'tipsy'}
+
+ease{199, 12, inOutSine, 50, 'brake', 125, 'zoom', -45, 'rotx'}
+
+set{205, 100, 'sudden', 125, 'suddenoffset'}
+ease{205, 9, inOutSine, 50, 'reverse', 50, 'flip'}
+--ease{209.5, 3, outSine, 50, 'reverse', 50, 'flip'}
+
+func{207, function()
+	for pn = 1,2 do
+		P[pn]:SetHiddenRegions({{214, 220}})
+	end
+	
+	for pn = 3,4 do
+		P[pn]:SetAwake(true)
+		P[pn]:SetHiddenRegions({{208,213}})
+		PP[pn]:y(0)
+	end
+end, persist=true}
+
+set{207, 0.8, 'xmod', 50, 'reverse', 50, 'flip', 100, 'dark', 10, 'grain', -100, 'spiralholds', -95, 'spiralxperiod', -95, 'spiralyperiod', plr = {3,4}}
+set{207, 200, 'tiny', 100, 'hidenoteflash', 125, 'zoom', plr = {3,4}}
+set{207,  100, 'spiralx',  100, 'spiraly', plr = 3}
+set{207, -100, 'spiralx', -100, 'spiraly', plr = 4}
+
+func{208, function() for pn=3,4 do PP[pn]:hidden(0) end end, persist=true}
+
+ease{211, 3, outCubic, 100, 'stealth', 100, 'dark'}
+ease{211, 3, inQuad, -25, 'tiny', plr = {3,4}}
+--ease{211, 3, inQuad, 0, 'dark', plr = {3,4}}
+
+set{214, 0, 'hidenoteflash', plr = {3,4}}
+ease{214, 6, linear, 80*6, 'centered2', 100, 'stealth', plr = {3,4}}
+
+func{214, function()
+	for pn = 1,2 do
+		PP[pn]:hidden(1)
+	end
+end, persist=true}
+
+set{213.95, 100, 'hidenoteflash'}
+func{220.5, function()
+	for pn = 3,4 do
+		PP[pn]:hidden(1)
+	end
+end, persist=true}
+
+end)"/>

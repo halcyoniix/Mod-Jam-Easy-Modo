@@ -1,0 +1,95 @@
+<ActorFrame><children>
+    <CODE Type="Quad"
+    OnCommand="hidden,1"
+    InitCommand="%function(self)
+
+    --table inserters--
+    function mod_insert(start, len, amp, mod, pn)
+        table.insert(mods, {'mi', start, len, amp, mod, pn})
+    end
+
+    function mod_ease(start, len, amp0, amp, mod, ease, pn, sus)
+        table.insert(mods, {'me', start, len, amp0, amp, mod, ease, pn, sus})
+    end
+
+    function mod_clear(start, list, pn)
+        for i, v in pairs(list) do
+            table.insert(mods, {'mi', start, 1, 0, v, pn})
+        end
+    end
+
+    function mod_perframe(start, len, fx)
+        table.insert(mods_pf, {start, len, fx})
+    end
+
+    function mod_message(start, msg, per)
+        table.insert(mods_msg, {start, msg, per})
+    end
+
+    function mod_vulnerable(tab, start, ill)
+        table.insert(tab, string.format('%X', tostring(ill*wavestep_npu*8 + start)))
+    end
+
+    function mod_vulnerable2(tab, start, ill)
+        table.insert(tab, ill)
+        table.insert(tab, start)
+    end
+
+    --aux easer--
+    function aux_ease(start, len, amp0, amp, ease, actor, effect)
+        local beat = GAMESTATE:GetSongBeat()
+        local ampappl = _G[ease](beat - start, amp0, amp - amp0, len)
+        actor:cmd(effect..','..ampappl)
+    end
+
+    function haniac(n) return tonumber(n, wavestep_npu*8) end
+
+    --reader helpers--
+    function mod_parser(amp, mod)
+        local ampappl = (mod == 'xmod' and amp..'x') or (mod == 'cmod' and 'C'..amp) or (mod == 'mmod' and 'M'..amp) or amp..' '..mod
+        return '*-1 '..ampappl
+    end
+
+    function mod_applier(amp, mod, pn)
+        local player = pn or 0
+        if atable[player] then
+            table.insert(atable[player], mod_parser(amp, mod))
+        else
+            atable[player] = {mod_parser(amp, mod)}
+        end
+    end
+
+    wavestep_reader = {
+        mi = function(beat, ...)
+            mod_applier(arg[1][4], arg[1][5], arg[1][6])
+        end,
+        me = function(beat, ...)
+            local curtime = beat - arg[1][2]
+            local amp = curtime > arg[1][3] and arg[1][5] or _G[arg[1][7]](curtime, arg[1][4], arg[1][5] - arg[1][4], arg[1][3])
+            mod_applier(amp, arg[1][6], arg[1][8])
+        end
+    }
+
+    --extra stuff--
+    function perframe(start, en)
+        if GAMESTATE:GetSongBeat() < mod_firstSeenBeat + 1 then return false end
+        if not en then en = start + 1 end
+        local cur = GAMESTATE:GetSongBeat()
+        if cur >= start and cur < en then return true end
+        return false
+    end
+
+    function modulo(a, b)
+        return a - math.floor(a / b) * b
+    end
+
+    function alternate(n, mult)
+        return modulo(n, mult*2) * (2/mult) - 1
+    end
+
+    function alternate_pn(pn)
+        return modulo(pn, 2) * 2 - 1
+    end
+
+    end"/>
+</children></ActorFrame>

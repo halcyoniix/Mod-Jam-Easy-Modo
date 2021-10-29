@@ -1,0 +1,37 @@
+<Layer Type="ActorFrame" ><children>
+<Layer Type="Quad" OnCommand="%function(self) 
+
+local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+self:zoom(1000); 
+self:diffuse(rgba(0, 0, 0,1)); end"/>
+<Layer Type="Aux" Name="dummy[1]" />
+<Layer File="circle.png" Name="dot[1]" />
+<Layer File="circle.png" Name="dot[2]" />
+<Layer File="circle.png" Name="dot[3]" />
+<Layer File="circle.png" Name="dot[4]" />
+<Layer File="circle.png" Name="dot[5]" />
+<Layer File="circle.png" Name="dot[6]" />
+<Layer File="circle.png" Name="dot[7]" />
+<Layer File="circle.png" Name="dot[8]" />
+<Layer File="circle.png" Name="dot[9]" />
+<Layer File="circle.png" Name="dot[10]" />
+<Layer File="circle.png" Name="dot[11]" />
+<Layer File="circle.png" Name="dot[12]" />
+<Layer File="circle.png" Name="dot[13]" />
+<Layer File="circle.png" Name="dot[14]" />
+<Layer File="circle.png" Name="dot[15]" />
+<Layer File="circle.png" Name="dot[16]" />
+<Layer File="circle.png" Name="dot[17]" />
+<Layer File="circle.png" Name="dot[18]" />
+<Layer File="circle.png" Name="dot[19]" />
+<Layer File="circle.png" Name="dot[20]" />
+
+
+</children></Layer>

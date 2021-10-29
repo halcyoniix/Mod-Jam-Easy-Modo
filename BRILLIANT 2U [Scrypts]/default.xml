@@ -1,0 +1,648 @@
+<Layer Type = "ActorFrame" InitCommand = "sleep,9e9"><children>
+	<Layer File="s" />
+	<Layer Type = "ActorFrame"
+		InitCommand = "queuecommand,Set"
+		ScreenReadyCommand = "playcommand,Set"
+
+		SetCommand = "%(function(self)
+			local ran
+			return function(self)
+				if ran then return end ran = true
+				for i,v in ipairs{'LifeP1','LifeP2','ScoreP1','ScoreP2','BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'} do
+					if SCREENMAN:GetTopScreen():GetChild(v) then SCREENMAN:GetTopScreen():GetChild(v):hidden(1) end
+				end
+				self:luaeffect'Update'
+			end
+		end)()"
+
+		UpdateCommand = "%(function(self)
+			local first_beat = GAMESTATE:GetSongBeat()
+			local Plr = function(pn) return SCREENMAN:GetTopScreen():GetChild('PlayerP' .. pn) end
+			local apply
+			if FUCK_EXE then apply = function(string, pn) GAMESTATE:ApplyModifiers(string, pn) end else apply = function(string, pn) GAMESTATE:ApplyGameCommand('mod, ' .. string, pn) end end
+			local mods = {}
+			local actions = {}
+
+			local mod_insert, mod_message = function(...) arg.i = table.getn(mods) + 1 table.insert(mods, arg) end, function(...) arg.i = table.getn(actions) + 1 if type(arg[2]) ~= 'number' then table.insert(arg, 2, 0) end table.insert(actions, arg) end
+			local m, mi, mm = mod_insert, mod_insert, mod_message
+
+			local l, e = 'len', 'end'
+			local TiB = function(beat) return (1 / GAMESTATE:GetCurBPS()) * beat end
+
+
+			-- mods go here
+			-- start, end, mods, l or e, pn
+			m(0, 9e9, 'clearall, *-1 2x,overhead,*-1 halgun,*-1 100% zoomz,*-1 stealthpastreceptors,*-1 cover', l)
+
+			m(2, 2, '*3 200% boost', l)
+			m(2, 36, '*12 no drunk,*12 no tipsy,*2 no flip', e)
+			m(4, 0.05, '*-1 200% drunk,*-1 200% tipsy', l)
+
+			m(11.5, 0.05, '*-1 200% drunk,*-1 200% tipsy', l)
+			m(12, 0.05, '*-1 -200% drunk,*-1 -200% tipsy', l)
+
+			m(15.5, 0.25, '*5 20% invert', l)
+			m(15.75, 0.25, '*5 0% invert', l)
+
+			m(16, 1, '*6 -500% skewx,*3 dark,*3 stealth', l)
+
+			m(17, 0.1, '*-1 500% skewx', l)
+			m(17.05, 3, '*7 0% skewx,*3 no dark,*3 no stealth', l)
+
+			m(19.5, 0.05, '*-1 200% drunk,*-1 200% tipsy', l)
+			m(20, 0.05, '*-1 -200% drunk,*-1 -200% tipsy', l)
+			
+			for i = 21, 31, 4 do
+				m(i, 0.05, '*-1 -20% flip', l)
+				m(i+2, 0.05, '*-1 -20% flip', l)
+
+				m(i, 2, '*-1 75% hallway', l)
+				m(i+2, 2, '*-1 75% distant', l)
+			end
+			for i = 32, 34, 2 do
+				m(i, 0.05, '*-1 -20% flip', l)
+				m(i+1, 0.05, '*-1 -20% flip', l)
+
+				m(i, 2, '*-1 75% hallway', l)
+				m(i+1, 2, '*-1 75% distant', l)
+			end
+			for i = 35, 36, 0.25 do
+				m(i, 0.05, '*40 -40% mini', l)
+			end
+			m(36,2,'*-1 overhead', l)
+			m(21, 15, '*0.5 50% tornado,*0.5 attenuatex,*0.7 150% wave,*0.5 hidden,*-1 50% hiddenoffset', l)
+			m(31.5, 3.5, '*0.3 -75% noteskewx0,*0.3 -75% noteskewx1,*0.3 75% noteskewx2,*0.3 75% noteskewx3', l)
+			m(35, 1, '*1 no noteskewx0,*1 no noteskewx1,*1 no noteskewx2,*1 no noteskewx3', l)
+			m(36, 1, '*10 no tornado,*10 no attenuate,*10 no wave,*10 no hidden,*10 hiddenoffset', l)
+
+			m(36, 0.1, '*10 50% stealth', l)
+
+			--fun time
+
+			for i = 41, 72, 8 do
+				m(i, 4, '*2 no tipsy', l)
+				m(i, 0.05, '*-1 50% tipsy', l)
+				m(i+.75, 0.05, '*-1 -50% tipsy', l)
+				m(i+1.25, 0.05, '*-1 50% tipsy', l)
+				m(i+2, 0.05, '*-1 -50% tipsy', l)
+			end
+			m(36, 64, '*20 beat,*20 1.75x', l)
+			m(53, 0.05, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+			m(68, 0.05, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+
+			m(36, 10, '*8 reverse0', l)
+			m(36.75, 10, '*8 reverse1', l)
+			m(37.5, 10, '*8 reverse2', l)
+			m(38.25, 10, '*8 reverse3', l)
+			m(39, 5, '*8 100% movex1,*8 -100% movex2,*30 314% confusionoffset1,*30 -314% confusionoffset2,*10 50% stealth1,*10 50% stealth2,*20 100% dizzy1,*20 100% dizzy2,*10 50% stealthglowred', l)
+			m(43, 1, '*8 no movex1,*8 no movex2,*30 no confusionoffset1,*30 no confusionoffset2,*10 no stealth1,*10 no stealth2,*20 no dizzy1,*20 no dizzy2,*40 no stealthglowred',l)
+
+			m(44, 2, '*8 no reverse0', l)
+			m(44.75, 2, '*8 no reverse1', l)
+			m(45.5, 2, '*8 no reverse2', l)
+			m(46.25, 2, '*8 no reverse3', l)
+			m(47, 5, '*24 300% movex0,*24 -300% movex3,*30 314% confusionoffset0,*30 -314% confusionoffset3,*10 50% stealth0,*10 50% stealth3,*20 -100% dizzy0,*10 -100% dizzy3,*10 50% stealthglowred', l)
+			m(51, 1, '*24 no movex0,*24 no movex3,*30 no confusionoffset0,*30 no confusionoffset3,*10 no stealth0,*10 no stealth3,*20 no dizzy0,*20 no dizzy3,*40 no stealthglowred',l)
+
+			m(52, 10, '*8 reverse0', l)
+			m(52.75, 10, '*8 reverse1', l)
+			m(53.5, 10, '*8 reverse2', l)
+			m(54.25, 10, '*8 reverse3', l)
+			m(55, 5, '*8 100% movex1,*8 -100% movex2,*30 314% confusionoffset1,*30 -314% confusionoffset2,*10 50% stealth1,*10 50% stealth2,*20 100% dizzy1,*20 100% dizzy2,*10 50% stealthglowred', l)
+			m(59, 1, '*8 no movex1,*8 no movex2,*30 no confusionoffset1,*30 no confusionoffset2,*10 no stealth1,*10 no stealth2,*20 no dizzy1,*20 no dizzy2,*40 no stealthglowred',l)
+
+			m(60.75, 2, '*8 no reverse0', l)
+			m(61.5, 2, '*8 no reverse1', l)
+			m(62.25, 2, '*8 no reverse2', l)
+			m(63, 2, '*8 no reverse3', l)
+			m(63.5, 0.5, '*16 invert', l)
+			m(64, 0.5, '*16 no invert', l)
+			m(64, 0.05, '*-1 150% mini,*-1 stealth,*-1 dark,*-1 150% distant,*-1 157% dizzy', l)
+			
+			m(68, 32, '*0.25 200% wave', l)
+			m(68, 3.5, '*5 -25% flip', l, 1)
+			m(68.75, 3.5, '*5 -25% flip', l, 2)
+			mm(69.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(70, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(71, 2, '*5 no flip', l)
+
+			m(71.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(71.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(71.5, 4.5, '*5 -25% tornado', l)
+			m(75, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(75, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(75.5, 0.5, '*30 no flip,*30 no boost,*6 100% reverse', l)
+			m(76, 0.05, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+			m(76, 7, '*6 100% reverse', l)
+
+			m(76, 3.5, '*5 -25% flip', l, 1)
+			m(76.75, 3.5, '*5 -25% flip', l, 2)
+			mm(77.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(78, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(79, 2, '*5 no flip', l)
+
+			m(79.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(79.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(79.5, 4.5, '*5 -25% tornado', l)
+			m(83, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(83, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(83.5, 0.5, '*30 no flip,*30 no boost,*6 0% reverse', l)
+			m(84, 0.05, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+
+			m(84, 3.5, '*5 -25% flip', l, 1)
+			m(84.75, 3.5, '*5 -25% flip', l, 2)
+			mm(85.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(86, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(87, 2, '*5 no flip', l)
+
+			m(87.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(87.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(87.5, 4.5, '*5 -25% tornado', l)
+			m(91, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(91, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(91.5, 0.5, '*30 no flip,*30 no boost,*6 100% reverse', l)
+			m(92, 0.05, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+			m(92, 7, '*6 100% reverse', l)
+
+			m(92, 3.5, '*5 -25% flip', l, 1)
+			m(92.75, 3.5, '*5 -25% flip', l, 2)
+			mm(93.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(94, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(95, 2, '*5 no flip', l)
+
+			m(95.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(95.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(95.5, 4.5, '*5 -25% tornado', l)
+
+			m(96, 0.5, '*5 25% skewx', l)
+			m(96.5, 0.5, '*5 0% skewx', l)
+			m(97, 0.5, '*5 -25% skewx', l)
+			m(97.5, 0.5, '*5 0% skewx', l)
+
+			m(98, 0.5, '*10 80% reverse,*20 160% wave,*20 -100% stealth,*10 -20% tornado', l)
+			m(98.5, 0.5, '*10 60% reverse,*20 120% wave,*20 -100% stealth,*10 -15% tornado', l)
+			m(99, 0.5, '*10 40% reverse,*20 80% wave,*20 -100% stealth,*10 -10% tornado', l)
+			m(99.5, 0.5, '*10 20% reverse,*20 40% wave,*20 -100% stealth,*10 -5% tornado', l)
+			m(100, 0.5, '*10 0% reverse,*20 0% wave,*20 -100% stealth,*10 0% tornado', l)
+
+			--ass
+			m(100, 32, '*0.02 60% skewx,*0.1 50% hidden', l, 1)
+			m(100, 32, '*0.02 -60% skewx,*0.1 50% sudden', l, 2)
+			m(100, 32, '*0.15 200% wave,*-1 20% waveoffset', l)
+
+			for i = 101, 131, 4 do
+				m(i, 2, '*10 dark,*10 stealth', l, 1)
+				m(i+2, 2, '*10 dark,*10 stealth', l, 2)
+
+				m(i+2, 2, '*10 no dark,*10 no stealth', l, 1)
+				m(i+4, 2, '*10 no dark,*10 no stealth', l, 2)
+			end
+			
+			m(100, 32, '*6 no drunk,*6 no tipsy,*6 no bumpy', l)
+			for i = 101, 107, 4 do
+				m(i, 0.05, '*-1 100% drunk,*-1 100% tipsy,*-1 200% bumpy', l)
+				m(i+2, 0.05, '*-1 -100% drunk,*-1 -100% tipsy,*-1 -200% bumpy', l)
+			end
+			m(108, 0.05, '*-1 100% drunk,*-1 100% tipsy,*-1 200% bumpy', l)
+			for i = 109, 111, 4 do
+				m(i, 0.05, '*-1 -100% drunk,*-1 -100% tipsy,*-1 -200% bumpy', l)
+				m(i+2, 0.05, '*-1 100% drunk,*-1 100% tipsy,*-1 200% bumpy', l)
+			end
+			for i = 113, 115, 2 do
+				m(i, 0.05, '*-1 -100% drunk,*-1 -100% tipsy,*-1 -200% bumpy', l)
+				m(i+1, 0.05, '*-1 100% drunk,*-1 100% tipsy,*-1 200% bumpy', l)
+			end
+
+			m(117, 0.05, '*20 50% stealth,*20 -50% mini,*20 bumpy', l)
+
+			m(117, 12, '*0.03 dizzy,*-1 beat', l)
+
+			m(118.25, 4, '*8 reverse', l, 1)
+			m(119, 4, '*8 reverse', l, 2)
+			m(122.25, 4, '*8 no reverse', l, 2)
+			m(123, 4, '*8 no reverse', l, 1)
+			m(126.25, 2, '*8 reverse', l)
+			m(127, 2, '*8 no reverse', l)
+
+			--fun time but just 2
+			for i = 137, 168, 8 do
+				m(i, 4, '*2 no tipsy', l)
+				m(i, 0.05, '*-1 50% tipsy', l)
+				m(i+.75, 0.05, '*-1 -50% tipsy', l)
+				m(i+1.25, 0.05, '*-1 50% tipsy', l)
+				m(i+2, 0.05, '*-1 -50% tipsy', l)
+			end
+			for i = 168.25, 194, 8 do
+				m(i, 0.75, '*10 150% zigzag', l)
+				m(i+.75, 0.75, '*10 -150% zigzag', l)
+				m(i+1.5, 0.75, '*10 150% zigzag', l)
+				m(i+2.25, 0.5, '*10 -150% zigzag', l)
+				m(i+2.75, 0.5, '*10 150% zigzag', l)
+				m(i+3.25, 0.5, '*10 -150% zigzag', l)
+			end
+			m(132, 64, '*20 beat,*20 1.75x', l)
+			m(132, 0.1, '*20 50% stealth,*20 -50% mini,*20 bumpy', l)
+			m(132, 2, '*20 no dark,*20 no hidden,*20 no sudden,*20 stealth', l, 2)
+
+			m(132, 10, '*8 reverse0', l)
+			m(132.75, 10, '*8 reverse1', l)
+			m(133.5, 10, '*8 reverse2', l)
+			m(134.25, 10, '*8 reverse3', l)
+			m(135, 5, '*24 200% movex1,*24 -200% movex3,*30 -157% confusionoffset1,*30 157% confusionoffset3,*10 50% stealth1,*10 50% stealth3,*20 100% dizzy1,*20 100% dizzy3,*10 50% stealthglowred', l)
+			m(139, 1, '*24 no movex1,*24 no movex3,*30 no confusionoffset1,*30 no confusionoffset3,*10 no stealth1,*10 no stealth3,*20 no dizzy1,*20 no dizzy3,*40 no stealthglowred',l)
+
+			m(140, 2, '*8 no reverse0', l)
+			m(140.75, 2, '*8 no reverse1', l)
+			m(141.5, 2, '*8 no reverse2', l)
+			m(142.25, 2, '*8 no reverse3', l)
+			m(143, 5, '*24 200% movex0,*24 -200% movex2,*30 157% confusionoffset0,*30 -157% confusionoffset2,*10 50% stealth0,*10 50% stealth2,*20 -100% dizzy0,*10 -100% dizzy2,*10 50% stealthglowred', l)
+			m(147, 1, '*24 no movex0,*24 no movex2,*30 no confusionoffset0,*30 no confusionoffset2,*10 no stealth0,*10 no stealth2,*20 no dizzy0,*20 no dizzy2,*40 no stealthglowred',l)
+
+			m(148, 10, '*8 reverse0', l)
+			m(148.75, 10, '*8 reverse1', l)
+			m(149.5, 10, '*8 reverse2', l)
+			m(150.25, 10, '*8 reverse3', l)
+			m(151, 5, '*24 200% movex1,*24 -200% movex3,*30 -157% confusionoffset1,*30 157% confusionoffset3,*10 50% stealth1,*10 50% stealth3,*20 100% dizzy1,*20 100% dizzy3,*10 50% stealthglowred', l)
+			m(155, 1, '*24 no movex1,*24 no movex3,*30 no confusionoffset1,*30 no confusionoffset3,*10 no stealth1,*10 no stealth3,*20 no dizzy1,*20 no dizzy3,*40 no stealthglowred',l)
+
+			m(156.75, 2, '*8 no reverse0', l)
+			m(157.5, 2, '*8 no reverse1', l)
+			m(158.25, 2, '*8 no reverse2', l)
+			m(159, 2, '*8 no reverse3', l)
+			m(159.5, 0.5, '*16 invert', l)
+			m(160, 0.5, '*16 no invert', l)
+			m(160, 0.1, '*-1 150% mini,*-1 stealth,*-1 dark,*-1 150% distant,*-1 157% dizzy', l)
+
+			m(164, 32, '*0.25 200% wave', l)
+			m(164, 3.5, '*5 -25% flip', l, 1)
+			m(164.75, 3.5, '*5 -25% flip', l, 2)
+			mm(165.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(166, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(167, 2, '*5 no flip', l)
+
+			m(167.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(167.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(167.5, 4.5, '*5 -25% tornado', l)
+			m(171, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(171, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(171.5, 0.5, '*30 no flip,*30 no boost,*6 100% reverse', l)
+			m(172, 0.1, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+			m(172, 7, '*6 100% reverse', l)
+
+			m(172, 3.5, '*5 -25% flip', l, 1)
+			m(172.75, 3.5, '*5 -25% flip', l, 2)
+			mm(173.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(174, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(175, 2, '*5 no flip', l)
+
+			m(175.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(175.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(175.5, 4.5, '*5 -25% tornado', l)
+			m(179, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(179, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(179.5, 0.5, '*30 no flip,*30 no boost,*6 0% reverse', l)
+			m(180, 0.1, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+
+			m(180, 3.5, '*5 -25% flip', l, 1)
+			m(180.75, 3.5, '*5 -25% flip', l, 2)
+			mm(181.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(182, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(183, 2, '*5 no flip', l)
+
+			m(183.5, 4.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(183.5, 4.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(183.5, 4.5, '*5 -25% tornado', l)
+			m(187, 1, '*5 no tipsy,*5 no hidden,*5 no sudden,*2.5 no tornado',l)
+			m(188, 0.1, '*20 50% stealth,*20 -50% mini,*20 50% tornado,*20 bumpy', l)
+
+			m(188, 0.5, '*20 flip,*20 150% boost,*6 50% reverse', l)
+			m(188.5, 0.5, '*30 no flip,*30 no boost,*6 100% reverse', l)
+			m(189, 0.05, '*-1 -50% mini', l)
+			m(189, 7, '*6 100% reverse', l)
+
+			m(188, 3.5, '*5 -25% flip', l, 1)
+			m(188.75, 3.5, '*5 -25% flip', l, 2)
+			mm(189.25, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(-25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(25)
+				end
+			end, true)
+			mm(190, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(0.25))
+					Plr(1):addx(25)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(0.25))
+					Plr(2):addx(-25)
+				end
+			end, true)
+			m(191, 2, '*5 no flip', l)
+
+			m(191.5, 0.5, '*5 50% tipsy,*10 100% hidden', l, 1)
+			m(191.5, 0.5, '*5 -50% tipsy,*10 100% sudden', l, 2)
+			m(191.5, 0.5, '*5 -25% tornado', l)
+
+			m(192, 1, '*2.5 no reverse', l)
+			m(193, 1, '*2.5 reverse', l)
+			m(194, 4, '*2.5 no reverse', l)
+			m(195, 0.5, '*8 flip', l)
+			m(195.5, 0.5, '*8 invert, *8 no flip', l)
+			m(196, 0.5, '*8 no invert', l)
+
+			m(196, 8, '*8 beat', l)
+
+			m(196, 0.5, '*16 100% flip,*16 -100% invert', l)
+			m(196.5, 0.5, '*16 0% flip,*16 -0% invert', l)
+			m(196.5, 0.1, '*20 50% stealth,*40 -25% mini,*40 50% tornado,*40 bumpy,*20 50% distant', l)
+
+			m(196.5, 2.5, '*8 100% movex1,*8 -100% movex2,*30 314% confusionoffset1,*30 -314% confusionoffset2,*10 50% stealth1,*10 50% stealth2,*20 100% dizzy1,*20 100% dizzy2,*10 50% stealthglow1|0.5|0|0,*10 50% stealthglow2|0.5|0|0', l)
+			m(199, 1, '*8 no movex1,*8 no movex2,*30 no confusionoffset1,*30 no confusionoffset2,*10 no stealth1,*10 no stealth2,*20 no dizzy1,*20 no dizzy2,*40 no stealthglow1,*40 no stealthglow2',l)
+
+			m(199.5, 0.5, '*16 100% flip,*16 -100% invert', l)
+			m(200, 0.5, '*16 0% flip,*16 -0% invert', l)
+			m(200.5, 1, '*24 300% movex0,*24 -300% movex3,*30 314% confusionoffset0,*30 -314% confusionoffset3,*10 50% stealth0,*10 50% stealth3,*20 -100% dizzy0,*10 -100% dizzy3,*10 50% stealthglow0|0.5|0|0,*10 50% stealthglow3|0.5|0|0', l)
+			m(201.5, 1, '*24 no movex0,*24 no movex3,*30 no confusionoffset0,*30 no confusionoffset3,*10 no stealth0,*10 no stealth3,*20 no dizzy0,*20 no dizzy3,*40 no stealthglow0,*40 no stealthglow3',l)
+
+			m(202, 0.5, '*16 100% flip,*16 -100% invert', l)
+			m(202.5, 0.5, '*16 0% flip,*16 -0% invert', l)
+			m(203, 0.5, '*16 125% flip,*16 -75% invert', l)
+			m(203.5, 0.5, '*16 0% flip,*16 -0% invert', l)
+			m(203.5, 0.05, '*-1 50% mini', l)
+
+			--lol
+			m(204, 16, '*7 200% mini,*0.5 100% stealth,*0.5 100% dark,*-1 50% reverse,*-1 50% flip,*-1 blind,*-1 no beat', l)
+			m(204, 0.05, '*-1 -2000% mini', l)
+			m(204, 0.25, '*-1 300% beat,*-1 200% drunk,*-1 200% tipsy', l)
+
+			-- start, function, persist
+			-- start, end, function, persist
+			mm(64, function()
+				for pn = 1, 2 do
+					local a = Plr(pn)
+					if a then
+						a:x(SCREEN_CENTER_X)
+					end
+					if Plr(1) then
+						Plr(1):GetChild('Judgment'):addx(-80)
+						Plr(1):GetChild('Combo'):addx(-80)
+					end
+					if Plr(2) then
+						Plr(2):GetChild('Judgment'):addx(80)
+						Plr(2):GetChild('Combo'):addx(80)
+					end
+				end
+			end, true)
+
+			mm(128, 132, function(beat)
+				if FUCK_EXE then
+					GAMESTATE:ApplyModifiers('*-1 '..math.sin(beat*math.pi)*20 ..'% Alternate,*10000 '..math.sin(beat*math.pi)*-10 ..'% Reverse')
+					GAMESTATE:ApplyModifiers('*-1 '..-math.cos(beat*math.pi)*50+50 ..'% Invert')
+				else
+					GAMESTATE:ApplyGameCommand('mod,*10000 '..math.sin(beat*math.pi)*20 ..'% Alternate,*10000 '..math.sin(beat*math.pi)*-10 ..'% Reverse')
+					GAMESTATE:ApplyGameCommand('mod,*10000 '..-math.cos(beat*math.pi)*50+50 ..'% Invert')
+				end
+			end, true)
+
+			mm(100, 132, function(beat)
+				if GAMESTATE:GetCurrentSteps(0):GetDifficulty()==3 then
+					if FUCK_EXE then
+						GAMESTATE:ApplyModifiers('*0.03 -20% tornado')
+					else
+						GAMESTATE:ApplyGameCommand('mod,*0.03 -20% tornado')
+					end
+				elseif GAMESTATE:GetCurrentSteps(0):GetDifficulty()==4 then
+					if FUCK_EXE then
+						GAMESTATE:ApplyModifiers('*0.03 50% tornado')
+					else
+						GAMESTATE:ApplyGameCommand('mod,*0.03 50% tornado')
+					end
+				end
+			end, true)
+
+			mm(100, function()
+				if Plr(1) then
+					Plr(1):linear(TiB(32))
+					Plr(1):GetChild('Judgment'):addx(160)
+					Plr(1):GetChild('Combo'):addx(160)
+					Plr(1):x(SCREEN_CENTER_X*0.5)
+				end
+				if Plr(2) then
+					Plr(2):linear(TiB(32))
+					Plr(2):GetChild('Judgment'):addx(-160)
+					Plr(2):GetChild('Combo'):addx(-160)
+					Plr(2):x(SCREEN_CENTER_X*1.5)
+				end
+			end, true)
+
+			mm(132, function()
+				if Plr(1) then
+					Plr(1):x(SCREEN_CENTER_X*0.5)
+				end
+				if Plr(2) then
+					Plr(2):x(SCREEN_CENTER_X*1.5)
+				end
+			end, true)
+
+			mm(160, function()
+				for pn = 1, 2 do
+					local a = Plr(pn)
+					if a then
+						a:x(SCREEN_CENTER_X)
+					end
+					if Plr(1) then
+						Plr(1):GetChild('Judgment'):addx(-80)
+						Plr(1):GetChild('Combo'):addx(-80)
+					end
+					if Plr(2) then
+						Plr(2):GetChild('Judgment'):addx(80)
+						Plr(2):GetChild('Combo'):addx(80)
+					end
+				end
+			end, true)
+
+			mm(196, function()
+				for pn = 1, 2 do
+					local a = Plr(pn)
+					if a then
+						a:x(SCREEN_CENTER_X)
+						a:wag()
+						a:effectmagnitude(0,0,5)
+						a:effectclock('bgm')
+						a:effectperiod(2)
+					end
+				end
+			end, true)
+
+			mm(204, function()
+				for pn = 1, 2 do
+					local a = Plr(pn)
+					if a then
+						a:stopeffect()
+					end
+				end
+			end, true)
+
+			-- mods don't go here
+			-- convert len times to end
+			for i, v in ipairs(mods) do
+				if v[4] == l then mods[i][2] = v[1] + v[2] end
+			end
+
+			table.sort(mods, function(a, b) return a[1] == b[1] and a.i < b.i or a[1] < b[1] end)
+			table.sort(actions, function(a, b) return a[1] == b[1] and a.i < b.i or a[1] < b[1] end)
+
+			local readers = {}
+			readers.mods = function(beat)
+				for i, v in ipairs(mods) do
+					if beat < v[1] then return end
+					if beat >= v[1] and beat < v[2] then apply(v[3], v[5]) else table.remove(mods, i) end
+				end
+			end
+
+			readers.actions = function(beat)
+				for i, v in ipairs(actions) do
+					if beat < v[1] then return end
+					if beat > v[2] then if v[4] then v[3](v[2]) end table.remove(actions, i) else v[3](beat) end
+				end
+			end
+
+			return function(self)
+				local beat = GAMESTATE:GetSongBeat()
+				readers.mods(beat)
+				readers.actions(beat)
+			end
+		end)()"
+	/>
+</children></Layer>

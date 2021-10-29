@@ -1,0 +1,799 @@
+-- messy bad code, watch out
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		oat_proxyMarch[pn]:SetTarget(P[pn])
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(0)
+	end
+	
+local me = mod_ease
+
+-- proxywall
+
+	--oat proxy wall (thank you oat)
+		function mix(a, b, x) return a * (1 - x) + b * x end
+	    local proxPos = {}
+		local proxZoom = 1
+		local proxDist = 64 * 4 * proxZoom -- 4 - column number
+		for i,prox in ipairs(oat_proxyMarch) do
+			local pn = ((i - 1) % 2) + 1
+
+			local start = scx - proxDist * #oat_proxyMarch/2
+
+			local x = start + proxDist * (i - 1)
+
+			prox:SetTarget(P[pn]:GetChild('NoteField'))
+			proxPos[i] = x
+			prox:xy(scx, scy)
+
+			prox:hidden(0)
+			prox:diffusealpha(1/#oat_proxyMarch)
+		end
+		
+		aux {'proxywalloffset'}
+		node {'proxywalloffset', function(a)
+			for i,prox in ipairs(oat_proxyMarch) do
+				prox:x(proxPos[i] + (a * proxDist) % proxDist)
+			end
+		end}
+
+		aux {'proxywall', 'proxywallx'}
+			node {'proxywall', 'proxywallx', function(a, x)
+				for i,prox in ipairs(oat_proxyMarch) do
+					local pn = ((i - 1) % 2) + 1
+
+					prox:xy(mix(scx, proxPos[i], a / 100) + ((x/100) * proxDist * 2) % (proxDist * 2), scy)
+
+					prox:zoom(mix(1, proxZoom, a / 100))
+					prox:hidden(a == 0 and 1 or 0)
+					prox:diffusealpha(mix(1/#oat_proxyMarch, 1, a / 100))
+				end
+			end}
+					
+		definemod {'proxyZoom', function(a) proxZoom = a end}
+		
+	--aft rgb
+	aft(aftrgb) -- set up the aft
+	aftred:SetTexture(aftrgb:GetTexture()) -- set up the texture
+	aftgreen:SetTexture(aftrgb:GetTexture()) -- set up the texture
+	aftblue:SetTexture(aftrgb:GetTexture()) -- set up the texture
+	sprite(aftred) -- set up the sprite
+	sprite(aftgreen) -- set up the sprite
+	sprite(aftblue) -- set up the sprite
+	definemod{'rgb_skewx', function(a) aftred:skewx(a) aftblue:skewx(-a) end}
+	definemod{'rgb_addx', function(a) aftred:addx(a) aftblue:addx(-a) end}
+	definemod{'rgb_addy', function(a) aftred:addy(a) aftblue:addy(-a) end}
+	definemod{'rgb_greenrotz', function(a) aftgreen:rotationz(a) end}
+	definemod{'rgb_diffusealpha', function(a) aftred:diffusealpha(a)  aftgreen:diffusealpha(a)  aftblue:diffusealpha(a) end}
+	definemod{'nvidia_freeze', function(a) nvidia:diffusealpha(a) end}
+	definemod{'FPSgobuh', function(a) potato:SetFPS(a) end}
+	--limit aft (patent pending)
+	sprite(nvidia) -- set up the sprite
+	aft(potato) -- set up the aft
+	nvidia:SetTexture(potato:GetTexture()) -- set up the texture
+	LimitAft(potato)
+
+	sprite(aftsp1) -- set up the sprite
+	aft(aft1) -- set up the aft
+	aftsp1:SetTexture(aft1:GetTexture()) -- set up the texture
+
+	setdefault{2.25,'xmod',100,'overhead'}
+
+	func{0,function()
+		PP[1]:hidden(1)
+		PP[2]:hidden(1)
+
+	end}
+
+	func{0,function() --this is rgb setup
+		aftred:diffuse(1,0,0,1) --red sprite
+		aftgreen:diffuse(0,1,0,1) --green sprite
+		aftblue:diffuse(0,0,1,1) --blue sprite
+		
+		aftgreen:blend('add') -- add blend
+		aftblue:blend('add') -- add blend
+
+		
+	end}
+
+		func{14,function() for pn = 1, #PP do P[pn]:decelerate(0.55) P[pn]:x(scx) end end}
+	
+		--math.random anime intro
+		for i,v in pairs(melody)
+		do local b = melody[i][1] 
+		local col = melody[i][2]
+			ease {b, 1.5, outExpo, math.random(-350,350), 'confusionoffset'}
+			ease {b, 1.5, outExpo, math.random(-50,450), 'movex'}
+			ease {b, 1.5, outExpo, math.random(-50,450), 'movey'}
+			ease {b, 1.5, outExpo, math.random(-50,50), 'rotationx'}
+			ease {b, 1.5, outExpo, math.random(-50,50), 'rotationy'}
+			ease {b, 1.5, outExpo, math.random(-50,50), 'rotationz'}
+		if col == 0 then 
+		me(b,2,-1500,0,'Tiny0','len',outExpo)
+		end
+		if col == 1 then 
+		me(b,2,-1500,0,'Tiny1','len',outExpo)
+		end
+		if col == 2 then 
+		me(b,2,-1500,0,'Tiny2','len',outExpo)
+		end
+		if col == 3 then
+		me(b,2,-1500,0,'Tiny3','len',outExpo)
+		end
+	end
+		
+	for i,v in pairs(bass2)
+		do local b = bass2[i][1] 
+		local col = bass2[i][2]
+		me(b,2,30,0,'mini','len',outExpo)
+		me(b,2,-60,0,'tiny','len',outExpo)
+		me(b,5,20,0,'brake','len',outExpo)
+		me(b,1,40,0,'movex','len',outExpo,1)
+		me(b,1,-40,0,'movex','len',outExpo,2)
+		if col == 1 then me(b,2,120,0,'tipsy','len',outExpo)  end
+		if col == 2 then me(b,2,-120,0,'tipsy','len',outExpo) end
+	end
+	
+	for i,v in pairs(ikr)
+		do local b = ikr[i][1] 
+		local col = ikr[i][2]
+		if col == 0 then me(b,2,220,-220,'drunk','len',outExpo)  end
+		if col == 3 then me(b,2,-220,220,'drunk','len',outExpo) end
+		if col == 1 then reset {b,2,outExpo} end
+		
+	end
+
+	for i,v in pairs(dripcheck)
+		do local b = dripcheck[i][1] 
+		local col = dripcheck[i][2]	
+		if col == 0 then me(b,2,-200,0,'Tiny0','len',outExpo)  end
+		if col == 1 then me(b,2,-200,0,'Tiny1','len',outExpo) end
+		if col == 2 then me(b,2,-200,0,'Tiny2','len',outExpo)  end
+		if col == 3 then me(b,2,-200,0,'Tiny3','len',outExpo) end
+	end
+	
+	for i,v in pairs(dripcheck2)
+		do local b = dripcheck2[i][1] 
+		local col = dripcheck2[i][2]	
+		if col == 0 then me(b,2,-200,0,'Tiny0','len',outExpo)  end
+		if col == 1 then me(b,2,-200,0,'Tiny1','len',outExpo) end
+		if col == 2 then me(b,2,-200,0,'Tiny2','len',outExpo)  end
+		if col == 3 then me(b,2,-200,0,'Tiny3','len',outExpo) end
+	end
+	
+	for i,v in pairs(australia_boing)
+		do local b = australia_boing[i][1] 
+		local col = australia_boing[i][2]
+		me(b,1,15,0,'reverse','len',linear)
+		me(b,1,-100,0,'tiny','len',outExpo)
+		me(b,2,5000,0,'zoomz','len',outExpo)
+		if col == 1 then me(b,2,20,0,'rotationz','len',outExpo)  end
+		if col == 2 then me(b,2,-20,0,'rotationz','len',outExpo) end
+	end
+	
+	
+	for i,v in pairs(beat)
+		do local b = beat[i][1] 
+		local col = beat[i][2]	
+		if col == 0 then me(b,2,-150,0,'Tiny','len',outExpo) me(b,2,-30,0,'flip','len',outExpo)   end
+		if col == 2 then me(b,2,-60,0,'movey','len',outExpo,1)  me(b,2,60,0,'movey','len',outExpo,2) me(b,2,-30,0,'flip','len',outExpo) end
+		if col == 3 then me(b,2,160,0,'tipsy','len',outExpo) me(b,2,100,0,'zoomz','len',outExpo) end
+	end
+	
+	for i,v in pairs(endpart)
+		do local b = endpart[i][1] 
+		local col = endpart[i][2]
+		if col == 0 then 
+		me(b,2,-160,0,'tiny0','len',outExpo)  
+		me(b,2,-160,0,'confusionoffset0','len',outExpo) 
+		me(b,2,100,0,'arrowpath0','len',outExpo) 
+		end
+		if col == 1 then
+		me(b,2,-160,0,'tiny1','len',outExpo)  
+		me(b,2,-160,0,'confusionoffset1','len',outExpo) 
+		me(b,2,100,0,'arrowpath1','len',outExpo)
+		end
+		if col == 2 then 
+		me(b,2,-160,0,'tiny2','len',outExpo)  
+		me(b,2,-160,0,'confusionoffset2','len',outExpo) 
+		me(b,2,100,0,'arrowpath2','len',outExpo)
+		end
+		if col == 3 then 
+		me(b,2,-160,0,'tiny3','len',outExpo)  
+		me(b,2,-160,0,'confusionoffset3','len',outExpo) 
+		me(b,2,100,0,'arrowpath3','len',outExpo)
+		end
+	end
+
+	for i,v in pairs(piano_end)
+		do local b = piano_end[i][1] 
+		local col = piano_end[i][2]
+		me(b,6,1,0,'nvidia_freeze','len',outExpo)
+		me(b,5,150,0,'wave','len',outExpo)
+		func{b,function()
+		potato:update()
+		end}
+		set{b,math.random(-200,200),'movex'}  
+		set{b,math.random(-200,200),'movey'} 
+		set{b,math.random(-50,50),'rotationx'}
+		set{b,math.random(-50,50),'rotationy'}
+		set{b,math.random(-50,50),'rotationz'}
+	end
+	
+	
+	reset {14, 1.5, outExpo}
+	
+	setdefault {1,'proxyzoom'}
+	-- setdefault {100,'proxywall'}
+	set{0,90,'mini'}
+
+	ease {31, 2, outExpo, 100, 'proxywall'}
+	
+	func{31,function() --hidden
+		for pn = 1, #PP do
+		P[pn]:hidden(1)
+	end
+	end}
+
+	me(31,2,-500,0,'tiny','len',outExpo)
+	--me(31,2,-100,0,'rotationz','len',inOutExpo)
+	--me(31,2,20,0,'flip','len',inOutExpo)
+	me(31,2,15,0,'reverse','len',inOutExpo)
+	mod_beat(32,800)
+	for i = 33,63,2 do 
+	me(i,2,0,50,'proxywallx','len',outQuint)
+	
+	end
+	
+	for i = 33,62,4 do 
+	me(i,2,.25,0,'rgb_skewx','len',outQuint)
+	me(i+2,2,-.25,0,'rgb_skewx','len',outQuint)
+	
+	end
+	
+	
+	func {32,31, function(beat,poptions)
+  	for pn = 1,2 do
+		poptions[pn].tipsy = math.sin(beat*math.pi*1)*-100
+		poptions[pn].drunk = math.cos(beat*math.pi*1)*100
+		poptions[pn].confusionoffset = math.cos(beat*math.pi*1)*20
+  		end
+	end}
+
+
+	me(63,1,-1000,0,'tiny','len',outExpo)
+	me(63,3,80,0,'stealth','len',outExpo)
+	me(79,3,80,0,'stealth','len',outExpo)
+	mod_beat(63,300)
+
+	
+	set {63, 0, 'proxywall'}
+	set {63, 0, 'proxywallx'}
+	func{63,function() --hidden
+		for pn = 1, #PP do
+		P[pn]:hidden(0)
+		
+	end
+	P1:x(sw/4)
+	P2:x(sw*3/4)
+	end}
+
+	-- non-effort part
+	func {63,33, function(beat,poptions)
+  	for pn = 1,2 do
+	  		poptions[pn].movex = math.sin(beat*math.pi*1)*-50
+			  poptions[pn].brake = math.sin(beat*math.pi*1)*30
+			poptions[pn].rotationx = math.cos(beat*math.pi*1)*-40
+			poptions[pn].rotationy = math.sin(beat*math.pi*1)*40
+  		end
+	end}
+
+	--set {63, -3000, 'parabolaz',plr = 1}
+
+	me(79,2,-.5,0,'rgb_skewx','len',outQuint)
+
+	me(63,3,80,0,'stealth','len',outExpo)
+
+
+	
+	--drimk
+	set {96, 2, 'xmod'}
+	func {96,32, function(beat,poptions)
+  	for pn = 1,2 do
+		poptions[pn].rotationx = math.cos(beat*math.pi*0.1)*40
+		poptions[pn].rotationy = math.sin(beat*math.pi*0.1)*40
+		poptions[pn].parabolaz = math.sin(beat*math.pi*0.1)*900
+		poptions[pn].rgb_addx = math.sin(beat*math.pi*1)*-0.045
+		poptions[pn].rgb_addy = math.cos(beat*math.pi*1)*-0.045
+		poptions[pn].rgb_greenrotz = math.cos(beat*math.pi*1)*-1
+		--poptions[pn].arrowpath = math.sin(beat*math.pi*0.1)*100
+  		end
+	 end}
+	 
+	 func {96,32, function(beat,poptions)
+		for pn = 1,#PP do
+	  	poptions[pn].movex = math.sin(beat*math.pi*0.02)*250
+  		end
+		for pn = 2,#PP do
+	  	poptions[pn].movex = math.sin(beat*math.pi*0.02)*-250
+  		end
+	 end}
+
+
+
+	 func {128,33, function(beat,poptions)
+  	for pn = 1,2 do
+		poptions[pn].rgb_addx = math.sin(beat*math.pi*1)*-0.050
+		poptions[pn].rgb_addy = math.cos(beat*math.pi*1)*-0.050
+		poptions[pn].rgb_greenrotz = math.cos(beat*math.pi*1)*-1
+
+		--poptions[pn].bumpyx = math.cos(beat*math.pi*0.5)*120
+		--poptions[pn].bumpyz = math.cos(beat*math.pi*0.5)*120
+  		end
+	 end}
+
+		
+	 func {128,function()
+	 	--aftred:decelerate(1)
+		--aftblue:decelerate(1)
+		--aftgreen:decelerate(1)
+		--aftred:x(scx)
+		--aftblue:x(scx)
+		--aftred:y(scy)
+		--aftblue:y(scy)
+		--aftgreen:rotationz(0)
+		nvidia:diffusealpha(0)
+		aftsp1:diffusealpha(0)
+		for pn = 1, #PP do
+		PJ[pn]:hidden(0)
+		PC[pn]:hidden(0)
+		PJ[pn]:y(scy-200)
+		PC[pn]:y(scy-200)
+		end
+	 end}
+	 
+	  func {160,function()
+		for pn = 1, #PP do
+		PJ[pn]:decelerate(2)
+		PC[pn]:decelerate(2)
+		PJ[pn]:y(scy)
+		PC[pn]:y(scy)
+		end
+	 end}
+
+	--too lazy to c2l
+	for i = 128,144,8 do
+	me(i,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+1.5,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+4,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+4.75,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+5.5,5,1,0,'rgb_diffusealpha','len',outExpo)
+
+	me(i,5,.4,0,'rgb_skewx','len',outExpo)
+	me(i+1.5,5,-.4,0,'rgb_skewx','len',outExpo)
+	me(i+4,5,.4,0,'rgb_skewx','len',outExpo)
+	me(i+4.75,5,-.4,0,'rgb_skewx','len',outExpo)
+	me(i+5.5,5,.4,0,'rgb_skewx','len',outExpo)
+
+	end
+
+	for i = 128,144,8 do
+	me(i,3,-160,0,'tipsy','len',outExpo)
+	me(i+1.5,3,160,0,'tipsy','len',outExpo)
+	me(i+4,3,-160,0,'tipsy','len',outExpo)
+	me(i+4.75,3,160,0,'tipsy','len',outExpo)
+	me(i+5.5,3,-160,0,'tipsy','len',outExpo)
+
+	me(i,3,-400,0,'tiny','len',outExpo)
+	me(i+1.5,3,-400,0,'tiny','len',outExpo)
+	me(i+4,3,-400,0,'tiny','len',outExpo)
+	me(i+4.75,3,-400,0,'tiny','len',outExpo)
+	me(i+5.5,3,-400,0,'tiny','len',outExpo)
+	
+	mod_beat(i+2,500)
+	mod_beat(i+6,-500)
+	
+	end
+	
+	for i = 224,255,8 do
+	me(i,3,-140,0,'tipsy','len',outExpo)
+	me(i+1.5,3,140,0,'tipsy','len',outExpo)
+	me(i+4,3,-140,0,'tipsy','len',outExpo)
+	me(i+4.75,3,140,0,'tipsy','len',outExpo)
+	me(i+5.5,3,-140,0,'tipsy','len',outExpo)
+	
+	me(i,3,-50,0,'ConfusionOffset','len',outExpo)
+	me(i+1.5,3,50,0,'ConfusionOffset','len',outExpo)
+	me(i+4,3,-50,0,'ConfusionOffset','len',outExpo)
+	me(i+4.75,3,50,0,'ConfusionOffset','len',outExpo)
+	me(i+5.5,3,-50,0,'ConfusionOffset','len',outExpo)
+	
+	mod_beat(i+2,500)
+	mod_beat(i+6,-500)
+	end
+	
+	
+
+	me(95.5,1,0,200,'mini','len',outExpo)
+	me(96,2,-1000,0,'tiny','len',outExpo)
+	me(96,2,-150,0,'mini','len',outExpo)
+	--me(127,3,0,200,'mini','len',outExpo)
+	me(128,2,-600,0,'tiny','len',outExpo) --this is lazy transition
+	me(128,1,-2,0,'mini','len',outExpo)
+	mod_beat(128,600)
+
+
+--	func {96,function()
+--		aftsp1:diffusealpha(0.5)
+--		aftsp1:zoom(-1)
+--	 end}
+
+	 func {96,function()
+		for pn = 1, #PP do
+		P[pn]:x(scx)
+		PJ[pn]:hidden(1)
+		PC[pn]:hidden(1)
+		end
+	 end}
+
+	func {97,function()
+	potato:SetFPS(1)
+	nvidia:diffusealpha(0.25)
+	nvidia:blend('add')
+	potato:update()
+	end}
+
+	func {167,function()
+		aftred:xy(scx,scy)
+		aftblue:xy(scx,scy)
+		aftgreen:rotationz(0)
+	end}
+
+	func {167,function()
+		for pn = 1, #PP do
+		P[pn]:hidden(1)
+		end
+	 end}
+	 
+	 func {256,function()
+	 for pn = 1, #PP do
+		PC[pn]:y(scy)
+		PJ[pn]:y(scy)
+		end
+	 end}
+	 
+	 func {224,function()
+	 for pn = 1, #PP do
+		PJ[pn]:y(scy-200)
+		PC[pn]:y(scy-200)
+		end
+	 end}
+	 
+
+	set {96,100,'reverse',plr = 2}
+	set {128,0,'reverse',plr = 2}
+	--driven drop workaround
+	--me(128,15,0,2000,'centered2','len',linear)
+	
+	--part 1 _simple_
+	set {
+	128,
+	1.5, 'xmod',
+	50, 'mini',
+	70, 'bumpyx',
+	220, 'bumpyxperiod',
+	-90, 'flip',
+	}
+	
+	--part 2 _so simple_
+	
+	set {
+	224, 
+	10, 'orient',
+	250, 'zoomz',
+	100, 'mini',
+	-100, 'tiny',
+	120, 'bumpyx',
+	300, 'bumpyxperiod',
+	50, 'bumpyy',
+	450, 'bumpyyperiod',
+	60, 'bumpyz',
+	650, 'bumpyzperiod',
+	-50, 'flip',
+	}
+	
+	--set {224, 100, 'arrowpath'}
+	--set {128, -10, 'reverse'}
+	for i = 128,159,4 do
+	me(i,4,0,600,'centered2','len',linear)
+	end
+	ease {156, 5, outExpo, 100, 'stealth'}
+	ease {156, 5, outExpo, 100, 'dark'}
+	reset {165, exclude = {'dark', 'stealth'}}
+	reset {166,1,linear}
+
+
+	mod_beat(167,500)
+	--me(167,2,-500,0,'tiny','len',outExpo)
+	--me(167,2,360,0,'rotationz','len',outExpo)
+	ease {167,2,outExpo, 100, 'proxywall'}
+	--set {167, 100, 'proxywallx'}
+
+	set {167, 1, 'rgb_diffusealpha'}
+	for i = 167,190,4 do 
+	me(i,2,.05,0,'rgb_skewx','len',outQuint)
+	me(i+2,2,-.05,0,'rgb_skewx','len',outQuint)
+	end
+
+	--here we go with proxywall, but little bit of complicate
+
+	for i = 169,191,2 do 
+	me(i,4,0,-50,'proxywallx','len',outExpo)
+	me(i,5,1,0,'nvidia_freeze','len',outExpo)
+	func{i,function()
+		potato:update()
+	end}
+	end
+
+	func {169,function()
+		potato:SetFPS(60)
+		potato:AutoUpdate(false)
+		nvidia:diffusealpha(1)
+		nvidia:blend('add')
+	 end}
+
+	func {167,24, function(beat,poptions)
+  	for pn = 1,2 do
+		poptions[pn].tipsy = math.sin(beat*math.pi*1)*40
+		poptions[pn].skewx = math.cos(beat*math.pi*1)*30
+  		end
+	for pn = 1,#PP do
+	poptions[pn].mini = math.sin(beat*math.pi*1)*40
+	end
+	for pn = 2,#PP do
+	poptions[pn].mini = math.sin(beat*math.pi*1)*-60
+	end
+	 end}
+
+	 func {191,function()
+		for pn = 1, #PP do
+		P[pn]:hidden(0)
+		end
+		P1:x(sw/4)
+		P2:x(sw*3/4)
+	 end}
+
+	 set {191, 0, 'proxywall'}
+	me(191,2,-500,0,'tiny','len',outExpo)
+	mod_beat(191,600)
+	mod_beat(196,1000)
+	set {196, 100, 'proxywall'}
+	me(16,1,-300,0,'tiny','len',outExpo)
+	func {196,function()
+		for pn = 1, #PP do
+		P[pn]:hidden(1)
+		P[pn]:x(scx)
+		end
+	 end}
+
+	func {196,28, function(beat,poptions)
+  	for pn = 1,2 do
+		--poptions[pn].drunk = math.sin(beat*math.pi*0.5)*200
+		--poptions[pn].drunky = math.cos(beat*math.pi*0.5)*-120
+		--poptions[pn].reverse = math.cos(beat*math.pi*1)*-120
+
+		poptions[pn].bumpyx = math.cos(beat*math.pi*0.5)*50
+		poptions[pn].bumpyz = math.cos(beat*math.pi*0.5)*120
+  		end
+	 end}
+
+	set {196, 60, 'drunky', plr = 1}
+	 set {196, 5, 'drunkysize', plr = 1}
+	 set {196, 300, 'drunkyspacing', plr = 1}
+	 set {196, 600, 'drunkyspeed', plr = 1}
+
+	 set {196, -60, 'drunky', plr = 2}
+	 set {196, 5, 'drunkysize', plr = 2}
+	 set {196, 300, 'drunkyspacing', plr = 2}
+	 set {196, 600, 'drunkyspeed', plr = 2}
+
+	for i = 196,224,5 do
+	me(i,5,0,100,'proxywallx','len',linear)
+	end
+
+	--me(222,8,0,-200,'mini','len',outExpo)
+	me(222,2,0,100,'stealth','len',outExpo)
+	me(222,2,0,100,'dark','len',outExpo)
+	reset {223, exclude = {'stealth', 'dark'}}
+
+	me(223.5,1,100,0,'stealth','len',linear)
+	me(223.5,1,100,0,'dark','len',linear)
+	mod_beat(224,300)
+
+	func {224,function()
+		for pn = 1, #PP do
+		P[pn]:hidden(0)
+		end
+	 end}
+
+
+	for i = 204.5,208,1 do
+	ease{i,1,outExpo,45,'skewx'}
+	ease{i+.5,1,outExpo,-45,'skewx'}
+	end
+
+	ease{208,1,outExpo,0,'skewx'}
+	
+
+
+	set {224, 1.5, 'xmod'}
+
+	
+
+
+	for i = 224,254,4 do
+	me(i,4,0,600,'centered2','len',linear)
+	end
+
+	for i = 224,252,8 do
+	me(i,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+1.5,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+4,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+4.75,5,1,0,'rgb_diffusealpha','len',outExpo)
+	me(i+5.5,5,1,0,'rgb_diffusealpha','len',outExpo)
+
+	me(i,5,.55,0,'rgb_skewx','len',outExpo)
+	me(i+1.5,5,-.55,0,'rgb_skewx','len',outExpo)
+	me(i+4,5,.55,0,'rgb_skewx','len',outExpo)
+	me(i+4.75,5,-.55,0,'rgb_skewx','len',outExpo)
+	me(i+5.5,5,.55,0,'rgb_skewx','len',outExpo)
+
+	end
+
+	func {224,32, function(beat,poptions)
+  	for pn = 1,2 do
+		poptions[pn].rgb_addx = math.sin(beat*math.pi*1)*-0.062
+		poptions[pn].rgb_addy = math.cos(beat*math.pi*1)*-0.062
+		poptions[pn].rgb_greenrotz = math.cos(beat*math.pi*1)*-1
+
+		--poptions[pn].bumpyx = math.cos(beat*math.pi*0.5)*120
+		--poptions[pn].bumpyz = math.cos(beat*math.pi*0.5)*120
+  		end
+	 end}
+
+	 me(255,1,0,100,'stealth','len',outExpo)
+	me(255,1,0,100,'dark','len',outExpo)
+
+	 me(256,3,100,0,'stealth','len',linear)
+	me(256,3,100,0,'dark','len',linear)
+
+	reset{256, exclude = {'stealth', 'dark'}}
+
+	me(207,2,.25,0,'rgb_skewx','len',outQuint)
+	me(207,2,80,0,'stealth','len',outQuint)
+	me(239,2,80,0,'stealth','len',outQuint)
+	me(271,2,80,0,'stealth','len',outQuint)
+	me(271,2,.25,0,'rgb_skewx','len',outQuint)
+	set {196, 120, 'beaty'}
+
+	func {256,function() P1:x(sw/4) P2:x(sw*3/4) aftred:xy(scx,scy) aftgreen:rotationz(0)  aftblue:xy(scx,scy) end}
+	set{256,1,'rgb_diffusealpha'}
+
+
+	func {288,function()
+		for pn = 1, #PP do
+		P[pn]:x(scx)
+		end
+	 end}
+
+	 func {308,function()
+		nvidia:diffusealpha(1)
+		potato:AutoUpdate(true)
+		potato:update()
+		nvidia:blend('normal')
+	 end}
+
+	reset{300,5,outExpo}
+	set{288,1.25,'xmod'}
+	
+	
+	set{
+	256,
+	70,'drunk',
+	-60,'drunky',
+	60,'drunkz',
+	120,'wave',
+	}
+	
+	me(285.75,1,0,100,'stealth','len',outExpo)
+	me(285.75,1,0,100,'dark','len',outExpo)
+	reset{286.5, exclude = {'dark','stealth'}}
+	me(287,1,100,0,'stealth','len',linear)
+	me(287,1,100,0,'dark','len',linear)
+	
+	reset{299.5}
+	
+	ease {
+	300, 600, linear,
+	100000, 'bumpy',
+	100000, 'bumpyz',
+	}
+	ease {300, 20, linear, 500, 'drunk', plr = 1}
+	ease {300, 20, linear, -500, 'drunk', plr = 2}
+	ease {300, 20, linear, -500, 'tipsy', plr = 1}
+	ease {300, 20, linear, 500, 'tipsy', plr = 2}
+	ease {300, 200, linear, -5000, 'tiny'}
+
+	ease {
+	300, 5, linear,
+	75, 'stealth',
+	100, 'dark',
+	100, 'stealthglowred',
+	50, 'stealthglowgreen',
+	100, 'stealthglowblue',
+}
+	set{300,100,'hidenoteflash'}
+	set{312,100,'hide'}
+	set{300,3,'FPSgobuh'}
+	
+	--knock knock, what's that, it's spellcard tim
+	--diff sometimes ridiculous i guess
+	card {16, 31, 'hi hows your day?', 1, '#E5FFCC'}
+		 {32, 64, 'very simple proxywall mod', 2, '#55f2be'}
+		 {64, 96, 'a very simple groovy thing', 2, '#55f2ea'}
+		 {96, 128, 'simple vibe drip check', 4, '#f2c855'}
+		 {128, 144, 'simple driven drop', 3, '#ebab3d'}
+		 {168, 192, 'a totally simple proxywall but funky', 3, '#3dcbeb'}
+		 {196, 224, 'very wave', 3, '#3debda'}
+		 {224, 256, 'qeoaoeuaoeuoaueoauoeuoaeuoau', 3, '#2b7957'}
+		 {256, 285, 'were back to the simple thing', 1, '#6b79f7'}
+		 {288, 300, 'aft 4ever', 1, '#eb52a7'}
+		 {300, 305, 'believe me, if i had to pee, id take a pee on this field, right here i hate it', 0, '#FFFFFF'}
+		 {305, 310, 'but i left my diet coke at the hotel, so i dont currently have to pee', 0, '#FFFFFF'}
+		 {310, 315, 'hi mirin', 0, '#FFFFFF'}
+end)"
+
+
+	
+Type = "ActorFrame"
+><children>
+	
+	
+	
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+		
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[1]" />
+    <Layer Type = "ActorProxy" Name = "oat_proxyMarch[2]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[3]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[4]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[5]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[6]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[7]" />
+	<Layer Type = "ActorProxy" Name = "oat_proxyMarch[8]" />	
+
+	
+	<Layer Type = "ActorFrameTexture" Name = "aftrgb" />
+	
+	<Layer Type = "Sprite" Name = "aftred" />
+	<Layer Type = "Sprite" Name = "aftgreen" />
+	<Layer Type = "Sprite" Name = "aftblue" />
+
+	<Layer Type = "ActorFrameTexture" Name = "potato" />	
+	<Layer Type = "Sprite" Name = "nvidia" />
+
+	<Layer Type = "ActorFrameTexture" Name = "aft1" />	
+	<Layer Type = "Sprite" Name = "aftsp1" />
+	
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+=
+</children></Mods>

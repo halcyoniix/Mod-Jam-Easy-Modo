@@ -1,0 +1,186 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+
+	-- thank you to strawberrymahou, ryn, star and halcyoniix for giving feedback
+	-- thank you to mrcool and sudospective for giving tips with the drums
+	setdefault {3, 'xmod', 100, 'modtimer', 100, 'stealthpastreceptors'}
+	definemod {'Hidden', function(p)
+		return p, p
+	end, 'Stealth', 'Dark'}
+
+	
+	-- tower shaders
+	for _, elem in ipairs({{towerBG, towerBGAft}, {tower, towerAft}}) do
+		local mysprite = elem[1]
+		local myaft = elem[2]
+		
+		sprite(mysprite)
+		aft(myaft)
+		aftsprite(myaft, mysprite)
+		mysprite:GetShader():uniform1f('fade', 1.0)
+		mysprite:hidden(1)
+	end
+	towerBG:hidden(0)
+	
+	func {94, function()
+		towerBG:hidden(1)
+		tower:hidden(0)
+	end}
+	
+	func {112.25, function()
+		towerBG:hidden(0)
+		tower:hidden(1)
+	end}
+	
+	-- drum section
+	-- base values
+	kickBaseStr = 100
+	snareBaseStr = 25
+	tomBaseStr = 100
+	
+	-- actual values
+	kickStr = nil
+	snareStr = nil
+	tomStr = nil
+	
+	-- helper functions
+	function kick(mult) kickStr = kickBaseStr * mult end
+	function tom(mult) tomStr = tomBaseStr * mult end
+	function snare(mult) snareStr = snareBaseStr * mult end
+	
+	-- value changes on certain beats
+	function updateStr(beat)
+		if beat == 0 then kick(1); snare(1); tom(0)
+		elseif beat == 32 then kick(0.75); snare(0.8); tom(1)
+		elseif beat == 64 then kick(0.1); tom(0.9)
+		elseif beat == 72 then tom(0);
+		elseif beat == 80 then tom(0.9); -- beat 64 value
+		elseif beat == 88 then tom(0);
+		elseif beat == 96 then kick(0.75); snare(0.5); tom(0.75)
+		elseif beat == 112 then kick(0.5); snare(0.8)
+		end
+	end
+	updateStr(0)
+
+	-- main loop
+	toggle = 1;
+	for _, elem in ipairs(drums) do
+		local beat = elem[1]
+		local inst = elem[2] -- instrument
+		local arg = elem[3] -- argument (note/mine)
+		
+		updateStr(beat)
+		
+		if inst == 0 then -- kick
+			if arg == 2 then arg = 0.25 end
+			ease{beat, 0.5, pop, arg * -kickStr, 'Tiny'} -- thanks mrcool/sudo
+		elseif inst == 1 then -- tom
+			toggle = -toggle
+			if arg == 2 then arg = 0 end
+			ease{beat, 0.5, pop, toggle * arg * tomStr, 'Tipsy'} -- outBack
+		elseif inst == 2 then -- beeps
+			if get('Hidden') == 0 then arg = 100 else arg = 0 end
+			set{beat, arg, 'Hidden'}
+		elseif inst == 3 then -- snare
+			if arg == 2 then arg = 0.25 end
+			ease{beat, 0.5, pop, 100 + arg * snareStr, 'ZoomX'} -- thanks sudo
+		end
+	end
+	
+	-- spinning columns (less shitty)
+	for _, elem in ipairs(spin) do
+		local beat = elem[1]
+		local column = elem[2]
+		local arg = elem[3]
+		local length = elem[4]
+		
+		local step = 1/16
+		if arg == 4 then step = 1/8 end
+		
+		for offset = 0, length - step, step do
+			add{beat + offset, 0, instant, 100 * math.rad(90), 'ConfusionOffset'..column}
+		end
+		set{beat + length, 0, 'ConfusionOffset'..column}
+		
+	end
+
+	-- updown motion
+	for beat = 76, 78, 2 do
+		for i, column in ipairs(updown) do
+			local offset = (i - 1) * 0.25
+			local player = 1
+			if column >= 4 then
+				player = 2
+				column = column - 4
+			end
+			
+			ease{beat + offset, 0.5, bounce, -75, 'MoveY'..column, plr = player}
+		end
+	end
+	
+	-- fade in distance
+	for beat = 68, 84, 16 do
+		local mod = 'Mini' -- 'Distant'
+		ease{beat, 4, linear, 100, mod}
+		ease{beat + 4, 0.25, linear, 0, mod}
+	end
+	
+	-- distant for section 2
+	ease{63, 1, outCubic, 50, 'Distant'}
+	set{72, 0, 'Distant'}
+	ease{79.5, 0.5, linear, 50, 'Distant'}
+	set{88, 0, 'Distant'}
+	
+	-- section 2 transition
+	for beat = 60, 62 do
+		ease{beat, 1, linear, 100 * get('xmod'), 'Centered2'}  -- inQuad
+		set{beat + 1, 0, 'Centered2'}
+	end
+	for i, strength in ipairs(mini) do
+		local beat = 59 + i
+		set{beat, strength, 'Mini'}
+	end
+	
+	-- section 3 transition
+	for i = 0, 3 do 
+		set{92 + i * 0.25, 50 + (i + 1) * 12.5, 'Hidden'}
+	end
+	set{94, 0, 'Hidden', 100, 'Dark'}
+	ease{95, 1, outQuad, 0, 'Dark'}
+	set{96, 0, 'LongHolds'}
+	
+	-- end transition
+	ease{126, 2, inQuad, 0.85 * SCREEN_HEIGHT,'Y'}
+	set{125, 100, 'Stealth', 100, 'DisableMines'}
+	
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer File = "tables.xml" />
+	
+	<Layer Type = "ActorFrameTexture" Name = "towerBGAft" />
+	<Layer Type = "Sprite" Name = "towerBG" Frag = "tower.frag" />
+	
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	
+	<Layer Type = "ActorFrameTexture" Name = "towerAft" />
+	<Layer Type = "Sprite" Name = "tower" Frag = "tower.frag" />
+	
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	
+	
+</children></Mods>

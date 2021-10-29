@@ -1,0 +1,358 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	--what even is "stranglehold" anyway? strangehold rolls off the tongue better /j
+	-- your strangehold strangegoes here:
+	
+	--actors, afts, quads, whatever, all neatly setup here
+	--strangeground:x(SCREEN_CENTER_X)
+	--strangeground:y(SCREEN_CENTER_Y)
+	fgdark2:stretchto(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+	fgdark2:diffuse(100/255,0,190/255,0.3)
+	fgdark:stretchto(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+	fgdark:diffuse(0,0,0,0)
+	bgdark:stretchto(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+	bgdark:diffuse(0,0,0,3)
+	bgdark:fadetop(2)
+    bgdark2:stretchto(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
+	bgdark2:diffuse(0,0,0,3)
+	bgdark2:fadebottom(2)
+	glitchlines:SetTexture(f_aft:GetTexture())
+	
+	--haha definemods
+	definemod {'notx', function(a,pn)
+		P[pn]:x(scx+a)
+	end}
+	definemod {'comboz', function(a)
+		PC[1]:zoom(a)
+		PC[2]:zoom(a)
+	end}
+	setdefault {1, 'comboz'}
+	definemod {'fov', function(a)
+		for pn = 1, #PP do
+			P[pn]:fov(a)
+		end
+	end}
+	setdefault {45, 'fov'}
+	definemod {'blur', function(a)
+	glitchlines:GetShader():uniform1f('amount', a)
+	end}
+	setdefault {0.1, 'blur'}
+	
+	local function confOff(deg)
+		return math.rad(deg)*100
+	end
+	definemod {'rotx', 'roty', 'rotz', function(x,y,z)
+		return x, confOff(-x), y, confOff(-y), z, confOff(-z)
+	end,
+	'rotationx', 'confusionxoffset',
+	'rotationy', 'confusionyoffset',
+	'rotationz', 'confusionzoffset'}
+	
+	--the dubious round table stacked with boxes containing strange hidden regions
+	hide{34, 2.5, plr = 2}
+    hide{36.5, 3.5, plr = 1}	
+	hide{42, 2.5, plr = 2}
+	hide{45, 1, plr = 2}
+	hide{46, 1, plr = 1}
+	hide{47, 1, plr = 2}
+	hide{48, 1, plr = 1}
+	hide{49, 1, plr = 2}
+	hide{51, 2, plr = 1}
+	hide{53, 3, plr = 2}
+	--hide{56, 1.5, plr = 1}
+	hide{56, 3, plr = 1}
+	--hide{57.5, 1.5, plr = 2}
+	hide{59, 3, plr = 2}
+	--hide{59.5, 0.5, plr = 2}
+	--hide{60, 0.5, plr = 1}
+	hide{62.5, 2.5, plr = 1}
+	--[[hide{63, 0.5, plr = 2}
+	hide{63.5, 0.5, plr = 1}
+	hide{64, 0.5, plr = 2}
+	hide{64.5, 1.5, plr = 1}]]
+	hide{65.5, 0.5, plr = 2}
+	hide{67, 3, plr = 1}
+	hide{70, 1, plr = 2}
+	hide{72, 1, plr = 1}
+	hide{73, 1, plr = 2}
+	hide{74, 1, plr = 1}
+	hide{75.5, 1, plr = 2}
+	hide{79.5, 0.5, plr = 2}
+	hide{80, 0.5, plr = 1}
+	hide{80.5, 0.5, plr = 2}
+	hide{81.5, 0.5, plr = 1}
+	hide{82.5, 0.5, plr = 2}
+	hide{83.5, 1, plr = 1}
+	hide{85, 1, plr = 2}
+	hide{86, 1, plr = 1}
+	hide{87, 1, plr = 2}
+	hide{88, 4, plr = 1}
+	hide{92, 2, plr = 2}
+	
+	--strangecards
+	card
+	{0, 32, 'blurry intro', 0, {0.5,0.5,0.5,0.7}}
+	{32, 94, 'welcome to the hidden regions world', 7, {150/255,55/255,170/255,0.3}}
+	{96, 160, 'strange holds and caral moons', 6, {0,70/255,140/255,0.8}}
+	{160, 192, 'UUUUUA AUUUUU', 5, {170/255, 70/255, 190/255, 0.9}}
+	{192, 224, 'funny beeps', 4, {30/255, 80/255, 170/255, 1}}
+	{224, 240, 'is it normal to be in love with an ending hold you made yourself', 1, {200/255, 80/255, 220/255, 1}}
+	
+	--cool bean strangemods
+	setdefault{150, 'cmod', 100, 'dizzyholds', 100, 'zbuffer', 100, 'zoomz', 200, 'drawsizeback', 25, 'drawsize'}
+		for pn = 1, 2 do
+			local a = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn)
+			for col = 0,3 do -- iterate through all the columns
+				a:SetNumPathGradientPoints(col,4)
+				a:SetPathGradientPoint(0,col,1) -- set their points
+				a:SetPathGradientPoint(1,col,5)
+				a:SetPathGradientPoint(2,col,8)
+				a:SetPathGradientPoint(3,col,12)
+				a:SetPathGradientColor(0,col,1,0,.75,1)	-- set their colors and shiet
+				a:SetPathGradientColor(1,col,.8,0,.8,1)
+				a:SetPathGradientColor(2,col,.75,0,1,1)
+				a:SetPathGradientColor(3,col,.8,0,.8,0)
+				
+				a:SetNumArrowGradientPoints(col,2)
+				a:SetArrowGradientPoint(0,col,5) -- set their points
+				a:SetArrowGradientPoint(1,col,12)
+				a:SetArrowGradientColor(0,col,1,1,1,1)	-- set their colors and shiet
+				a:SetArrowGradientColor(1,col,1,1,1,0)
+			end
+	end
+	set{0, 100, 'arrowpath', 150, 'drunk', 1000, 'arrowpathdrawsizeback'}
+	set{0,-75, 'flip', 25, 'invert', plr=1}
+	set{0,-25, 'flip', -25, 'invert', plr=2}
+	--set{0,175, 'flip', -25, 'invert', plr=1}
+	--set{0,125, 'flip', 25, 'invert', plr=2}
+	func{0, function()
+	fgdark:diffusealpha(1)
+	end, persist = false}
+	func{0, function()
+	PJ[1]:x(sw/6)
+	PJ[1]:y(sh/5.5)
+	PJ[1]:zoom(0.9)
+	PC[1]:x(sw/6)
+	PC[1]:y(sh/5.25)
+	PJ[2]:x(sw/1.2)
+	PJ[2]:y(sh/5.5)
+	PJ[2]:zoom(0.9)
+	PC[2]:x(sw/1.2)
+	PC[2]:y(sh/5.25)
+	end}
+	func {2, function()
+	fgdark:accelerate(6)
+	fgdark:diffusealpha(0.35)
+	end}
+	for i = 0, 90, 8 do
+	ease{i, 3, outExpo, 70, 'tornado', 70, 'tipsy'}
+	ease{i+3, 5, inOutSine, 0, 'tornado', 0, 'tipsy'}
+	ease{i, 1, outExpo, 630, 'confusionoffset0', plr = 1}
+	ease{i, 0.5, pop, 500, 'arrowpathwidth', plr = 1}
+	ease{i+0.5, 1, outExpo, 630, 'confusionoffset0', plr = 2}
+	ease{i+0.5, 0.5, pop, 500, 'arrowpathwidth', plr = 2}
+	ease{i+1, 1, outExpo, 630, 'confusionoffset1', plr = 1}
+	ease{i+1, 0.5, pop, 500, 'arrowpathwidth', plr = 1}
+	ease{i+1.5, 1, outExpo, 630, 'confusionoffset1', plr = 2}
+	ease{i+1.5, 0.5, pop, 500, 'arrowpathwidth', plr = 1}
+	ease{i+2, 1, outExpo, 630, 'confusionoffset2', plr = 2}
+	ease{i+2, 0.5, pop, 500, 'arrowpathwidth', plr = 2}
+	ease{i+2.5, 1, outExpo, 630, 'confusionoffset2', plr = 1}
+	ease{i+2.5, 0.5, pop, 500, 'arrowpathwidth', plr = 1}
+	ease{i+3, 1, outExpo, 630, 'confusionoffset3', plr = 2}
+	ease{i+3, 0.5, pop, 500, 'arrowpathwidth', plr = 2}
+	ease{i+3.5, 1, outExpo, 630, 'confusionoffset3', plr = 1}
+	ease{i+3.5, 0.5, pop, 500, 'arrowpathwidth', plr = 1}
+	ease{i+6, 0.001, linear, 0, 'confusionoffset0'}
+	ease{i+6, 0.001, linear, 0, 'confusionoffset1'}
+	ease{i+6, 0.001, linear, 0, 'confusionoffset2'}
+	ease{i+6, 0.001, linear, 0, 'confusionoffset3'}
+	end
+	ease{10, 16, inOutSine, 0.0065, 'blur'}
+	ease{28, 7, inOutCubic, 50, 'flip', 0, 'invert', 0, 'drunk', 100, 'centered', 0, 'arrowpath', 230, 'cmod'}
+	ease{32, 6, outExpo, -75, 'flip', 25, 'invert', 100, 'drunk', 150, 'cmod', plr=1}
+	ease{32, 6, outExpo, -25, 'flip', -25, 'invert', 100, 'drunk', 100, 'reverse', 150, 'cmod', plr=2}
+	--[[ease{39, 1, outExpo, 40, 'mini', plr = 2}
+	ease{39.5, 5, outExpo, 360, 'rotationz', plr = 2}
+	ease{43, 1, outExpo, 40, 'mini', plr = 1}
+	ease{43.5, 5, outExpo, -360, 'rotationz', plr = 1}]]
+	--oh my god im using notedata
+	for i,v in ipairs(strangedata) do
+  if v[2] == 0 then
+  ease{v[1],1,pop,-50,'tiny0', 100, 'arrowpath0', 500, 'arrowpathgirth'}
+    --an if statement which checks v[2] is all you need for this!
+  elseif v[2] == 1 then
+  ease{v[1],1,pop,-50,'tiny1', 100, 'arrowpath1', 500, 'arrowpathgirth'}
+    -- if there are  more columns, add them with an elseif statement!
+  elseif v[2] == 2 then
+  ease{v[1],1,pop,-50,'tiny2', 100, 'arrowpath2', 500, 'arrowpathgirth'}
+    --you can repeat this,
+  elseif v[2] == 3 then
+  ease{v[1],1,pop,-50,'tiny3', 100, 'arrowpath3', 500, 'arrowpathgirth'}
+    --for all columns!
+  end
+  --code run before or after these if statements will run every time there is an entry.
+end
+    for i = 88, 89.5, 1 do
+	ease{i,0.5,inOutQuad,80,'tipsy'}
+	ease{i+0.5,0.5,inOutQuad,0,'tipsy'}
+	end
+	ease{89.5, 4, outQuad, -75, 'flip', 25, 'invert', 10, 'rotz'}
+	for i = 91, 93.5, 1 do
+	ease{i,0.5,inOutQuad,80,'tipsy'}
+	ease{i+0.5,0.5,inOutQuad,0,'tipsy'}
+	end
+	ease{93.5, 2, outQuad, 0, 'flip', 0, 'invert', -380, 'rotz', 0, 'centered', 0, 'reverse', 100, 'sudden', 200, 'suddenoffset', 1000, 'gayholds', 100, 'stealthpastreceptors', plr = 2}
+	ease{93.5, 2, outQuad, 100, 'flip', 0, 'invert', -380, 'rotz', 0, 'centered', 0, 'reverse', 100, 'sudden', -200, 'suddenoffset', 1000, 'gayholds', 100, 'stealthpastreceptors', plr = 1}
+	for i,v in ipairs(verdammt) do
+	if v[2] == 0 then
+	ease{v[1], 2, outSine, 200, 'suddenoffset', 0, 'dark', plr = 1}
+	ease{v[1], 2, outSine, -200, 'suddenoffset', 100, 'dark', plr = 2}
+	ease{v[1], 1, pop, -50, 'tiny0', 75, 'confusionoffset0'}
+	ease{v[1], 3, pop, -40, 'tornado'}
+	elseif v[2] == 1 then
+	ease{v[1], 1, pop, -50, 'tiny1', 75, 'confusionoffset1'}
+	elseif v[2] == 2 then
+	ease{v[1], 1, pop, -50, 'tiny2', 75, 'confusionoffset2'}
+	elseif v[2] == 3 then
+	ease{v[1], 2, outSine, -200, 'suddenoffset', 100, 'dark', plr = 1}
+	ease{v[1], 2, outSine, 200, 'suddenoffset', 0, 'dark', plr = 2}
+	ease{v[1], 1, pop, -50, 'tiny3', 75, 'confusionoffset3'}
+	ease{v[1], 3, pop, -40, 'tornado'}
+	end
+	end
+	ease{96, 4, inOutSine, 65, 'tipsy', 30, 'twirl', -400, 'rotz'}
+	ease{100, 4, inOutSine, -70, 'tipsy', -40, 'twirl', -330, 'rotz'}
+	ease{104, 4, inOutSine, 40, 'tipsy', 20, 'twirl', -380, 'rotz'}
+	ease{108, 4, inOutSine, -55, 'tipsy', -30, 'twirl', -340, 'rotz'}
+	ease{112, 4, inOutSine, 60, 'tipsy', 35, 'twirl', -370, 'rotz'}
+	ease{116, 4, inOutSine, -65, 'tipsy', -50, 'twirl', -350, 'rotz'}
+	ease{120, 8, inOutSine, 20, 'tipsy', 10, 'twirl', 25, 'rotz'}
+	ease{128, 4, inOutSine, -45, 'tipsy', -30, 'twirl', -40, 'rotz'}
+	ease{132, 4, inOutSine, 50, 'tipsy', 25, 'twirl', 30, 'rotz'}
+	ease{136, 4, inOutSine, -35, 'tipsy', -35, 'twirl', -35, 'rotz'}
+	ease{140, 4, inOutSine, 40, 'tipsy', 40, 'twirl', 25, 'rotz'}
+	ease{144, 4, inOutSine, -40, 'tipsy', -30, 'twirl', -30, 'rotz'}
+	ease{148, 4, inOutSine, 55, 'tipsy', 35, 'twirl', 35, 'rotz'}
+	ease{152, 4, inOutSine, -60, 'tipsy', -40, 'twirl', -25, 'rotz'}
+	ease{156, 4, inOutSine, 30, 'tipsy', 30, 'twirl', 20, 'rotz'}
+	set{160, 0, 'flip', 100, 'sudden', 200, 'suddenoffset', 0, 'dark', 2000, 'drawsizeback', 8000, 'arrowpathdrawsizeback'}
+	ease{160, 12, inOutSine, 0, 'rotz', 0, 'twirl', 0, 'tipsy', 50, 'drunk', 75, 'bumpy', 0, 'gayholds'}
+	ease{160, 24, inOutQuad, 50, 'tipsy', 150, 'distant', 50, 'mini'}
+	for i = 160, 191, 8 do
+	ease{i, 4, inOutSine, 125, 'flip', 30, 'tornado'}
+	ease{i+4, 4, inOutSine, -50, 'flip', -30, 'tornado'}
+	end
+	for i,v in ipairs(boop) do
+	if v[2] == 0 then
+	set{v[1], 0, 'confusionoffset0'}
+	ease{v[1]+0.01, 1, outExpo, 630, 'confusionoffset0'}
+	ease{v[1], 1, pop, -35, 'tiny0', 100, 'arrowpath0', 500, 'arrowpathgirth'}
+	elseif v[2] == 1 then
+	set{v[1], 0, 'confusionoffset1'}
+	ease{v[1]+0.01, 1, outExpo, 630, 'confusionoffset1'}
+	ease{v[1], 1, pop, -35, 'tiny1', 100, 'arrowpath1', 500, 'arrowpathgirth'}
+	elseif v[2] == 2 then
+	set{v[1], 0, 'confusionoffset2'}
+	ease{v[1]+0.01, 1, outExpo, 630, 'confusionoffset2'}
+	ease{v[1], 1, pop, -35, 'tiny2', 100, 'arrowpath2', 500, 'arrowpathgirth'}
+	elseif v[2] == 3 then
+	set{v[1], 0, 'confusionoffset3'}
+	ease{v[1]+0.01, 1, outExpo, 630, 'confusionoffset3'}
+	ease{v[1], 1, pop, -35, 'tiny3', 100, 'arrowpath3', 500, 'arrowpathgirth'}
+	end
+	end
+	set{192, -90, 'rotationx', 50, 'movex', 0, 'distant', 0, 'mini', 25, 'tipsy', 100, 'stealth', 0, 'bumpy', 0, 'flip', plr = 2}
+	--[[for i = 192, 228, 8 do
+	set{i, 630, 'confusionoffset'}
+	ease{i, 6, pop, -60, 'tornado'}
+	ease{i+0.001, 1, outExpo, 0, 'confusionoffset0'}
+	ease{i, 1, pop, 100, 'arrowpath0', 500, 'arrowpathgirth'}
+	ease{i+0.5, 1, outExpo, 0, 'confusionoffset1'}
+	ease{i+0.5, 1, pop, 100, 'arrowpath1', 500, 'arrowpathgirth'}
+	ease{i+1, 1, outExpo, 0, 'confusionoffset2'}
+	ease{i+1, 1, pop, 100, 'arrowpath2', 500, 'arrowpathgirth'}
+	ease{i+1.5, 1, outExpo, 0, 'confusionoffset3'}
+	ease{i+1.5, 1, pop, 100, 'arrowpath3', 500, 'arrowpathgirth'}
+	ease{i+2, 1, outExpo, -630, 'confusionoffset0'}
+	ease{i+2, 1, pop, 100, 'arrowpath0', 500, 'arrowpathgirth'}
+	ease{i+2.5, 1, outExpo, -630, 'confusionoffset1'}
+	ease{i+2.5, 1, pop, 100, 'arrowpath1', 500, 'arrowpathgirth'}
+	ease{i+3, 1, outExpo, -630, 'confusionoffset2'}
+	ease{i+3, 1, pop, 100, 'arrowpath2', 500, 'arrowpathgirth'}
+	ease{i+3.5, 1, outExpo, -630, 'confusionoffset3'}
+	ease{i+3.5, 1, pop, 100, 'arrowpath3', 500, 'arrowpathgirth'}
+	end]]
+	for i,v in ipairs(dings) do
+	if v[2] == 0 then
+	set{v[1], 630, 'confusionoffset0'}
+	ease{v[1]+0.001, 1, outExpo, 0, 'confusionoffset0'}
+	ease{v[1], 1, pop, 100, 'arrowpath0', 500, 'arrowpathgirth'}
+	elseif v[2] == 1 then
+	set{v[1], 630, 'confusionoffset1'}
+	ease{v[1]+0.001, 1, outExpo, 0, 'confusionoffset1'}
+	ease{v[1], 1, pop, 100, 'arrowpath1', 500, 'arrowpathgirth'}
+	elseif v[2] == 2 then
+	set{v[1], 630, 'confusionoffset2'}
+	ease{v[1]+0.001, 1, outExpo, 0, 'confusionoffset2'}
+	ease{v[1], 1, pop, 100, 'arrowpath2', 500, 'arrowpathgirth'}
+	elseif v[2] == 3 then
+	set{v[1], 630, 'confusionoffset3'}
+	ease{v[1]+0.001, 1, outExpo, 0, 'confusionoffset3'}
+	ease{v[1], 1, pop, 100, 'arrowpath3', 500, 'arrowpathgirth'}
+	end
+	end
+	
+	for i,v in ipairs(beep) do
+	if v[2] == 0 then
+	ease{v[1], 1, outExpo, 0, 'rotationx', 140, 'movex', 0, 'stealth', plr = 2}
+	ease{v[1], 1, outExpo, -90, 'rotationx', 100, 'stealth', 0, 'arrowpathgirth', plr = 1}
+	elseif v[2] == 1 then
+	ease{v[1], 1, outExpo, -90, 'rotationx', 100, 'stealth', 0, 'arrowpathgirth', plr = 2}
+	ease{v[1], 1, outExpo, 0, 'rotationx', -25, 'movex', 0, 'stealth', plr = 1}
+	elseif v[2] == 2 then
+	ease{v[1], 1, outExpo, 0, 'rotationx', 60, 'movex', 0, 'stealth', plr = 2}
+	ease{v[1], 1, outExpo, -90, 'rotationx', 100, 'stealth', 0, 'arrowpathgirth', plr = 1}
+	elseif v[2] == 3 then
+	ease{v[1], 1, outExpo, -90, 'rotationx', 100, 'stealth', 0, 'arrowpathgirth', plr = 2}
+	ease{v[1], 1, outExpo, 0, 'rotationx', -135, 'movex', 0, 'stealth', plr = 1}
+	end
+	end
+	set{194, -90, 'rotationx', 50, 'movex', 0, 'distant', 0, 'mini', 25, 'tipsy', 100, 'stealth', 0, 'bumpy', 0, 'flip', plr = 1}
+	for i = 224, 227.5, 1 do
+	ease{i, 0.5, inOutQuad, 65, 'tipsy'}
+	ease{i+0.5, 0.5, inOutQuad, -65, 'tipsy'}
+	end
+	ease{228, 12, inOutQuad, 500, 'gayholds', 350, 'bumpy', 300, 'drunk', 165, 'tornado', 200, 'mini', 100, 'distant'}
+	ease{228, 28, inOutQuad, 0.4, 'blur'}
+
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type = "Quad" Name = "bgdark" />
+	<Layer Type = "Quad" Name = "bgdark2" />
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	<Layer Type = "Quad" Name = "fgdark2" />	
+	<Layer Type = "Quad" Name = "fgdark" />
+	<Layer Type="ActorFrameTexture" InitCommand = "%xero.aft" Name = "f_aft" />
+	<Layer Type="Sprite" Frag="glitch-lines.frag" InitCommand = "%xero.sprite" Name = "glitchlines" />
+	<Layer File = "strangedata.xml"/>
+	<Layer File = "verdammt.xml"/>
+	<Layer File = "boop.xml" />
+	<Layer File = "beep.xml" />
+	<Layer File = "dings.xml" />
+</children></Mods>

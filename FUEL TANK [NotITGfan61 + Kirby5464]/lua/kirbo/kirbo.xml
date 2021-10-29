@@ -1,0 +1,450 @@
+<Mods LoadCommand="%xero(function(self)
+	-- hello yes, i'm dumping all the stuff i used, mom, dont look ~Kirby
+	local sqrt = math.sqrt
+	local sin = math.sin
+	local cos = math.cos
+	local pow = math.pow
+	local exp = math.exp
+	local pi = math.pi
+	local abs = math.abs
+	local kick_cache = {}
+	
+	local function kick(amt)
+		kick_cache[amt] = kick_cache[amt] or function(t)
+			return (sqrt(t) * pow(1 - t, amt)) * (2.5 + amt * .6)
+		end
+		return kick_cache[amt]
+	end
+	
+	local function square(t) return t == 1 and 0 or 1 end
+	
+	local m_ea, mm = ease, func
+	
+	--[[
+	lists of eases that can be used:
+	(Persistent)
+		instant							linear
+		inQuad							outQuad					inOutQuad					inCubic						outCubic
+		inOutCubic						inQuart					outQuart					inOutQuart					inQuint
+		outQuint						inOutQuint				inExpo						outExpo						inOutExpo
+		inBack.params(a, b)				outBack.params(a, b)	inOutBack.params(a, b)		inElastic.params(a, b)		outElastic.params(a, b)	
+		inOutElastic.params(a, b)		inBounce				outBounce					inOutBounce					inSine
+		outSine							inOutSine
+	
+	(Transient)
+		bounce			bell			pop				pulse
+		tap				tri				spike			inverse		impulse.params(a, b)
+		popElastic.params(a, b)			tapElastic.params(a, b)
+		pulseElastic.params(a, b)		kick(a)			square
+	]]
+	
+	add{169.5, .5, outExpo, 90, 'blacksphere2_scale'}
+	
+	{265.5, .5, outExpo, 90, 'blacksphere3_scale'}
+	
+	-- set {beat, percent1, mod1 [, percent2, mod2 ...] [, plr = pn]}
+	set{0, 1, 'bg'}
+	{0, sw/4, 'plr_pos', plr = 1}
+	{0, sw*3/4, 'plr_pos', plr = 2}
+	
+	{55, -30, 'flip'}
+	
+	{56, 0, 'flip'}
+	
+	{92, 1000, 'zigzagperiod', 1000, 'zigzagoffset', scx, 'plr_pos', 1.75, 'xmod', 700, 'zoomz'}
+	{92, 0, 'movey0', 0, 'movey1', 0, 'movey2', 0, 'movey3', 0, 'blacksphere'}
+	
+	{108, 100, 'reverse'}
+	
+	{124, 0, 'reverse', 2.5, 'xmod'}
+	-- {124, sw/4, 'plr_pos', plr = 1}
+	-- {124, sw*3/4, 'plr_pos', plr = 2}
+	
+	{172, 0, 'rotationz'}
+	
+	{184, 0, 'reverse', plr = 2}
+	
+	{268, 0, 'rotationz'}
+	
+	{284, 0, 'pulseinner'}
+	{284, 1, 'bg', 20, 'bg_rot'}
+	{284, sw/4, 'plr_pos', 25, 'rotationz', 69, 'confusionoffset', 15, 'invert', 15, 'reverse0', -30, 'reverse1', 50, 'reverse2', 100, 'reverse3', plr = 1}
+	{284, sw*3/4, 'plr_pos', -25, 'rotationz', -69, 'confusionoffset', 15, 'flip', 100, 'reverse0', -15, 'reverse1', 50, 'reverse2', 25, 'reverse3', plr = 2}
+	
+	-- m_ea {beat, len [, mode = 'end'], fn, percent1, mod1 [, percent2, mod2 ...] [, plr = pn]}
+	
+	m_ea{44, 55, inQuad, -600, 'tiny', mode = 'end'}
+	
+	{56, 3, outQuad, 0, 'tiny'}
+	
+	{60, 88, inQuad, -600, 'tiny', mode = 'end'}
+	
+	{84, 88, inQuad, 90*(88-60), 'rotationy', -157*(88-60), 'confusionyoffset', mode = 'end'}
+	
+	{84.5, 88, outQuad, scx, 'plr_pos', mode = 'end'}
+	
+	{88, 3, outQuad, 0, 'tiny'}
+	
+	{95.5, 1, pop, 400, 'zoomy'}
+	
+	{99, 4, outQuad, 0, 'distant'}
+	
+	{111.25, 1, kick(2), -2000, 'tinyy'}
+	
+	{116, 4, outQuad, 0, 'hallway'}
+	
+	-- hell yeah fuck you :)
+	{152.1, 2, inQuad, -40, 'centered'}
+	-- {152, 3.5, tri, 628, 'confusionoffset'}
+	
+	{154, 1, outQuad, 0, 'bg', 70, 'stealth', 90, 'mini', -100, 'drawsizeback', 100, 'sudden', 25, 'suddenoffset', 100, 'stealthtype', 120, 'holdtiny', -50, 'flip', 75, 'tiny', 300, 'shrinklinear', .5, 'aft_ray'}
+	{154, 1, outQuad, 100, 'reverse', plr = 2}
+	
+	{163, 1, outQuad, 0, 'stealth', 0, 'shrinklinear', 0, 'tiny', 0, 'aft_ray'}
+	
+	{170, 1, outQuad, 70, 'stealth', 300, 'shrinklinear', 75, 'tiny', .5, 'aft_ray'}
+	{170, 2, outQuad, -360, 'rotationz'}
+	
+	{180, 1, outQuad, 0, 'stealth', 0, 'shrinklinear', 0, 'tiny', 0, 'aft_ray'}
+	
+	{184, 3, outQuad, 1, 'bg', 0, 'centered', 0, 'stealth', 0, 'mini', 0, 'drawsizeback', 0, 'sudden', 0, 'suddenoffset', 0, 'stealthtype', 0, 'holdtiny', 0, 'flip', 0, 'tiny', 0, 'shrinklinear', 0, 'aft_ray'}
+	
+	{248, 2, inQuad, 100, 'centered'}
+	-- {248, 3.5, tri, 628, 'confusionoffset'}
+	
+	{250, 1, outQuad, 0, 'bg', 70, 'stealth', 90, 'mini', -100, 'drawsizeback', 100, 'sudden', 25, 'suddenoffset', 100, 'stealthtype', 120, 'holdtiny', -50, 'flip', 75, 'tiny', 300, 'shrinklinear', .5, 'aft_ray'}
+	{250, 1, outQuad, 100, 'reverse', plr = 1}
+	
+	{259, 1, outQuad, 0, 'stealth', 0, 'shrinklinear', 0, 'tiny', 0, 'aft_ray'}
+	
+	{266, 1, outQuad, 70, 'stealth', 300, 'shrinklinear', 75, 'tiny', .5, 'aft_ray'}
+	{266, 2, outQuad, 360, 'rotationz'}
+	
+	{276, 1, outQuad, 0, 'stealth', 0, 'shrinklinear', 0, 'tiny', 0, 'aft_ray'}
+	
+	{280, 2, outQuad, 0, 'mini', 0, 'drawsizeback', 0, 'sudden', 0, 'stealthtype', 0, 'holdtiny', 0, 'flip', 0, 'centered', 0, 'reverse'}
+	
+	-- drivendrop(12, 19-12, 1, 2.5)
+	
+	-- drivendrop(28, 35-28, 1, 2.5)
+	
+	drivendrop(100, 4, 1, 1.75)
+	
+	drivendrop(116, 4, 1, 1.75)
+	
+	wiggle(88, 1, .25, bounce, 150, 'drunk')
+	
+	wiggle(89, 1, .25, bounce, 150, 'tipsy')
+	
+	wiggle(92, 8, 1, bounce, 300, 'zigzag')
+	
+	wiggle(98.5, 100-98.5, .25, bounce, 150, 'noteskew')
+	
+	wiggle(100, 8, 1, bounce, 100, 'drunk')
+	wiggle(100, 8, 1, bounce, 100, 'tipsy')
+	
+	wiggle(109, 7, 1, bounce, -300, 'zigzag')
+	
+	wiggle(156, 163-156, 1, bounce, 20, 'drunk')
+	wiggle(156, 163-156, 1, bounce, 20, 'tipsy')
+	wiggle(156, 163-156, 1, bounce, 5, 'rotationz')
+	
+	wiggle(168, 1, .25, outExpo, 75, 'skewx')
+	
+	wiggle(172, 8, 1, bounce, -20, 'drunk')
+	wiggle(172, 8, 1, bounce, -20, 'tipsy')
+	wiggle(172, 8, 1, bounce, -5, 'rotationz')
+	
+	wiggle(252, 259-252, 1, bounce, 40, 'drunk')
+	wiggle(252, 259-252, 1, bounce, 40, 'tipsy')
+	wiggle(252, 259-252, 1, bounce, 5, 'rotationz')
+	
+	wiggle(264, 1, .25, outExpo, 75, 'skewx')
+	
+	wiggle(268, 8, 1, bounce, -40, 'drunk')
+	wiggle(268, 8, 1, bounce, -40, 'tipsy')
+	wiggle(268, 8, 1, bounce, -5, 'rotationz')
+	
+	wiggle(280, 2, .5, kick(3), 100, 'drunk')
+	wiggle(280, 2, .5, kick(3), 100, 'tipsy')
+	
+	switcheroo(57, 3, outQuad, 'reset')
+	
+	local gas_wahwah = (P[1] or P[2]):GetNoteData(92, 99)
+	
+	wiggle2lua(gas_wahwah, kick(6), 200, 'drunkz')
+	wiggle2lua(gas_wahwah, bounce, 60, 'tipsy')
+	
+	local gas_wahwah2 = (P[1] or P[2]):GetNoteData(109, 115)
+	
+	wiggle2lua(gas_wahwah2, kick(6), -200, 'drunkz')
+	wiggle2lua(gas_wahwah2, bounce, -60, 'tipsy')
+	
+	local gas_boo = (P[1] or P[2]):GetNoteData(116, 123)
+	
+	wiggle2lua(gas_boo, bounce, -100, 'drunk')
+	wiggle2lua(gas_boo, bounce, -100, 'tipsy')
+	
+	for beat=44,56,1 do
+		local player = math.mod(beat, 2) + 1
+		local player2 = math.mod(beat - 1, 2) + 1
+		local positions = {scx, sw/4, sw*3/4}
+		
+		local swaps = {'flip', 'reset', 'invert'}
+		m_ea{beat, 1, outElastic.params(1, 2), 800, 'movey0', -800, 'movey1', 800, 'movey2', -800, 'movey3', plr = player}
+		{beat, 1, outElastic.params(1, 2), 0, 'movey0', 0, 'movey1', 0, 'movey2', 0, 'movey3', plr = player2}
+		
+		-- set{beat, positions[math.mod(beat, 3) + 1], 'plr_pos', plr = player}
+		-- {beat, positions[math.mod(beat - 1, 3) + 1], 'plr_pos', plr = player2}
+		
+		switcheroo(beat, 1, outExpo, swaps[math.mod(beat, 3) + 1])
+		
+		-- print(positions[math.mod(beat, 3) + 1])
+	end
+	
+	for beat=90,91.25,.25 do
+		add{beat, .25, outExpo, 90, 'blacksphere'}
+	end
+	
+	for beat=100,107,1 do
+		m_ea{beat, 1, kick(6), -500, 'tiny'}
+	end
+	
+	for beat=164,167,.5 do
+		add{beat, .5, outExpo, 90, 'blacksphere2_scale'}
+	end
+	
+	-- for beat=169,169.5,.5 do
+		-- add{beat, .5, outExpo, 90, 'blacksphere2_scale'}
+	-- end
+	
+	for beat=181,182.5,.5 do
+		add{beat, .5, outExpo, -90, 'blacksphere2_scale'}
+	end
+	
+	for beat=260,263,.5 do
+		add{beat, .5, outExpo, 90, 'blacksphere3_scale'}
+	end
+	
+	for beat=277,278.5,.5 do
+		add{beat, .5, outExpo, -90, 'blacksphere3_scale'}
+	end
+	
+	for beat=280,281.5,.5 do
+		m_ea{beat, 1, kick(6), -500, 'tiny'}
+	end
+	
+	local gas_sunflower = {{92, 99}, {109, 116}}
+	
+	for i,v in pairs(gas_sunflower) do
+		for beat=v[1],v[2] do
+			m_ea{beat, 1, kick(4), 250, 'zoomx', 50, 'centered'}
+		end
+	end
+	
+	for i = 1,table.getn(gas_wahwah) do
+		local beat = gas_wahwah[i]
+		add{beat[1], 1, outQuad, 5, 'distant'}
+	end
+	
+	for i = 1,table.getn(gas_wahwah2) do
+		local beat = gas_wahwah2[i]
+		add{beat[1], 1, outQuad, 5, 'hallway'}
+	end
+	
+	local gas_poof = (P[1] or P[2]):GetNoteData(60, 75)
+	
+	for i = 1,table.getn(gas_poof) do
+		local beat = gas_poof[i]
+		local player = math.mod(i, 2) + 1
+		local player2 = math.mod(i - 1, 2) + 1
+		local positions = {scx, sw/4, sw*3/4}
+		m_ea{beat[1], .75, outBack.params(1, 1), 800, 'movey0', -800, 'movey1', 800, 'movey2', -800, 'movey3', plr = player}
+		{beat[1], .75, outBack.params(1, 1), 0, 'movey0', 0, 'movey1', 0, 'movey2', 0, 'movey3', plr = player2}
+		
+		set{beat[1], positions[math.mod(i, 3) + 1], 'plr_pos', plr = player}
+		{beat[1], positions[math.mod(i - 1, 3) + 1], 'plr_pos', plr = player2}
+	end
+	
+	local gas_poof2 = (P[1] or P[2]):GetNoteData(76, 84)
+	
+	for i = 1,table.getn(gas_poof2) do
+		local beat = gas_poof2[i]
+		local player = math.mod(i, 2) + 1
+		local player2 = math.mod(i - 1, 2) + 1
+		local positions = {scx, sw/4, sw*3/4}
+		m_ea{beat[1], .5, outBack.params(1, 1), 800, 'movey0', -800, 'movey1', 800, 'movey2', -800, 'movey3', plr = player}
+		{beat[1], .5, outBack.params(1, 1), 0, 'movey0', 0, 'movey1', 0, 'movey2', 0, 'movey3', plr = player2}
+		
+		set{beat[1], positions[math.mod(i, 3) + 1], 'plr_pos', plr = player}
+		{beat[1], positions[math.mod(i - 1, 3) + 1], 'plr_pos', plr = player2}
+	end
+	
+	for i = 1,table.getn(gas_boo) do
+		local beat = gas_boo[i]
+		m_ea{beat[1], 1, kick(6), -500, 'tiny'}
+	end
+	
+	for i = 1,table.getn(gas_blink) do
+		local beat = gas_blink[i]
+		m_ea{beat[1], .25, kick(4), 35, 'stealth'}
+	end
+	
+	for i = 1,table.getn(gas_ending) do
+		local beat = gas_ending[i]
+		add{beat[1], 0, instant, 666, 'pulseinner'}
+	end
+	
+	
+	-- mm {{beat [, len [, mode = 'end']], function(beat, poptions) ... end [, defer = true]}
+	-- can be used as perframe or mod_action
+	mm{156, function()
+		for pn = 1, max_pn do
+	        P[pn]:bounce()
+	        P[pn]:effectmagnitude(0, 0, 120)
+	        P[pn]:effectclock('bgm')
+	        P[pn]:effectperiod(1)
+	    end
+	end}
+	{156, 163-156, function(beat, mods)
+		for pn = 1, max_pn do
+			mods[pn].stealthgr = -math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgb = math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgg = -math.cos(beat*math.pi*0.5) * 75 + 75
+		end
+	end}
+	{172, 8, function(beat, mods)
+		for pn = 1, max_pn do
+			mods[pn].stealthgr = -math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgb = math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgg = -math.cos(beat*math.pi*0.5) * 75 + 75
+		end
+	end}
+	{184, function()
+		for pn = 1, max_pn do
+	        P[pn]:stopeffect()
+	    end
+	end}
+	{252, function()
+		for pn = 1, max_pn do
+	        P[pn]:bounce()
+	        P[pn]:effectmagnitude(0, 0, 180)
+	        P[pn]:effectclock('bgm')
+	        P[pn]:effectperiod(1)
+	    end
+	end}
+	{252, 259-252, function(beat, mods)
+		for pn = 1, max_pn do
+			mods[pn].stealthgr = -math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgb = math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgg = -math.cos(beat*math.pi*0.5) * 75 + 75
+		end
+	end}
+	{266, function()
+		for pn = 1, max_pn do
+	        P[pn]:stopeffect()
+	    end
+	end}
+	{268, function()
+		for pn = 1, max_pn do
+	        P[pn]:bounce()
+	        P[pn]:effectmagnitude(0, 0, 180)
+	        P[pn]:effectclock('bgm')
+	        P[pn]:effectperiod(1)
+	    end
+	end}
+	{268, 8, function(beat, mods)
+		for pn = 1, max_pn do
+			mods[pn].stealthgr = -math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgb = math.sin(beat*math.pi*0.5) * 75 + 75
+			mods[pn].stealthgg = -math.cos(beat*math.pi*0.5) * 75 + 75
+		end
+	end}
+	{279, function()
+		for pn = 1, max_pn do
+	        P[pn]:stopeffect()
+	    end
+	end}
+	{284, 1, function(beat)
+		boom:diffusealpha(1)
+	end}
+	{285, 1, function(beat)
+		fire:diffusealpha(1)
+	end}
+	{286, 1, function(beat)
+		boom:diffusealpha(0)
+	end}
+	
+	
+	
+	-- aux {modname}
+	-- The aux function creates an auxiliary mod. The template will keep track of the value of the mod, but will not apply it to the players.
+	-- Example, aux {'blacksphere'}, aux {'mod1', 'mod2', 'mod3'}
+	
+	-- node {modname, function(p) [code] end}
+	-- node creates a function that transforms the values of mods before they are applied every frame. node creates a function that takes in mod values and outputs mod values.
+	
+	aux{'blacksphere3_scale'}
+	node{'blacksphere3_scale', function(percent)
+        local invert = 100 - 100 * math.cos(percent * math.pi / 180)
+        local movez0 = 70 * math.sin(percent * math.pi / 180)
+        local movez1 = -70 * math.sin(percent * math.pi / 180)
+        local movez2 = 70 * math.sin(percent * math.pi / 180)
+        local movez3 = -70 * math.sin(percent * math.pi / 180)
+        return invert, movez0, movez1, movez2, movez3
+    end,
+    'invert', 'movez0', 'movez1', 'movez2', 'movez3'}
+	
+	aux{'blacksphere2_scale'}
+	node{'blacksphere2_scale', function(percent)
+        local invert = -100 - -100 * math.cos(percent * math.pi / 180)
+        local flip = 100 - 100 * math.cos(percent * math.pi / 180)
+        local split = 25 * math.sin(percent * math.pi / 180)
+        local reverse = -12.5 * math.sin(percent * math.pi / 180)
+        return invert, flip, split, reverse
+    end,
+    'invert', 'flip', 'split', 'reverse'}
+	
+	-- definemod {modname, function(percent) -- implementation end}
+	-- It's like node, but auxes your auxes.
+	
+	definemod{'plr_pos', function(percent, plr)
+		if P[plr] then
+	        P[plr]:x(percent)
+	    end
+	end}
+	
+	definemod{'bg', function(percent)
+		TankBg:diffusealpha(percent)
+	end}
+	
+	definemod{'bg_rot', function(percent)
+		TankBg:rotationz(percent)
+	end}
+	
+	definemod{'aft_ray', function(percent)
+		gas_aftsprite:diffusealpha(percent)
+		gas_aftsprite2:diffusealpha(percent)
+	end}
+	
+	
+	
+	-- spellcard {beat, length, color = {r, g, b, a}, name = name, difficulty = diffnum [, mode = 'end']}
+	-- let's you add spellcards to a chart.
+	-- `color`, `name`, and `difficulty` are all optional.
+	
+	card{44, 87, 'me on my way murdering your dance floor', 8, {0, 0, 1, 1}}
+	card{88, 123, 'pov: me murdering your dance floor', 7, {0, 0, 1, 1}}
+	card{152, 183, 'mash the like button and click the bell', 5, {0, 0, 1, 1}}
+	card{248, 284, 'mash the subscribe button and join the gang', 5, {0, 0, 1, 1}}
+	card{284, 292, 'fuck i set my itg machine on fire', 0, {1, 1, 1, 1}}
+	
+	
+	
+end)"
+	Type = "ActorFrame"
+><children>
+
+<Layer File="chart2lua" />
+
+</children></Mods>

@@ -1,0 +1,21 @@
+<Mods
+	SongName = "F4SH10N"
+	ModAuthor = "kinoseidon"
+	PackName = "Mod Jam: Easy Modo"
+
+	Type = "ActorFrame"
+	InitCommand = "%function(self)
+		local init, err = loadfile('mods/mods.lua')
+		if not init then error(err) end
+		local env = setmetatable({foreground = self}, {__index = _G})
+		env._ENV = env
+		setfenv(init, env)
+		return init()
+	end"
+><children>
+	<Layer
+		Name = "I may be sleeping, but I preserve the world."
+		InitCommand = "sleep,9e9"
+	/>
+	<Layer Type = "Quad" Name = "Q" />
+</children></Mods>

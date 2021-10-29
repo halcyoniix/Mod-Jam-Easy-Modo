@@ -1,0 +1,2422 @@
+<!--how did i write this file in 4 days-->
+<ActorFrame
+InitCommand="%function(self)
+
+    nitg_version = FUCK_EXE and tonumber(GAMESTATE:GetVersionDate()) >= 20210420
+
+    if not nitg_version then
+        SCREENMAN:SystemMessage('Outdated version of NotITG detected. Mods will not work as intended.')
+    end
+
+    function Plr(pn) return _G['P'..pn] end
+
+    --global shortcuts | wavestep for this file is wavestep_--
+    wavestep_npu = 2
+    wavestep_bpm = 193
+    wavestep_mbl = 60 / wavestep_bpm
+    wavestep_speed = 350
+
+    --set applier table--
+    atable = {}
+
+end">
+
+<children>
+
+    <ActorFrame Condition="nitg_version"
+    OnCommand="%function(self)
+
+        alphamult = 1
+
+        if string.find(string.lower(PREFSMAN:GetPreference('LastSeenVideoDriver')), 'nvidia') or string.find(string.lower(DISPLAY:GetVendor()), 'nvidia') then
+            alphamult = 0.9
+        end
+
+        function vrenderer(r)
+            return string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), r)
+        end
+
+        if not vrenderer('opengl') or vrenderer('d3d') and vrenderer('opengl') and vrenderer('d3d') < vrenderer('opengl') then
+            SCREENMAN:SystemMessage('D3D Video Renderer detected. Expect textures to fail.')
+        end
+
+    end">
+
+<children>
+
+    <Layer
+        Type="Quad"
+        InitCommand="hidden,1"
+        OnCommand="sleep,1000"
+    />
+        
+    <Layer File="helpers"/>
+    <Layer File="eases"/>
+    <Layer File="spells"/>
+    <Layer File="c2l/kicks"/>
+
+    <Layer Type="Quad"
+    OnCommand="hidden,1;"
+    InitCommand="%function(self)
+    
+--------setup------------------------------------------------------------------
+
+        checked = false
+        init_modsp1 = ''
+        init_modsp2 = ''
+        mod_plr = {}
+        mod_firstSeenBeat = GAMESTATE:GetSongBeat()
+        curaction = 1
+
+        --shortcuts--
+        local abs = math.abs
+        local asin = math.asin
+        local atan = math.atan
+        local cos = math.cos
+        local exp = math.exp
+        local floor = math.floor
+        local max = math.max
+        local pi = math.pi
+        local ph = pi * 100
+        local pd = ph / -180
+        local pow = math.pow
+        local sin = math.sin
+        local scx = SCREEN_CENTER_X
+        local scy = SCREEN_CENTER_Y
+        local sh = SCREEN_HEIGHT
+        local sw = SCREEN_WIDTH
+        --------------
+        local mi = mod_insert
+        local me = mod_ease
+        local mc = mod_clear
+        local mm = mod_message
+        local mv = mod_vulnerable
+        local mv2 = mod_vulnerable2
+        local pf = mod_perframe
+        local ae = aux_ease
+
+        --add tables--
+        mods, mods_msg, mods_pf = {}, {}, {}
+
+--------funcs------------------------------------------------------------------
+
+        --counterrotation function by BrotherMojo--
+        local function counterrot(angleX, angleY, angleZ)
+            local DEG_TO_RAD = math.pi / 180
+            angleX, angleY, angleZ = DEG_TO_RAD * angleX, DEG_TO_RAD * angleY, DEG_TO_RAD * angleZ
+            local sinX = sin(angleX)
+            local cosX = cos(angleX)
+            local sinY = sin(angleY)
+            local cosY = cos(angleY)
+            local sinZ = sin(angleZ)
+            local cosZ = cos(angleZ)
+            return 100 * math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY), 100 * math.asin(-cosX*sinY*cosZ+sinX*sinZ), 100 * math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ)
+        end
+
+        --toggles texture--
+        local function toggle_tex(start, len, which)
+            local start = start
+            local amp = amp
+            local which = which
+            mm(start, function() if _G['wavestep_'..which] then _G['wavestep_'..which]:hidden(0) end end, true)
+            mm(start+len, function() if _G['wavestep_'..which] then _G['wavestep_'..which]:hidden(1) end end, true)
+        end
+
+        local function tween_shader(start, len, which, type, ease, amp0, amp)
+            local start = start
+            local len = len
+            local which = which
+            local type = type
+            local ease = ease
+            local amp0 = amp0
+            local amp = amp
+            pf(start, len, function(beat) _G['wavestep_'..which]:GetShader():uniform1f(type, _G[ease](beat-start, amp0, amp-amp0, len)) end)
+        end
+
+        --toggles drawsize--
+        local function toggle_ds(start, en, amp)
+            mi(start, en-start, amp, 'drawsize')
+            mc(en, {'drawsize'})
+        end
+
+        --toggles drawsizeback--
+        local function toggle_dsb(start, en, amp)
+            local amp = amp or -100
+            if amp == nil then amp = -100 end
+            mi(start, en-start, amp, 'drawsizeback')
+            mc(en, {'drawsizeback'})
+        end
+
+--------messages---------------------------------------------------------------
+
+        mm(0, 'ProxyInit', true)
+        mm(0, function()
+            for pn = 1,2 do
+                local a = Plr(pn)
+                if a then
+                    a:GetChild('Judgment'):hidden(1)
+                    a:GetChild('Combo'):hidden(1)
+                    a:SetFarDist(10000)
+                    a:GetChild('Judgment'):sleep(9E9)
+                    a:GetChild('Combo'):sleep(9E9)
+                end
+            end
+            for pn = 1,2 do
+                local a = Plr(pn)
+                local b = _G['wavestep_prx'..pn]
+                if a then
+                    a:hidden(1)
+                end if b then
+                    b:hidden(0)
+                    b:x(scx)
+                    b:y(scy)
+                    b:z(0)
+                end if wavestep_af then
+                    wavestep_af:SetDrawByZPosition(true)
+                end
+                local j = _G['jud'..pn..'p']
+                local c = _G['com'..pn..'p']
+                local xj = {0.175, 1 - 0.175}
+                local xc = {0.375, 1 - 0.375}
+                if j then
+                    j:x(sw * xj[pn])
+                    j:y(sh * 0.925 + 30)
+                    j:hidden(1)
+                end if c then
+                    c:x(sw * xc[pn])
+                    c:y(sh * 0.925 - 26.5)
+                    c:hidden(1)
+                end
+            end
+        end, true)
+
+--------mods-------------------------------------------------------------------
+
+        local function hidecol(start, len, which, pn)
+            mi(start,len,100,'stealth'..which,pn)
+            mi(start,len,100,'dark'..which,pn)
+            mi(start-0.1,len,100,'hidenoteflash'..which,pn)
+            mc(start+len,{'stealth'..which,'dark'..which,'hidenoteflash'..which},pn)
+        end
+
+        --intro
+            mi(0,15,99.5,'dark')
+            me(15,12,99.5,50,'dark','sines')
+            me(18,6,wavestep_speed*1.5,wavestep_speed,'cmod','circs')
+            me(0,12,400,0,'orient','lin')
+            me(0,12,200,100,'zoomz','lin')
+            for i = 0, 9, 0.5 do
+                local a = alternate(i, 0.5) * (9.5-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 0, 6, 3 do
+                local a = alternate(i, 3) * (9-i)
+                local e = i==6 and 'cubeos' or 'expob'
+                local l = i==6 and 4 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                me(i,l,0,5*a,'rotationy',e)
+                me(i,l,0,5*a*pd,'confusionyoffset',e)
+            end
+
+            me(12,12+12,400,0,'orient','lin')
+            me(12,12+12,200,100,'zoomz','lin')
+            for i = 12, 9+12, 0.5 do
+                local a = alternate(i, 0.5) * -(9.5+12-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 12, 6+12, 3 do
+                local a = alternate(i, 3) * -(12+9-i)
+                local e = i==6+12 and 'cubeb' or 'expob'
+                local l = i==6+12 and 6 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                me(i,l,0,5*a,'rotationy',e)
+                me(i,l,0,5*a*pd,'confusionyoffset',e)
+                me(i,l,0,5*a,'rotationx',e)
+                me(i,l,0,5*a*pd,'confusionxoffset',e)
+            end
+
+        --intro (real)
+            me(24,4,0,-300,'tinyx0','sineos')
+            me(27,4,0,-300,'tinyx2','sineos')
+            me(30,2,0,-500,'tinyx1','expoout')
+            me(32,5,-500,0,'tinyx1','cubes')
+            me(12+31,5,-60,0,'flip','sines',1)
+            me(12+24,4,0,-300,'tinyx3','quados',1)
+            me(12+27,4,0,-300,'tinyx0','cubeos',1)
+            me(12+30,8,0,-800,'tinyx1','quartout',1)
+            me(12+30,8,0,800,'z','sines',1)
+
+            me(24,12,400,0,'orient','lin')
+            me(24,12,200,100,'zoomz','lin')
+            for i = 24, 9+24, 0.5 do
+                local a = alternate(i, 0.5) * (9.5+24-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 24, 6+24, 3 do
+                local a = alternate(i, 3) * (24+12-i)
+                local e = i==6+24 and 'cubeb' or 'expob'
+                local l = i==6+24 and 6 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                if i<6+24 then
+                    me(i,3,0,3*a,'rotationy','expob')
+                    me(i,3,0,3*a*pd,'confusionyoffset','expob')
+                    me(i,3,0,3*a,'rotationx','expob')
+                    me(i,3,0,3*a*pd,'confusionxoffset','expob')
+                end
+            end
+            me(29,2,0,-60,'flip','expos')
+            me(31,5,-60,0,'flip','sines')
+
+            me(36,12+12,400,0,'orient','lin')
+            me(36,12+12,200,100,'zoomz','lin')
+            for i = 36, 9+36, 0.5 do
+                local a = alternate(i, 0.5) * (9.5+36-i)
+                me(i,0.5,0,a*2,'x','sineb',1)
+                me(i,0.5,0,a*2,'drunk','sineb',1)
+            end
+            for i = 36, 6+36, 3 do
+                local a = alternate(i, 3) * (36+12-i)
+                local l = i==6+36 and 7 or 3
+                me(i,l,0,a*(9+10),'tipsy','expob',1)
+                if i~=6+32 then
+                    me(i,l,0,3*a,'rotationy','expob',1)
+                    me(i,l,0,3*a*pd,'confusionyoffset','expob',1)
+                    me(i,l,0,3*a,'rotationx','expob',1)
+                    me(i,l,0,3*a*pd,'confusionxoffset','expob',1)
+                end
+            end     
+            me(12+29,2,0,-60,'flip','expos', 1)
+            me(12+31,5,-60,0,'flip','sines', 1)
+            me(42,6,0,100,'stealth','circin',1)
+            mc(49,{'stealth'}, 1)
+            mi(42,6,50,'longboys', 1)
+            mc(51,{'orient', 'tinyx1'})
+
+            mi(36,11,100,'dark',2)
+            me(47,4,100,50,'dark','circin',2)
+            mi(36,15,100,'hidenoteflash',2)
+            mi(36,8.5,100,'stealth',2)
+            me(44.5,6.5,100,50,'stealth','circs',2)
+            me(42,9,70,wavestep_speed,'cmod','expoin',2)
+            mm(36, function()
+                local a = Plr(2)
+                if a then
+                    a:SetHiddenRegions{{41, 50}}
+                    for col=0,3 do
+                        a:SetNumStealthGradientPoints(col, 1)
+                        a:SetStealthGradientPoint(0, col, 0)
+                        a:SetStealthGradientColor(0, col, 0,0,0,1)
+                    end
+                end
+            end, true)
+            mc(51,{'stealth', 'dark', 'hidenoteflash'}, 2)
+
+        --1/2 backing perc
+            local c2l_backing = {{51,0},{52,1},{53,2},{53.5,1},{54,3},{55,2},{55.5,1},{56,2},{56.5,1},{57,0},{58,2},{59,1},{59.5,2},{60,3},{61,1},{61.5,2},{62,1},{62.5,2}};
+            for i,v in ipairs(c2l_backing) do
+                local a = alternate(i, 2) --this was an accident, but it looks cool
+                for j=0,7*12,12 do
+                    if v[1]+j<=140 then
+                        me(v[1]+j,2,-5*a,0,'movey','backout')
+                        me(v[1]+j,2,-12*a,0,'drunk','backout')
+                        me(v[1]+j,2,20*a,0,'tipsy','backout')
+                        if v[2]==0 then me(v[1]+j,2,200,100,'zoomx','circout') end
+                        if v[2]==1 then me(v[1]+j,3,-20,0,'confusionzoffset','backout') end
+                        if v[2]==2 then me(v[1]+j,3,20,0,'confusionzoffset','backout') end
+                        if v[2]==3 then me(v[1]+j,2,200,0,'tipsy','circout') me(v[1]+j,2,-200,0,'tiny','circout') end
+                    end
+                end
+            end
+            local fliip = {}
+            local iinvert = {}
+            for i,v in ipairs(c2l_kicks) do
+                if modulo(i-1, 63) < 42 then
+                    mv(fliip, v[1]-i, v[2])
+                else
+                    mv2(iinvert, v[1]-i, v[2])
+                end
+            end
+
+        --1.1 (as simple as)
+            me(51,4,0,30,'expand','expoout',nil,86)
+            me(51,4,0,30,'wave','expoout',nil,86)
+            me(51,4,100,300,'zoomz','expoout',nil,86)
+            me(99,6,30,0,'expand','expoout')
+            me(99,6,30,0,'wave','expoout')
+            me(99,6,800,100,'zoomz','expoout')
+
+            me(51,4,0,-200,'z','expoout',nil,39)
+            me(51,2,-300,0,'tiny','expoout')
+            
+            me(51,12,0,20,'rotationx','expob')
+            me(51+12,6,0,20,'rotationx','expob')
+            me(51+18,6,0,20,'rotationx','expob')
+            me(51,12,0,60,'rotationy','expob')
+            me(51+12,6,0,-60,'rotationy','expob')
+            me(51+18,6,0,60,'rotationy','expob')
+            me(51,12,0,60*pd,'confusionyoffset','expob')
+            me(51+12,6,0,-60*pd,'confusionyoffset','expob')
+            me(51+18,6,0,60*pd,'confusionyoffset','expob')
+            me(51,12,0,-20,'rotationz','expob')
+            me(51+12,6,0,20,'rotationz','expob')
+            me(51+18,6,0,-20,'rotationz','expob')
+            me(51,12,0,sw*0.3,'x','expob')
+            me(51+12,6,0,-sw*0.3,'x','expob')
+            me(51+18,6,0,sw*0.3,'x','expob')
+
+            for i = 51, 93, 6 do
+                local a = alternate(i-51, 6)
+                me(i,6,0,a*100,'drunkz','expob')
+            end
+
+            me(57,3,0,-200,'squarez','expoout')
+            me(60,3,-200,0,'squarez','cubein')
+            me(57,3,0,40,'arrowpath','expoout')
+            me(60,3,40,0,'arrowpath','cubein')
+            me(57,3,0,50,'arrowpathgirth','expoout')
+            me(60,3,50,0,'arrowpathgirth','cubein')   
+            mi(57,6,-90,'arrowpathdrawsizeback')     
+
+            --[[
+            local cen2 = 100*(wavestep_speed/wavestep_bpm)
+            for i=0,2 do hidecol(66,5,i,1) end
+            hidecol(66,5,3,2)
+            me(66,1,0,cen2,'centered2','lin', 1)
+            me(67,1,0,cen2,'centered2','lin', 1)
+            me(68,1,0,cen2,'centered2','lin', 1)
+            me(69,2,cen2,0,'centered2','expoout', 1)
+            ]]
+            me(69,6,0,100,'movex1','expob')
+            me(69,6,0,-100,'movex2','expob')
+
+        --1.2 (as simple as)
+            me(24+51,12,0,20,'rotationx','expob')
+            me(24+51+12,6,0,20,'rotationx','expoout')
+            me(24+51+15,6,20,0,'rotationx','expos')
+            me(24+51,12,0,-60,'rotationy','expob')
+            me(24+51+12,6,0,60,'rotationy','expoout')
+            me(24+51+15,6,60,0,'rotationy','backs')
+            me(24+51,12,0,-60*pd,'confusionyoffset','expob')
+            me(24+51+12,3,0,60*pd,'confusionyoffset','expoout')
+            me(24+51+15,6,60*pd,0,'confusionyoffset','backs')
+            me(24+51,12,0,20,'rotationz','expob')
+            me(24+51+12,3,0,-20,'rotationz','expoout')
+            me(24+51+15,6,-20,0,'rotationz','expos')
+            me(24+51,12,0,-sw*0.3,'x','expob')
+            me(24+51+12,3,0,sw*0.3,'x','expoout')
+            me(24+51+15,6,sw*0.3,0,'x','expos')
+
+            me(24+57,3,0,-200,'squarez','expoout')
+            me(24+60,3,-200,0,'squarez','cubein')
+            me(24+57,3,0,40,'arrowpath','expoout')
+            me(24+60,3,40,0,'arrowpath','cubein')
+            me(24+57,3,0,50,'arrowpathgirth','expoout')
+            me(24+60,3,50,0,'arrowpathgirth','cubein')   
+            mi(24+57,6,-90,'arrowpathdrawsizeback')  
+
+            me(94,4,360,0,'rotationy','backs')
+            me(94,4,360*pd,0,'confusionyoffset','backs')
+            me(94,5,-200,0,'z','sines',nil,39)
+
+            me(85.5,6,0,100,'flip','exposb')
+            me(85.5,6,0,100,'movex2','exposb')
+            me(85.5,6,0,-100,'movex1','exposb')
+
+            me(88.5,6,0,100,'invert','exposb')
+            me(88.5,6,0,100,'movex0','exposb')
+            me(88.5,6,0,-100,'movex3','exposb')
+
+        --2.1 (lay me down)
+            me(99,3,0,50,'drunky','expoout',nil,39)
+            me(99,3,0,-200,'attenuatex','expoout',nil,39)
+            me(99,3,0,-100,'parabolaz','expoout',nil,39)
+            me(141,6,50,0,'drunky','expoout')
+            me(141,6,-200,0,'attenuatex','expoout')
+            me(141,6,-100,0,'parabolaz','expoout')
+
+            me(99,2,-300,0,'tinyx','circout')
+            me(99,2,-300,0,'tinyy','circout')
+
+            me(99,6,0,-70,'rotationx','circb')
+            me(99+6,6,0,-70,'rotationx','circb')
+            me(99+12,6,0,-70,'rotationx','circb')
+            me(99,6,0,-70*pd,'confusionxoffset','circb')
+            me(99+6,6,0,-70*pd,'confusionxoffset','circb')
+            me(99+12,6,0,-70*pd,'confusionxoffset','circb')
+            me(99,6,0,-sw*0.1,'x','cubeb')
+            me(99+6,6,0,sw*0.1,'x','cubeb')
+            me(99+12,6,0,-sw*0.1,'x','cubeb')
+            me(99,6,0,25,'y','cubeb')
+            me(99+6,6,0,25,'y','cubeb')
+            me(99+12,6,0,25,'y','cubeb')
+            me(99,6,0,-25,'flip','cubeb')
+            me(99+6,6,0,-25,'flip','cubeb')
+            me(99+12,6,0,-25,'flip','cubeb')
+            me(99,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+            me(99+6,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+            me(99+12,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+
+            me(111,6,0,30,'rotationy','quadb')
+            me(117,6,0,30,'rotationy','quados')
+
+            me(117,6,-70,180,'rotationx','circout')
+            me(117,6,-70*pd,180*pd,'confusionxoffset','circout')
+            me(117,6,0,-25,'flip','cubeb')
+            me(117,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+
+        --2.2 (cut myself)
+        
+            me(24+99,6,180,250,'rotationx','circb')
+            me(24+99+6,6,180,250,'rotationx','circb')
+            me(24+99+12,6,180,250,'rotationx','circb')
+            me(24+99,6,180*pd,250*pd,'confusionxoffset','circb')
+            me(24+99+6,6,180*pd,250*pd,'confusionxoffset','circb')
+            me(24+99+12,6,180*pd,250*pd,'confusionxoffset','circb')
+            me(24+99,6,0,sw*0.1,'x','cubeb')
+            me(24+99+6,6,0,-sw*0.1,'x','cubeb')
+            me(24+99+12,6,0,sw*0.1,'x','cubeb')
+            me(24+99,6,0,-25,'y','cubeb')
+            me(24+99+6,6,0,-25,'y','cubeb')
+            me(24+99+12,6,0,-25,'y','cubeb')
+            me(24+99,6,0,-25,'flip','cubeb')
+            me(24+99+6,6,0,-25,'flip','cubeb')
+            me(24+99+12,6,0,-25,'flip','cubeb')
+            me(24+99,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+            me(24+99+6,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+            me(24+99+12,6,wavestep_speed,wavestep_speed*0.8,'cmod','cubeb')
+
+            me(24+117,6,200,0,'orient','cubein')
+            me(24+117,6,-50,0,'drunk','cubein')
+            me(24+117,6,200,0,'tipsy','cubein')
+            me(24+117,6,540,0,'rotationx','expoout')
+            me(24+117,6,-180,0,'rotationy','backout')
+            me(24+117,6,50,0,'spiralz','expoout')
+            me(24+117,6,-30,0,'spiralzperiod','cubein')
+            me(24+117,6,50,0,'spiralx','expoout')
+            me(24+117,6,-30,0,'spiralxperiod','cubein')
+            me(24+117,6,540*pd,0*pd,'confusionxoffset','expoout')
+
+            me(135,6,0,-30,'rotationy','quadb')
+
+            me(139,4,0,-1500,'tiny','expom')
+
+        --bridge
+            me(147,12,400,0,'orient','lin')
+            me(147,12,200,100,'zoomz','lin')
+            for i = 147, 9+147, 0.5 do
+                local a = alternate(i-147, 0.5) * -(9.5+147-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 147, 6+147, 3 do
+                local a = -alternate(i-147, 3) * -(12+147-i)
+                local e = i==6+147 and 'cubeb' or 'expob'
+                local l = i==6+147 and 6 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                me(i,l,0,3*a,'rotationy',e)
+                me(i,l,0,3*a*pd,'confusionyoffset',e)
+                me(i,l,0,3*a,'rotationx',e)
+                me(i,l,0,3*a*pd,'confusionxoffset',e)
+            end
+
+            me(159,12,-400,0,'orient','lin')
+            me(159,12,200,100,'zoomz','lin')
+            for i = 159, 9+159, 0.5 do
+                local a = alternate(i-159, 0.5) * -(9.5+159-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 159, 6+159, 3 do
+                local a = alternate(i-159, 3) * -(12+159-i)
+                local e = i==6+159 and 'cubeb' or 'expob'
+                local l = i==6+159 and 6 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                me(i,l,0,-3*a,'rotationy',e)
+                me(i,l,0,-3*a*pd,'confusionyoffset',e)
+                me(i,l,0,3*a,'rotationx',e)
+                me(i,l,0,3*a*pd,'confusionxoffset',e)
+            end
+
+            me(145.5,6,0,200,'movex0','exposb')
+            me(145.5,6,0,-200,'movex2','exposb')
+            me(148.5,6,0,200,'movex1','exposb')
+            me(148.5,6,0,-200,'movex3','exposb')
+            me(12+145.5,6,0,300,'movex0','exposb')
+            me(12+145.5,6,0,-300,'movex3','exposb')
+            me(12+148.5,6,0,100,'movex1','exposb')
+            me(12+148.5,6,0,-100,'movex2','exposb')
+
+        --bridge (real) ((i am in triple hell))
+            me(147+24,4,0,-300,'tinyx0','sineos')
+            me(147+27,4,0,-300,'tinyx1','sineos')
+            me(147+30,2,0,-500,'tinyx2','expoout')
+            me(147+32,5,-500,0,'tinyx2','cubes')
+            me(147+12+31,5,-60,0,'flip','sines')
+            me(147+12+24,4,0,-300,'tinyx3','quados')
+            me(147+12+27,4,0,-300,'tinyx0','cubeos')
+            me(147+12+30,2,0,-500,'tinyx2','expoout')
+            me(147+12+32,5,-500,0,'tinyx2','cubes')
+
+            me(147+24,12,400,0,'orient','lin')
+            me(147+24,12,200,100,'zoomz','lin')
+            for i = 147+24, 9+147+24, 0.5 do
+                local a = -alternate(i, 0.5) * (9.5+147+24-i)
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 147+24, 6+147+24, 3 do
+                local a = -alternate(i, 3) * (147+24+12-i)
+                local e = i==6+24+147 and 'cubeb' or 'expob'
+                local l = i==6+24+147 and 6 or 3
+                me(i,l,0,a*(9+10),'tipsy',e)
+                if i<147+6+24 then
+                    me(i,3,0,3*a,'rotationy','expob')
+                    me(i,3,0,3*a*pd,'confusionyoffset','expob')
+                    me(i,3,0,3*a,'rotationx','expob')
+                    me(i,3,0,3*a*pd,'confusionxoffset','expob')
+                end
+            end
+            me(147+29,2,0,-60,'flip','expos')
+            me(147+31,5,-60,0,'flip','sines')
+
+            me(147+36,12+12,400,0,'orient','lin')
+            me(147+36,12+12,200,100,'zoomz','lin')
+            for i = 147+36, 198.5, 0.5 do
+                local a = alternate(i, 0.5) * 8
+                me(i,0.5,0,a*2,'x','sineb')
+                me(i,0.5,0,a*2,'drunk','sineb')
+            end
+            for i = 147+36, 6+147+36, 3 do
+                local a = alternate(i, 3) * (147+36+12-i)
+                local l = i==6+147+36 and 10 or 3
+                me(i,l,0,a*(9+10),'tipsy','expob')
+                if i~=147+6+32 then
+                    me(i,l,0,3*a,'rotationy','expob')
+                    me(i,l,0,3*a*pd,'confusionyoffset','expob')
+                    me(i,l,0,3*a,'rotationx','expob')
+                    me(i,l,0,3*a*pd,'confusionxoffset','expob')
+                end
+            end     
+            me(188,2,0,-60,'flip','expos')
+            me(190,5,-60,0,'flip','sines')
+            me(187,10,360,0,'rotationz','sines')
+            me(187,10,360*pd,0,'confusionzoffset','sines')
+
+            me(183,3,-200,0,'mini','expoout')
+            me(186,3,-200,0,'mini','expoout')
+            me(189,6,-200,0,'mini','expoout')
+
+            me(24+145.5,6,0,100,'movex0','exposb')
+            me(24+145.5,6,0,-100,'movex1','exposb')
+            me(24+148.5,6,0,100,'movex2','exposb')
+            me(24+148.5,6,0,-100,'movex3','exposb')
+            me(24+12+145.5,6,0,100,'movex1','exposb')
+            me(24+12+145.5,6,0,-100,'movex2','exposb')
+            me(24+12+148.5,6,0,300,'movex0','exposb')
+            me(24+12+148.5,6,0,-300,'movex3','exposb')
+
+        --fuck i literally forgot about this part
+            local c2l_predist = {{196,0},{197,3},{197.5,0},{198,1},{198.5,2}};
+            mm(410, function() for row=1,8 do for col=1,21 do if _G['wavestep_array'..row..'x'..col] then
+            _G['wavestep_array'..row..'x'..col]:settext( fliip[(row-1)*21 + col] )
+            end end end end)
+            for i,v in ipairs(c2l_predist) do
+                local a = alternate(i, 1)
+                me(v[1],1,80*a,0,'noteskewx'..v[2],'backout')
+                me(v[1],1,-100,0,'tiny'..v[2],'backout')
+            end
+
+            local function wangle(start, len)
+                me(start,len,200,0,'orient','lin')
+                for i = start, len+start, 0.5 do
+                    local a = alternate(i-start, 0.5) * (len+0.5+start-i) * (len+0.5+start-i)
+                    me(i,0.5,0,a*2,'drunk','sineb')
+                    me(i,0.5,0,a*2,'tipsy','sineb')
+                end
+            end
+
+            local c2l_maskoff_by_future = {{199,0},{201,3},{203,0},{203.688,0},{204.438,0},{205,3},{207,0},{209,3},{211,0},{211.688,0},{212.438,0},{213,3},{215,0},{217,3},{219,0},{219,1},{219.5,2},{219.688,0},{220,1},{220.438,0},{220.5,2},{221,1},{221,3},{221.25,2},{221.5,1},{221.75,2},{222,1},{222.25,2},{222.5,1},{222.75,2},{223,0},{225,3},{227,0},{227.688,0},{228.438,0},{229,3},{231,0},{233,3},{235,0},{235.688,0},{236.438,0},{237,3},{239,0},{241,3},{243,0},{243.688,0},{244.438,0},{245,3}};
+            for i,v in ipairs(c2l_maskoff_by_future) do
+                me(v[1],2,-5,0,'z','backout')
+                if v[2]==0 then me(v[1],2,-250,0,'tinyy','circout'); end
+                if v[2]==1 then me(v[1],0.4,10,0,'movez','circout'); end
+                if v[2]==2 then me(v[1],0.4,-10,0,'movez','circout'); end
+                if v[2]==3 then me(v[1],2,200,0,'drunky','circout') me(v[1],2,-400,0,'tiny','circout'); me(v[1],3,20,0,'confusionzoffset','backout'); end
+            end
+
+            me(199,46,0,20,'drunkz','expob')
+            wangle(199,4)
+            wangle(204.5,4)
+            wangle(211,4)
+            wangle(217,4)
+            wangle(24+199,4)
+            wangle(24+204.5,4)
+            wangle(24+211,4)
+            wangle(24+217,4)
+
+            me(199,4,100,300,'zoomz','cubes',nil,1)
+            me(204,2,300,600,'zoomz','cubes',nil,2)
+            me(208,2,600,900,'zoomz','cubes',nil,2)
+            me(212,2,900,1200,'zoomz','cubes',nil,2)
+            me(216,2,1200,1500,'zoomz','cubes',nil,2)
+            me(220,3,1500,100,'zoomz','sines')
+
+            me(199,4,0,-50,'movey','cubes',nil,1)
+            me(204,2,-50,-100,'movey','cubes',nil,2)
+            me(208,2,-100,-150,'movey','cubes',nil,2)
+            me(212,2,-150,-200,'movey','cubes',nil,2)
+            me(216,2,-200,-250,'movey','cubes',nil,2)
+            me(220,3,-250,0,'movey','sines')
+
+            me(199,4,0,-5,'rotationz','cubes',nil,1)
+            me(204,2,-5,-10,'rotationz','cubes',nil,2)
+            me(208,2,-10,-15,'rotationz','cubes',nil,2)
+            me(212,2,-15,-20,'rotationz','cubes',nil,2)
+            me(216,2,-20,-25,'rotationz','cubes',nil,2)
+            me(220,3,-25,0,'rotationz','sines')
+
+            me(199,4,0,-5,'rotationx','cubes',nil,1)
+            me(204,2,-5,-10,'rotationx','cubes',nil,2)
+            me(208,2,-10,-15,'rotationx','cubes',nil,2)
+            me(212,2,-15,-20,'rotationx','cubes',nil,2)
+            me(216,2,-20,-25,'rotationx','cubes',nil,2)
+            me(220,3,-25,0,'rotationx','sines')
+
+            me(199,4,0,-20,'noteskewy','cubes',nil,1)
+            me(204,2,-20,-40,'noteskewy','cubes',nil,2)
+            me(208,2,-40,-60,'noteskewy','cubes',nil,2)
+            me(212,2,-60,-80,'noteskewy','cubes',nil,2)
+            me(216,2,-80,-100,'noteskewy','cubes',nil,2)
+            me(220,3,-100,0,'noteskewy','sines')
+
+            me(199,4,0,20,'skewy','cubes',nil,1)
+            me(204,2,20,40,'skewy','cubes',nil,2)
+            me(208,2,40,60,'skewy','cubes',nil,2)
+            me(212,2,60,80,'skewy','cubes',nil,2)
+            me(216,2,80,100,'skewy','cubes',nil,2)
+            me(220,3,100,0,'skewy','sines')
+        --fuck 2
+            me(24+199,4,100,300,'zoomz','cubes',nil,1)
+            me(24+204,2,300,600,'zoomz','cubes',nil,2)
+            me(24+208,2,600,900,'zoomz','cubes',nil,2)
+            me(24+212,2,900,1200,'zoomz','cubes',nil,2)
+            me(24+216,2,1200,1500,'zoomz','cubes',nil,2)
+            me(24+220,3,1500,100,'zoomz','sines')
+
+            me(24+199,4,0,-50,'movey','cubes',nil,1)
+            me(24+204,2,-50,-100,'movey','cubes',nil,2)
+            me(24+208,2,-100,-150,'movey','cubes',nil,2)
+            me(24+212,2,-150,-200,'movey','cubes',nil,2)
+            me(24+216,2,-200,-250,'movey','cubes',nil,2)
+            me(24+220,3,-250,0,'movey','sines')
+
+            me(24+199,4,0,-5,'rotationx','cubes',nil,1)
+            me(24+204,2,-5,-10,'rotationx','cubes',nil,2)
+            me(24+208,2,-10,-15,'rotationx','cubes',nil,2)
+            me(24+212,2,-15,-20,'rotationx','cubes',nil,2)
+            me(24+216,2,-20,-25,'rotationx','cubes',nil,2)
+            me(24+220,3,-25,0,'rotationx','sines')
+
+            me(24+199,4,0,5,'rotationz','cubes',nil,1)
+            me(24+204,2,5,10,'rotationz','cubes',nil,2)
+            me(24+208,2,10,15,'rotationz','cubes',nil,2)
+            me(24+212,2,15,20,'rotationz','cubes',nil,2)
+            me(24+216,2,20,25,'rotationz','cubes',nil,2)
+            me(24+220,3,25,0,'rotationz','sines')
+
+            me(24+199,4,0,-20,'noteskewy','cubes',nil,1)
+            me(24+204,2,-20,-40,'noteskewy','cubes',nil,2)
+            me(24+208,2,-40,-60,'noteskewy','cubes',nil,2)
+            me(24+212,2,-60,-80,'noteskewy','cubes',nil,2)
+            me(24+216,2,-80,-100,'noteskewy','cubes',nil,2)
+            me(24+220,3,-100,0,'noteskewy','sines')
+
+            me(24+199,4,0,20,'skewy','cubes',nil,1)
+            me(24+204,2,20,40,'skewy','cubes',nil,2)
+            me(24+208,2,40,60,'skewy','cubes',nil,2)
+            me(24+212,2,60,80,'skewy','cubes',nil,2)
+            me(24+216,2,80,100,'skewy','cubes',nil,2)
+            me(24+220,3,100,0,'skewy','sines')
+
+        --evil
+            local function wongle(start, amp, add, pn)
+                local add = add==nil and 0 or add
+                me(start,3,200,0,'orient','lin', pn)
+                me(start-1,1,0,-20,'flip','expoin', pn)
+                me(start,3,-20,0,'flip','sineout', pn)
+                for i = start, start+3+add, 0.5 do
+                    local a = alternate(i, 0.5) * ((start+3.5+add)-i) * ((start+3.5+add)-i)
+                    me(i,0.5,0,amp*a*3,'x','sineb', pn)
+                    me(i,0.5,0,amp*a*8,'drunk','sineb', pn)
+                end
+                for i = start, start+2+add, 1 do
+                    local a = alternate(i, 1) * ((start+3+add)-i) * ((start+3+add)-i)
+                    me(i,1,0,amp*a*14,'tipsy','sineb', pn)
+                end
+            end
+
+            me(245,3,0,50,'mini','sines',1,60)
+            me(307.5,3,50,0,'mini','sineout',1)
+            me(245,3,0,-25,'tornado','sines',1,60)
+            me(307.5,3,-25,0,'tornado','circout',1)
+            me(245,3,0,-100,'attenuatex','sines',1,60)
+            me(307.5,3,-100,0,'attenuatex','circout',1)
+            me(245,3,0,25,'wave','sines',1,60)
+            me(307.5,3,25,0,'wave','circout',1)
+            me(245,3,0,80,'stealth','sines',2,60)
+            me(245,3,100,100,'dark','sines',2,60)
+            me(245,3,0,100,'hidenoteflash','sines',2,60)
+            me(245,3,0,100,'reverse','sines',2,60)
+            me(245,3,0,300,'movey','sines',2,60)
+            me(245,3,wavestep_speed,wavestep_speed*0.8,'cmod','sines',2,60)
+            me(245,3,0,-200,'movex0','sines',2,60)
+            me(245,3,0,-200,'movex1','sines',2,60)
+            me(245,3,0,200,'movex2','sines',2,60)
+            me(245,3,0,200,'movex3','sines',2,60)
+            me(245,3,0,150,'drawsize','sines',2,60)
+            mc(309, {'stealth','dark','hidenoteflash','reverse','movey','movex0','movex1','movex2','movex3','drawsize'}, 2)
+
+            local c2l_evil = {{247,0},{248,1},{249.5,2},{250,0},{251.5,1},{252,3},{252.5,3},{253,3},{254,2},{255,0},{256,1},{257,2},{257.5,1},{258,0},{258,2},{258.5,1},{259,2},{259.5,1},{260,3},{260.5,3},{261,3},{262,2},{263,0},{265,1},{265.5,2},{266,0},{266,1},{266.5,2},{267,1},{267.5,2},{268,3},{268.5,3},{269,3},{270,1},{271,0},{272,2},{273,1},{273.5,2},{274,0},{274,1},{274.5,2},{275,1},{275.5,2},{276,3},{276.5,3},{277,3},{278,2},{279,0},{281,1},{281.5,2},{282,0},{283.5,1},{284,3},{284.5,3},{285,3},{286,2},{287,0},{288,1},{289,2},{289.5,1},{290,0},{290,2},{290.5,1},{291,2},{291.5,1},{292,3},{292.5,3},{293,3},{294,2},{295,0},{297,1},{297.5,2},{298,0},{298,1},{298.5,2},{299,1},{299.5,2},{300,3},{300.5,3},{301,3},{302,1},{303,0},{304,2},{305,1},{305.5,2},{306,0},{306,1},{306.5,2},{307,1}};
+            for i,v in ipairs(c2l_evil) do
+                local a = alternate(i, 1)
+                if v[2]==0 then me(v[1],2,-200,0,'tiny','circout'); end
+                if v[2]==1 then me(v[1],3,-80,0,'tinyy','backout', 1); end
+                if v[2]==2 then me(v[1],3,80,0,'tinyy','backout', 1); end
+                if v[2]==3 then me(v[1],2,-50*a,0,'movex','expoout', 1); me(v[1],2,150,100,'zoomx','expoout', 1); end
+            end
+
+            for pn=1,2 do
+                local a = (3-pn)/2
+                wongle(247, a*0.5, 0, pn)
+                wongle(251, a*-0.6, 1, pn)
+                wongle(257, a*2, -1, pn)
+                wongle(261, a*-0.5, 1, pn)
+                wongle(267, a*1, 0, pn)
+                wongle(273, a*-1, -1, pn)
+                wongle(277, a*0.5, 1, pn)
+                ---
+                wongle(32+251, a*-0.6, 1, pn)
+                wongle(32+257, a*2, -1, pn)
+                wongle(32+261, a*-0.5, 1, pn)
+                wongle(32+267, a*1, 0, pn)
+                wongle(32+273, a*-1, -1, pn)
+            end
+
+            me(259,8,0,180,'rotationx','expos',1,8)
+            me(259,8,0,180*pd,'confusionxoffset','expos',1,8)
+            me(259,8,0,-180,'rotationx','expos',2,8)
+            me(259,8,0,-180*pd,'confusionxoffset','expos',2,8)
+            me(259,8,100,700,'zoomz','expos',nil,8)
+            me(259,8,0,100,'tinyz','expos',nil,8)
+
+            me(275,8,180,0,'rotationx','expos',1)
+            me(275,8,180*pd,0,'confusionxoffset','expos',1)
+            me(275,8,-180,0,'rotationx','expos',2)
+            me(275,8,-180*pd,0,'confusionxoffset','expos',2)
+            me(275,8,700,100,'zoomz','expos')
+            me(275,8,100,0,'tinyz','expos')
+
+            me(32+259,8,0,-180,'rotationx','expos',1,8.5)
+            me(32+259,8,0,-180*pd,'confusionxoffset','expos',1,8.5)
+            me(32+259,8,0,180,'rotationx','expos',2,8.5)
+            me(32+259,8,0,180*pd,'confusionxoffset','expos',2,8.5)
+            me(32+259,8,100,700,'zoomz','expos',nil,8.5)
+            me(32+259,8,0,100,'tinyz','expos',nil,8.5)
+
+            me(32.5+275,3,-180,0,'rotationx','lin')
+            me(32.5+275,3,-180*pd,0,'confusionxoffset','lin')
+            me(32.5+275,3,700,100,'zoomz','lin')
+            me(32.5+275,3,100,0,'tinyz','lin')
+
+        --3/4 setup
+            local c2l_stuff = {{311,1},{313,3},{315,0},{315.688,1},{316.438,0},{317,3},{319,1},{321,3},{323,0},{323.688,1},{324.438,0},{325,3},{327,1},{329,3},{331,0},{331.688,1},{332.438,0},{333,3},{335,1},{337,3},{339,0},{339.688,1},{340.438,0},{341,3},{343,1},{345,3},{347,0},{347.688,1},{348.438,0},{349,3},{351,1},{353,3},{355,0},{355.688,1},{356.438,0},{357,3},{359,1},{361,3},{363,0},{363.688,1},{364.438,0},{365,3}};
+            for i,v in ipairs(c2l_stuff) do
+                if v[2]==0 then me(v[1],2,-200,0,'tinyy','circout'); end
+                if v[2]==1 then me(v[1],2,-200,0,'tinyx','circout'); end
+                if v[2]==2 then me(v[1],0.4,-10,0,'movez','circout'); end
+                if v[2]==3 then me(v[1],2,200,0,'drunk','circout') me(v[1],2,-200,0,'tiny','circout'); end
+            end
+            local c2l_snarez = {{359,0},{359.5,1},{360,0},{361.5,1},{362.5,0},{363.5,1},{364,0},{365.5,1},{366,0},{366.5,1}};
+            for i,v in ipairs(c2l_snarez) do
+                me(v[1],2,60,0,'movez','backout')
+                if v[2]==0 then me(v[1],2,50,0,'confusionzoffset','circout'); end
+                if v[2]==1 then me(v[1],2,-50,0,'confusionzoffset','circout'); end
+            end
+
+            for i=311,365,2 do
+                me(i-0.5,2,0,-10,'flip','sinesb')
+            end
+        --3.1 (as simple as)
+            me(311,1,-400,0,'tiny','circout')
+            me(311,3,0,-400,'z','circout',nil,26)
+            me(340,3,-400,0,'z','sinein')
+            me(341,4,100,500,'zoomx','expom')
+            me(311,2,0,30,'expand','expoout',nil,86)
+            me(311,2,0,30,'wave','expoout',nil,86)
+            me(311,2,100,300,'zoomz','expoout',nil,86)
+
+            --simplecos
+            local function scos(x, a, p) return a * (cos((2 * pi * x) / p)) end
+            --simplesin
+            local function ssin(x, a, p) return a * (sin((2 * pi * x) / p)) end
+
+            pf(311, 32, function(beat)
+                local bb = beat-311
+                local init = expob(bb, 0, 1, 32)
+                for pn = 1, 2 do
+                    local a = _G['wavestep_prx'..pn]
+                    local aa = alternate_pn(pn)
+                    local x = init * scos(bb+8, 1, 24)
+                    local y = init * ssin(bb+8, 1, 24)
+                    local roty = aa*y*-30
+                    if a then
+                        a:x(scx+aa*x*sw*0.4)
+                        a:y(scy+aa*y*sh*0.3)
+                        a:rotationx(aa*x*-20)
+                        a:rotationy(roty)
+                        a:rotationz(aa*x*20)
+                    end
+                    GAMESTATE:ApplyModifiers('*-1 '..(roty*pd)..' confusionyoffset', pn)
+                end
+            end)
+
+            me(319,4,0,-200,'squarez','expoout')
+            me(323,4,-200,0,'squarez','cubein')
+            me(319,4,0,80,'arrowpath','expoout')
+            me(323,4,80,0,'arrowpath','cubein')
+            me(319,4,0,50,'arrowpathgirth','expoout')
+            me(323,4,50,0,'arrowpathgirth','cubein')   
+            mi(319,8,-90,'arrowpathdrawsizeback') 
+            mi(319,8,40,'arrowpathdrawsize')   
+
+        --3.2 (as simple as)
+            me(326,2,0,-400,'tiny','circm')
+            
+            --[[
+            pf(327, 16, function(beat)
+                local bb = beat-327
+                local init = cubeb(bb, 0, 1, 16)
+                for pn = 1, 2 do
+                    local a = _G['wavestep_prx'..pn]
+                    local aa = alternate_pn(pn)
+                    local x = init * scos(bb, 1, 32)
+                    local y = init * ssin(bb, 1, 32)
+                    local roty = aa*y*-30
+                    if a then
+                        a:x(scx+aa*x*sw*0.2)
+                        a:y(scy+aa*y*sh*0.3)
+                        a:rotationx(aa*x*-30)
+                        a:rotationy(roty)
+                        a:rotationz(aa*x*50)
+                    end
+                    GAMESTATE:ApplyModifiers('*-1 '..(roty*pd)..' confusionyoffset', pn)
+                end
+            end)
+            ]]
+
+        --4.1 (lay me down)
+            me(341.5,3,0,-2000,'tinyx','expom')
+            me(341.5,3,0,-2000,'tinyy','expom')
+            me(335,8,wavestep_speed,wavestep_speed*0.85,'cmod','sines')
+
+            me(343,8,0,-70,'rotationx','circb', 1)
+            me(343+8,8,0,-70,'rotationx','circb', 1)
+            me(343,8,0,-70*pd,'confusionxoffset','circb', 1)
+            me(343+8,8,0,-70*pd,'confusionxoffset','circb', 1)
+            me(343,8,0,-sw*0.25,'x','cubeb', 1)
+            me(343+8,8,0,sw*0.25,'x','cubeb', 1)
+            me(343,8,0,25,'y','cubeb', 1)
+            me(343+8,8,0,25,'y','cubeb', 1)
+            me(343,8,0,100,'cubicx','cubeb', 1)
+            me(343+8,8,0,-100,'cubicx','cubeb', 1)
+            me(343,8,wavestep_speed,wavestep_speed*0.5,'cmod','cubeb')
+            me(343+8,8,wavestep_speed,wavestep_speed*0.5,'cmod','cubeb')
+
+            me(343,8,180,250,'rotationx','circb', 2)
+            me(343+8,8,180,250,'rotationx','circb', 2)
+            mi(359,8,180,'rotationx',2)
+            me(343,8,180*pd,250*pd,'confusionxoffset','circb', 2)
+            me(343+8,8,180*pd,250*pd,'confusionxoffset','circb', 2)
+            mi(359,8,180*pd,'confusionxoffset', 2)
+            me(343,8,0,sw*0.25,'x','cubeb', 2)
+            me(343+8,8,0,-sw*0.25,'x','cubeb', 2)
+            me(343,8,0,-25,'y','cubeb', 2)
+            me(343+8,8,0,-25,'y','cubeb', 2)
+            me(343,8,0,-100,'cubicx','cubeb', 2)
+            me(343+8,8,0,100,'cubicx','cubeb', 2)
+            me(358,5,0,-1000,'movex','sines', 2)
+            me(358,5,0,-1000,'movez','sines', 2)
+
+        --4.2 (cut myself)
+            me(354,13,-720, 0,'rotationy','circin')
+            me(354,13,-720*pd, 0,'confusionyoffset','circin')
+            me(365,4,0,360,'tornadoz','expom')
+            me(365,4,0,-1000,'mini','expom')
+            me(367,10,100000, 100,'zoomz','expoout')
+            me(367,10,200,0,'tinyz','sinein')
+            me(367,10,1,0,'movez','sineout')
+            me(367,10,-40, 0,'rotationx','expoout')
+
+            me(367,6,200,0,'orient','cubein')
+            me(367,6,50,0,'drunk','cubein')
+            me(367,6,-200,0,'tipsy','cubein')
+            me(367,10,10,0,'spiralz','expoout')
+            me(367,10,-30,0,'spiralzperiod','cubein')
+            me(367,10,-2000,0,'tinyx1','expoout')
+
+        --ending
+            wongle(373,0.4,2)
+            wongle(130+251, -0.6, 1)
+            wongle(130+257, 0.8, 1)
+            wongle(130+267, 0.6, 1)
+            wongle(130+273, -0.3, 2)
+            me(392.9,0.08,0,40,'tantornado','expoout',nil,99)
+            me(392.9,0.08,0,90,'skewx','expoout',nil,99)
+            me(392.9,0.08,0,-30,'split','expoout',nil,99)
+            me(392.9,0.08,0,30,'reverse','expoout',nil,99)
+            me(392.9,0.08,0,50,'rotationz','expoout',nil,99)
+            me(392.9,0.08,0,-100,'confusionzoffset','expoout',nil,99)
+            me(405,4,0,-1000,'tinyy','expoin')
+            me(405,4,0,200,'tinyx','expoin')
+
+--------visual stuff-----------------------------------------------------------
+        
+        --bg
+            toggle_tex(0, 409, 'vhsoverlay')
+            toggle_tex(0.1, 425.9, 'vhs')
+            toggle_tex(0, 50, 'bg1')
+
+            toggle_tex(42, 9, 'white')
+            toggle_tex(50, 147-50, 'bg2')
+            pf(42, 7, function(beat) ae(42, 7, 0, 1, 'sines', wavestep_white, 'diffusealpha') end)
+            
+            toggle_tex(141, 199-141, 'bg1')
+            pf(141, 6, function(beat) ae(141, 6, 1, 0, 'sineout', wavestep_bg2, 'diffusealpha') end)
+
+            toggle_tex(189, 248-189, 'bg3')
+            pf(189, 10, function(beat) ae(189, 10, 0, 1, 'sines', wavestep_bg3, 'diffusealpha') end)
+            pf(189, 10, function(beat) ae(189, 10, 0.15, 0.05, 'sines', wavestep_vhsoverlay, 'diffusealpha') end)
+
+            toggle_tex(246, 311-246, 'bg4')
+            pf(246, 2, function(beat) ae(246, 2, 0, 1, 'expos', wavestep_bg4, 'diffusealpha') end)
+            pf(246, 2, function(beat) ae(246, 2, 0.05, 0.15, 'sines', wavestep_vhsoverlay, 'diffusealpha') end)
+
+            toggle_tex(307.5, 3.5, 'bgCutTop')
+            toggle_tex(309, 2, 'bgCutBot')
+            mm(307.5, function() if wavestep_bgCutTop then wavestep_bgCutTop:cropright(0.75) end end)
+            mm(307.75, function() if wavestep_bgCutTop then wavestep_bgCutTop:cropright(0.5) end end)
+            mm(308, function() if wavestep_bgCutTop then wavestep_bgCutTop:cropright(0.25) end end)
+            mm(308.5, function() if wavestep_bgCutTop then wavestep_bgCutTop:cropright(0) end end)
+            mm(309, function() if wavestep_bgCutBot then wavestep_bgCutBot:cropleft(0.66) end end)
+            mm(309.625, function() if wavestep_bgCutBot then wavestep_bgCutBot:cropleft(0.33) end end)
+            mm(310.5, function() if wavestep_bgCutBot then wavestep_bgCutBot:cropleft(0) end end)
+
+            for i,v in ipairs(iinvert) do colorized2021(v) end
+
+            toggle_tex(311, 379-311, 'bg2')
+            pf(311, 2, function(beat) ae(311, 2, 1, 1, 'expos', wavestep_bg2, 'diffusealpha') end)
+
+            toggle_tex(375, 409-375, 'bg4')
+            pf(375, 4, function(beat) ae(375, 4, 0, 1, 'expos', wavestep_bg4, 'diffusealpha') end)
+            --toggle_tex(367, 6-367, 'vhs')
+
+            toggle_tex(366.02, 2, 'white')
+            pf(366, 2, function(beat) ae(366, 2, 0, 1, 'expom', wavestep_white, 'diffusealpha') end)
+
+            pf(395, 14, function(beat) ae(395, 14, 0.15, 1, 'expoin', wavestep_vhsoverlay, 'diffusealpha') end)
+
+        --opening text
+            toggle_tex(0, 12, 'title')
+            toggle_tex(3, 12, 'artist')
+            toggle_tex(6, 12, 'effector')
+            toggle_tex(9, 12, 'copyleft')
+
+        --shader stuff
+            toggle_tex(120, 3.25, 'weird')
+            tween_shader(120, 3, 'weird', 'noiseAmp', 'circin', 0, 0.1)
+            tween_shader(120, 3, 'weird', 'gain', 'sinein', 1, 1.4)
+            tween_shader(120, 3, 'weird', 'offset', 'sinein', 0, 0.15)
+            tween_shader(123, 0.25, 'weird', 'noiseAmp', 'sineout', 0.1, 0)
+            tween_shader(123, 0.25, 'weird', 'gain', 'sineout', 1.4, 1)
+            tween_shader(123, 0.25, 'weird', 'offset', 'sineout', 0.15, 0)
+            toggle_tex(120, 3, 'hglitch')
+            tween_shader(120, 3, 'hglitch', 'amp2', 'sinein', 0,  -0.1)
+            tween_shader(123, 0.25, 'hglitch', 'amp2', 'sineout', -0.1, 0)
+
+            toggle_tex(141, 6, 'weird')
+            tween_shader(141, 6, 'weird', 'noiseAmp', 'cubeos', 0, 0.001)
+            toggle_tex(141, 6, 'hglitch')
+            tween_shader(141, 6, 'hglitch', 'amp2', 'sineout', 0.15, 0)
+
+            toggle_tex(246, 311-246, 'hglitch')
+            tween_shader(246, 2, 'hglitch', 'amp', 'expos', 0, 0.002)
+            tween_shader(307.5, 3.5, 'hglitch', 'amp', 'expos', 0.002, 0)
+
+            toggle_tex(367, 9, 'weird')
+            tween_shader(367, 9, 'weird', 'noiseAmp', 'cubeos', 0, 0.001)
+            toggle_tex(367, 9, 'hglitch')
+            tween_shader(367, 9, 'hglitch', 'amp2', 'cubeout', 0.15, 0)
+
+            toggle_tex(404, 5, 'hglitch')
+            tween_shader(404, 5, 'hglitch', 'amp', 'expoin', 0, -0.1)
+            toggle_tex(404, 5, 'weird')
+            tween_shader(404, 5, 'weird', 'noiseAmp', 'expoin', 0, -0.02)
+            toggle_tex(404, 5, 'pxsort')
+            tween_shader(404, 5, 'pxsort', 'threshold', 'expoin', 0, 0.6)
+
+        --bible
+            toggle_tex(51, 0.15, 'bible1')
+            toggle_tex(63, 0.15, 'bible2')
+            toggle_tex(75, 0.15, 'bible3')
+            toggle_tex(87, 0.15, 'bible4')
+
+            toggle_tex(97.5, 0.15, 'bible5')
+            toggle_tex(98, 0.07, 'bible5')
+            mm(98-0.1, function() if wavestep_bible5 then wavestep_bible5:rotationz(180) end end)
+            toggle_tex(98.25, 0.07, 'bible5')
+            mm(98.25-0.1, function() if wavestep_bible5 then wavestep_bible5:rotationz(0) end end)
+            toggle_tex(98.5, 0.07, 'bible5')
+            mm(98.5-0.1, function() if wavestep_bible5 then wavestep_bible5:rotationz(180) end end)
+            toggle_tex(98.75, 0.07, 'bible5')
+            mm(98.75-0.1, function() if wavestep_bible5 then wavestep_bible5:rotationz(0) end end)
+
+            toggle_tex(144.25, 0.15, 'bible6a')
+
+            toggle_tex(162, 0.15, 'bible6b')
+            toggle_tex(165, 0.15, 'bible6b')
+            mm(165-0.1, function() if wavestep_bible6b then wavestep_bible6b:rotationz(0) end end)
+
+            toggle_tex(174, 0.15, 'bible6c')
+            toggle_tex(177, 0.15, 'bible6c')
+            mm(177-0.1, function() if wavestep_bible6c then wavestep_bible6c:rotationz(0) end end)
+
+            toggle_tex(186, 0.15, 'bible6d')
+            toggle_tex(189, 0.15, 'bible6d')
+            mm(189-0.1, function() if wavestep_bible6d then wavestep_bible6d:rotationz(180) end end)
+
+            toggle_tex(311, 0.15, 'bible7') 
+            toggle_tex(327, 0.15, 'bible7')
+            toggle_tex(331, 0.15, 'bible7') 
+            toggle_tex(331.688, 0.15, 'bible7')
+            mm(331.688-0.1, function() if wavestep_bible7 then wavestep_bible7:rotationz(0) end end)
+            toggle_tex(332.438, 0.15, 'bible7')
+            mm(332.438-0.1, function() if wavestep_bible7 then wavestep_bible7:rotationz(180) end end)
+            
+            toggle_tex(343, 0.15, 'bible8')
+            toggle_tex(355, 0.15, 'bible8') 
+            toggle_tex(355.688, 0.15, 'bible8')
+            mm(355.688-0.1, function() if wavestep_bible8 then wavestep_bible8:rotationz(0) end end)
+            toggle_tex(356.438, 0.15, 'bible8')
+            mm(356.438-0.1, function() if wavestep_bible8 then wavestep_bible8:rotationz(180) end end)
+
+        --stutters
+            local function stutter(start, len)
+                local start = start
+                local len = len
+                mm(start, function() if wavestep_aftvhs then wavestep_aftvhs:hidden(1) end end)
+                mm(start+len-0.028, function() if wavestep_aftvhs then wavestep_aftvhs:hidden(0) end end)
+            end
+
+            stutter(66.2, 0.6)
+            stutter(67.2, 0.6)
+            stutter(68.2, 0.6)
+            for i = 120, 122.75, 0.25 do
+                stutter(i, 0.03+(i-120)*0.06)
+            end
+            stutter(307.5+0.02, 0.25)
+            stutter(307.75+0.02, 0.25)
+            stutter(308+0.02, 0.5)
+            stutter(308.5+0.02, 0.5)
+            stutter(309+0.02, 0.625)
+            stutter(309.625+0.02, 0.875)
+            stutter(310.5+0.02, 0.48)
+            for i = 332.5, 334.5, 0.5 do
+                stutter(i+0.1, 0.4)
+                stutter(i+8.1, 0.4)
+            end
+
+        --lyr 1
+            local function lyrh(start, en, pos, dir, which, keepon, dff, help)
+                local start = start
+                local en = en
+                local dir = dir
+                local which = which
+                local pos = sw*(pos/100)
+                local dir = pos + dir*sw*0.2
+                local dff = dff==nil and 0.5 or 0.85
+                local help = help==nil and 2 or 1
+                mm(start, function() if _G['wavestep_lyr'..which] then
+                    _G['wavestep_lyr'..which]:hidden(0)
+                    _G['wavestep_lyr'..which]:diffusealpha(dff)
+                    _G['wavestep_lyr'..which]:x(pos)
+                end end, true)
+                pf(en-help, help-0.1, function(beat) ae(en-help, help-0.1, dff, 0, 'expoin', _G['wavestep_lyr'..which], 'diffusealpha') end)
+                pf(en-help, help-0.1, function(beat) ae(en-help, help-0.1, pos, dir, 'expoin', _G['wavestep_lyr'..which], 'x') end)
+                if not keepon then
+                    mm(en, function() if _G['wavestep_lyr'..which] then _G['wavestep_lyr'..which]:hidden(1) end end, true)
+                end
+            end
+
+            lyrh(51,63,17,-1,'a1',true)
+            lyrh(52.5,63,13,-1,'a2',true)
+            lyrh(54,63,14.6,-1,'a3')
+            lyrh(55,63,28.1,-1,'a4')
+            lyrh(56,63,13,-1,'a5')
+            lyrh(57,63,19.5,-1,'a6')
+            lyrh(58.5,63,39,-1,'a7')
+            lyrh(60,63,30,-1,'a8')
+
+            lyrh(63,69,100-17,1,'a1',true,nil,true)
+            lyrh(64.5,69,100-13,1,'a2',true,nil,true)
+            lyrh(66,69,77,1,'a9a',nil,true,true)
+            lyrh(67,69,77,1,'a9b',nil,true,true)
+            lyrh(68,69,77,1,'a9c',nil,true,true)
+
+            lyrh(69,75,17,-1,'a1',true)
+            lyrh(70.5,75,13,-1,'a2',true)
+            mm(70.5, function() if wavestep_lyra2 then wavestep_lyra2:rotationz(-90) end end)
+            lyrh(72,75,14.6,-1,'a3',true)
+            lyrh(73,75,28.1,-1,'a4',true)
+            mm(73, function() if wavestep_lyra4 then wavestep_lyra4:rotationz(180) end end)
+            lyrh(74,75,13,-1,'a5',true)
+            mm(74, function() if wavestep_lyra5 then wavestep_lyra5:rotationz(-90) end end)
+
+            mm(75, function()
+                if wavestep_lyra2 then wavestep_lyra2:rotationz(0) end
+                if wavestep_lyra4 then wavestep_lyra4:rotationz(0) end
+                if wavestep_lyra5 then wavestep_lyra5:rotationz(0) end
+            end)
+
+            lyrh(24+51,87,100-17,1,'a1',true)
+            lyrh(24+52.5,87,100-13,1,'a2')
+            lyrh(24+54,87,100-28.1,1,'a3')
+            lyrh(24+55,87,100-14.6,1,'a4')
+            lyrh(24+56,87,100-13,1,'a5')
+            lyrh(24+57,87,100-35,1,'a6')
+            lyrh(24+58.5,87,100-15.5,1,'a7')
+            lyrh(24+60,87,100-30,1,'a8')
+
+            lyrh(87,93,17,-1,'a1',true)
+            lyrh(88.5,93,13,-1,'a10',nil)
+            lyrh(90,93,15,-1,'a11',nil,true)
+            lyrh(91.5,93,24.5,-1,'a12',nil)
+
+            mm(93, function()
+                if wavestep_lyra1 then wavestep_lyra1:rotationz(-90); wavestep_lyra1:y(sh*0.9); end
+                if wavestep_lyra2 then wavestep_lyra2:rotationz(-90); wavestep_lyra2:y(sh*0.7); end
+                if wavestep_lyra13 then wavestep_lyra13:rotationz(-90); wavestep_lyra13:y(sh*0.52); end
+                if wavestep_lyra14 then wavestep_lyra14:rotationz(-90); wavestep_lyra14:y(sh*0.3); end
+                if wavestep_lyra4 then wavestep_lyra4:rotationz(-90); wavestep_lyra4:y(sh*0.08); end
+                if wavestep_lyra1z then wavestep_lyra1z:rotationz(90); wavestep_lyra1z:y(sh*0.1); end
+                if wavestep_lyra2z then wavestep_lyra2z:rotationz(90); wavestep_lyra2z:y(sh*0.3); end
+                if wavestep_lyra13z then wavestep_lyra13z:rotationz(90); wavestep_lyra13z:y(sh*0.5); end
+                if wavestep_lyra14z then wavestep_lyra14z:rotationz(90); wavestep_lyra14z:y(sh*0.7); end
+                if wavestep_lyra4z then wavestep_lyra4z:rotationz(90); wavestep_lyra4z:y(sh*0.92); end
+            end)
+
+            lyrh(93,99,16,-1,'a1')
+            lyrh(95,99,17,-1,'a2')
+            lyrh(96,99,17,-1,'a13')
+            lyrh(97,99,17,-1,'a14')
+            lyrh(98,99,17,-1,'a4')
+            lyrh(93,99,84,1,'a1z')
+            lyrh(95,99,83,1,'a2z')
+            lyrh(96,99,83,1,'a13z')
+            lyrh(97,99,83,1,'a14z')
+            lyrh(98,99,83,1,'a4z')
+        --lyr 2
+            local function lyrv(root, start, en, pos, dir, which, keepon)
+                local root = root
+                local start = start
+                local en = en
+                local dir = dir
+                local which = which
+                local pos = sh*((pos+dir*10)/100)
+                local dir = pos + dir*sh*2
+                pf(root, 5.9, function(beat) ae(root, 5.9, dir, pos, 'expob', _G['wavestep_lyr'..which], 'y') end)
+            end
+
+            toggle_tex(99, 24, 'lyrb1')
+            toggle_tex(99, 24, 'lyrb2')
+            toggle_tex(99, 24, 'lyrb3')
+            toggle_tex(99, 24, 'lyrb4')
+            toggle_tex(99, 24, 'lyrb5')
+            for i=99,111,6 do
+                local i = i
+                lyrv(i-1,i,i+6,24,-1,'b1',true)
+                lyrv(i+1,i+2,i+6,25.3,-1,'b2')
+                lyrv(i+2,i+3,i+6,24,-1,'b3')
+                lyrv(i+3,i+4,i+6,25.3,-1,'b4')
+                lyrv(i+4,i+5,i+6,24,-1,'b5')
+            end
+            toggle_tex(117, 6, 'lyrb6')
+            toggle_tex(118.5, 4.5, 'lyrb7')
+            toggle_tex(120, 3, 'lyrb8')
+
+            toggle_tex(99+24, 18, 'lyrc1')
+            toggle_tex(99+24, 18, 'lyrc2')
+            toggle_tex(99+24, 18, 'lyrc3')
+            toggle_tex(99+24, 18, 'lyrc4')
+            toggle_tex(99+24, 18, 'lyrc5')
+            for i=99+24,111+24,6 do
+                local i = i
+                lyrv(i-0.2-1,i,i+6,         70,1,'c1',true)
+                lyrv(i-0.2+0.5,i+1.5,i+6,   70,1,'c2')
+                lyrv(i-0.2+2,i+3,i+6,       70,1,'c3')
+                lyrv(i-0.2+3,i+4,i+6,       70,1,'c4')
+                lyrv(i-0.2+4,i+5,i+6,       70,1,'c5')
+            end
+
+            toggle_tex(141, 6, 'lyrc6')
+            pf(141, 6, function(beat) ae(141, 6, 0.5, 0, 'quadout', wavestep_lyrc6, 'diffusealpha') end)
+
+        --lyr reset
+            mm(300, function()
+                for i,v in ipairs({{'a', 14}, {'b', 8}, {'c', 6}}) do
+                    for j=1,v[2] do
+                        local a = j~=10 and j~=11 and 0.5 or 1
+                        if _G['wavestep_lyr'..v[1]..j] and j~=9 then
+                            _G['wavestep_lyr'..v[1]..j]:x(scx)
+                            _G['wavestep_lyr'..v[1]..j]:y(scy)
+                            _G['wavestep_lyr'..v[1]..j]:rotationz(0)
+                            _G['wavestep_lyr'..v[1]..j]:zoom(1)
+                            _G['wavestep_lyr'..v[1]..j]:diffusealpha(a)
+                            _G['wavestep_lyr'..v[1]..j]:hidden(1)
+                        end
+                    end
+                    if _G['wavestep_lyra9'..v[1]] then
+                        _G['wavestep_lyra9'..v[1]]:x(scx)
+                        _G['wavestep_lyra9'..v[1]]:y(scy)
+                        _G['wavestep_lyra9'..v[1]]:rotationz(0)
+                        _G['wavestep_lyra9'..v[1]]:zoom(1)
+                        _G['wavestep_lyra9'..v[1]]:diffusealpha(1)
+                        _G['wavestep_lyra9'..v[1]]:hidden(1)
+                    end
+                end
+            end)
+        --lyr 3
+            mm(310, function()
+                if wavestep_lyra1 then wavestep_lyra1:xy( sw*0.170, sh*0.225 ) end
+                if wavestep_lyra2 then wavestep_lyra2:xy( sw*0.130, sh*0.345 ) end
+                if wavestep_lyra3 then wavestep_lyra3:xy( sw*0.146, sh*0.450 ) end
+                if wavestep_lyra4 then wavestep_lyra4:xy( sw*0.281, sh*0.450 ) end
+                if wavestep_lyra5 then wavestep_lyra5:xy( sw*0.130, sh*0.550 ) end
+                if wavestep_lyra6 then wavestep_lyra6:xy( sw*0.195, sh*0.650 ) end
+                if wavestep_lyra7 then wavestep_lyra7:xy( sw*0.390, sh*0.650 ) end
+                if wavestep_lyra8 then wavestep_lyra8:xy( sw*0.300, sh*0.790 ) end
+            end)
+            toggle_tex(311, 16+16, 'lyra1')
+            toggle_tex(313, 14+16, 'lyra2')
+            toggle_tex(315, 12+16, 'lyra3')
+            toggle_tex(316.438, 10.562+16, 'lyra4')
+            toggle_tex(317.5, 9.5+16, 'lyra5')  
+            toggle_tex(319, 8+16, 'lyra6')
+            toggle_tex(321, 6+16, 'lyra7')
+            toggle_tex(323, 4+16, 'lyra8') 
+
+            mm(327, function()
+                if wavestep_lyra1 then wavestep_lyra1:diffusealpha(0.2) end
+                if wavestep_lyra2 then wavestep_lyra2:diffusealpha(0.2) end
+                if wavestep_lyra3 then wavestep_lyra3:diffusealpha(0.2) end
+                if wavestep_lyra4 then wavestep_lyra4:diffusealpha(0.2) end
+                if wavestep_lyra5 then wavestep_lyra5:diffusealpha(0.2) end
+                if wavestep_lyra6 then wavestep_lyra6:diffusealpha(0.2) end
+                if wavestep_lyra7 then wavestep_lyra7:diffusealpha(0.2) end
+                if wavestep_lyra8 then wavestep_lyra8:diffusealpha(0.2) end
+            end)
+
+            toggle_tex(327, 16, 'lyrs1')
+            toggle_tex(329, 14, 'lyrs2')
+            toggle_tex(331, 12, 'lyrs3')
+            toggle_tex(332.5, 10.5, 'lyrs4a') 
+            toggle_tex(333, 10, 'lyrs4b')
+            toggle_tex(333.5, 9.5, 'lyrs4c')
+            toggle_tex(334, 9, 'lyrs4d')
+            toggle_tex(334.5, 8.5, 'lyrs4e')
+
+            toggle_tex(8+327, 16-8, 'lyrs1_2')
+            toggle_tex(8+329, 14-8, 'lyrs2_2')
+            toggle_tex(8+331, 12-8, 'lyrs3_2')
+            toggle_tex(8+332.5, 10.5-8, 'lyrs4a_2') 
+            toggle_tex(8+333, 10-8, 'lyrs4b_2')
+            toggle_tex(8+333.5, 9.5-8, 'lyrs4c_2')
+            toggle_tex(8+334, 9-8, 'lyrs4d_2')
+            toggle_tex(8+334.5, 8.5-8, 'lyrs4e_2')
+        --lyr 4
+            mm(342, function()
+                if wavestep_lyrb1 then wavestep_lyrb1:xy( sw*0.2, sh*0.225 ) end
+                if wavestep_lyrb2 then wavestep_lyrb2:xy( sw*0.36, sh*0.24 ); wavestep_lyrb2:zoom( 0.7 ) end
+                if wavestep_lyrb3 then wavestep_lyrb3:xy( sw*0.54, sh*0.227 ) end
+                if wavestep_lyrb4 then wavestep_lyrb4:xy( sw*0.73, sh*0.238 ); wavestep_lyrb4:zoom( 0.7 ) end
+                if wavestep_lyrb5 then wavestep_lyrb5:xy( sw*0.855, sh*0.225 ) end
+                if wavestep_lyrb6 then wavestep_lyrb6:xy( sw*0.2, sh*0.778 ) end
+                if wavestep_lyrb7 then wavestep_lyrb7:xy( sw*0.42, sh*0.778 ) end
+                if wavestep_lyrb8 then wavestep_lyrb8:xy( sw*0.725, sh*0.775 ) end
+            end)
+            toggle_tex(343, 16, 'lyrb1')
+            toggle_tex(345, 14, 'lyrb2')
+            toggle_tex(347, 12, 'lyrb3')
+            toggle_tex(348, 11, 'lyrb4')
+            toggle_tex(350, 9, 'lyrb5')
+            toggle_tex(351, 8, 'lyrb6')
+            toggle_tex(353, 6, 'lyrb7')
+            toggle_tex(355, 4, 'lyrb8') 
+            local pissAss = {sh*0.225, sh*0.24, sh*0.227, sh*0.238, sh*0.225, sh*0.778, sh*0.778, sh*0.775}
+            for i=1,8 do
+                local i = i
+                local dir = i>5 and 1 or -1
+                pf(355, 4, function(beat) ae(355, 4, 0.5, 0, 'expoin', _G['wavestep_lyrb'..i], 'diffusealpha') end)
+                pf(355, 4, function(beat) ae(355, 4, pissAss[i], pissAss[i]+dir*0.2*sh, 'expoin', _G['wavestep_lyrb'..i], 'y') end)
+            end
+
+            mm(358, function()
+                if wavestep_lyrc1 then wavestep_lyrc1:diffusealpha(0.5); wavestep_lyrc1:xy( sw*0.2, sh*0.5 ); wavestep_lyrc1:rotationz( -8 ) end
+                if wavestep_lyrc2 then wavestep_lyrc2:diffusealpha(0.5); wavestep_lyrc2:xy( sw*0.385, sh*0.5 ); wavestep_lyrc2:zoom( 0.9 ); wavestep_lyrc2:rotationz( 2 ) end
+                if wavestep_lyrc3 then wavestep_lyrc3:diffusealpha(0.5); wavestep_lyrc3:xy( sw*0.535, sh*0.5 ); wavestep_lyrc3:zoom( 0.9 ); wavestep_lyrc3:rotationz( -4 ) end
+                if wavestep_lyrc4 then wavestep_lyrc4:diffusealpha(0.5); wavestep_lyrc4:xy( sw*0.73, sh*0.5 ); wavestep_lyrc4:rotationz( 4 ) end
+                if wavestep_lyrc5 then wavestep_lyrc5:diffusealpha(0.5); wavestep_lyrc5:xy( sw*0.855, sh*0.5 ); wavestep_lyrc5:rotationz( -2 ) end
+            end)
+            toggle_tex(359, 8, 'lyrc1')
+            toggle_tex(361, 6, 'lyrc2')
+            toggle_tex(363, 4, 'lyrc3')
+            toggle_tex(364.438, 2.562, 'lyrc4')
+            toggle_tex(366, 1, 'lyrc5')
+
+            toggle_tex(367, 6, 'lyrc6')
+            pf(367, 6, function(beat) ae(367, 6, 0.5, 0, 'quadout', wavestep_lyrc6, 'diffusealpha') end)
+
+
+        --extra
+            mm(3, function()
+                for pn = 1,2 do
+                    local a = Plr(pn)
+                    if a then
+                        for col=0,3 do
+                            a:SetNumPathGradientPoints(col, 3)
+                            a:SetPathGradientPoint(0, col, 0)
+                            a:SetPathGradientPoint(1, col, 4)
+                            a:SetPathGradientPoint(2, col, 4.5)
+                            a:SetPathGradientColor(0, col, 1,1,1,1)
+                            a:SetPathGradientColor(1, col, 1,1,1,1)
+                            a:SetPathGradientColor(2, col, 1,1,1,0)
+                        end
+                    end
+                end
+            end, true)
+            mm(36, function()
+                if wavestep_prx2a then
+                    wavestep_prx2a:x(scx)
+                    wavestep_prx2a:y(scy)
+                    wavestep_prx2a:z(0)
+                    wavestep_prx2a:hidden(0)
+                end
+                if wavestep_prx2 then wavestep_prx2:hidden(1) end
+            end)
+            mm(51, function()
+                if wavestep_prx2 then wavestep_prx2:hidden(0) end
+                if wavestep_prx2a then wavestep_prx2a:hidden(1) end
+            end)
+            mm(311, function()
+                for pn = 1,2 do
+                    local a = Plr(pn)
+                    if a then
+                        for col=0,3 do
+                            a:SetNumPathGradientPoints(col, 3)
+                            a:SetPathGradientPoint(0, col, 0)
+                            a:SetPathGradientPoint(1, col, 1)
+                            a:SetPathGradientPoint(2, col, 8)
+                            a:SetPathGradientColor(0, col, 1,1,1,1)
+                            a:SetPathGradientColor(1, col, 1,1,1,1)
+                            a:SetPathGradientColor(2, col, 1,1,1,0)
+                        end
+                    end
+                end
+            end, true)
+            mm(361, function()
+                if wavestep_prx2 then wavestep_prx2:hidden(1) end --LOL
+            end)
+        --ending
+            toggle_tex(409, 999, 'crash')
+            for i=1,5 do
+                local i = i
+                toggle_tex(409, 999, 'finalsq'..i)
+                mm((i-1)*0.45+412, function() if _G['wavestep_finalsq'..i] then _G['wavestep_finalsq'..i]:cropleft(0.2) end end)
+                mm((i-1)*0.45+412.09, function() if _G['wavestep_finalsq'..i] then _G['wavestep_finalsq'..i]:cropleft(0.4) end end)
+                mm((i-1)*0.45+412.18, function() if _G['wavestep_finalsq'..i] then _G['wavestep_finalsq'..i]:cropleft(0.6) end end)
+                mm((i-1)*0.45+412.27, function() if _G['wavestep_finalsq'..i] then _G['wavestep_finalsq'..i]:cropleft(0.8) end end)
+                mm((i-1)*0.45+412.36, function() if _G['wavestep_finalsq'..i] then _G['wavestep_finalsq'..i]:cropleft(1) end end)
+            end
+            toggle_tex(426, 999, 'finalfader')
+
+--------tuning/judgments-------------------------------------------------------
+
+        toggle_ds(16, 99, 40)
+        toggle_ds(117, 123, 100)
+        toggle_ds(141, 247, 50)
+        toggle_ds(311, 343, 25)
+        toggle_ds(355, 367, 25)
+
+        toggle_dsb(99, 141)
+        toggle_dsb(311, 359)
+
+        mm(24, function()
+            for pn = 1,2 do
+                local j = _G['jud'..pn..'p']
+                local c = _G['com'..pn..'p']
+                if j then
+                    j:hidden(0)
+                end if c then
+                    c:hidden(0)
+                end
+            end
+        end, true)
+
+        mm(413.4, function() for row=1,8 do for col=1,21 do
+        local wvc = wavestep_colors[(row-1)*21 + col]
+        _G['wavestep_array'..row..'x'..col]:diffuse(wvc[1],wvc[2],wvc[3],1)
+        _G['wavestep_array'..row..'x'..col]:rotationz(wvc[4])
+        end end end)
+
+        mm(367, function()
+            for pn = 1,2 do
+                local j = _G['jud'..pn..'p']
+                local c = _G['com'..pn..'p']
+                if j then
+                    j:hidden(1)
+                end if c then
+                    c:hidden(1)
+                end
+            end
+        end, true)
+
+--------sort-------------------------------------------------------------------
+
+        local function compare1(a, b)
+            return a[1] < b[1]
+        end
+
+        local function compare2(a, b)
+            return a[2] < b[2]
+        end
+
+        --sorting mods--
+        if table.getn(mods) > 1 then
+            table.sort(mods, compare2)
+        end
+
+        --sorting perframes--
+        if table.getn(mods_pf) > 1 then
+            table.sort(mods_pf, compare1)
+        end
+
+        --sorting actions--
+        if table.getn(mods_msg) > 1 then
+            table.sort(mods_msg, compare1)
+        end
+
+        function wavestep_update(beat)
+
+            local beat = GAMESTATE:GetSongBeat()
+
+            --grab/hide the shit--
+            if beat >= 0 and not checked then
+                local ThingsToGrab = {'BPMDisplay', 'LifeFrame', 'ScoreFrame', 'Lyrics', 'SongBackground', 'SongForeground', 'Overlay', 'Underlay'}
+                local ThingsToHide = {'BPMDisplay', 'LifeFrame', 'ScoreFrame', 'Overlay', 'Underlay'}
+                for pn = 1, wavestep_npu do
+                    _G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil
+                    if _G['P'..pn] then
+                        table.insert(mod_plr, _G['P'..pn])
+                        _G['jud'..pn] = _G['P'..pn]:GetChild('Judgment')
+                        _G['com'..pn] = _G['P'..pn]:GetChild('Combo')
+                        _G['jud'..pn]:hidden(1)
+                        _G['com'..pn]:hidden(1)
+                    end
+                    table.insert(ThingsToGrab, 'LifeP'..pn) table.insert(ThingsToGrab, 'ScoreP'..pn)
+                    table.insert(ThingsToHide, 'LifeP'..pn) table.insert(ThingsToHide, 'ScoreP'..pn)
+                end
+                for i, v in ipairs(ThingsToGrab) do _G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil end
+                for i, v in ipairs(ThingsToHide) do if _G[v] then _G[v]:hidden(1) end end
+                checked = true
+            end
+
+--------handle-----------------------------------------------------------------
+                    
+            disable = false
+
+            if disable ~= true and checked then
+                if beat > mod_firstSeenBeat + 0.1 then
+
+                    --cering's wacky all-in-one concat reader v2 (ft. ky optimizations!)--
+                    GAMESTATE:ApplyModifiers('*-1 clearall, *-1 overhead, *-1 approachtype, *-1 dizzyholds, *-1 modtimer, *-1 stealthpastreceptors, *-1 no mini, *-1 disablemines, *-1 hidemines, *-1 1x, *-1 C'..wavestep_speed)
+                    for j = 0, wavestep_npu do
+                        if atable[j] then
+                            if j < 1 then
+                                GAMESTATE:ApplyModifiers(table.concat(atable[j], ', '), nil)
+                            elseif Plr(j):IsAwake() then
+                                GAMESTATE:ApplyModifiers(table.concat(atable[j], ', '), j)
+                            end
+                            atable[j] = nil
+                        end
+                    end
+                    for i, v in pairs(mods) do
+                        if beat >= v[2] and beat < v[2] + v[3] + (v[9] or 0) then
+                            wavestep_reader[v[1]](beat, v)
+                        end
+                        if beat > v[2] + v[3] + (v[9] or 0) then
+                            mods[i] = nil
+                        end
+                        if mods[i + 1] and beat < mods[i + 1][2] then break end
+                    end
+
+                    --perframe reader--
+                    if table.getn(mods_pf) > 0 then
+                        for i = 1, table.getn(mods_pf) do
+                            local a = mods_pf[i]
+                            if beat > a[1] and beat < a[1] + a[2] then
+                                a[3](beat, deltatime)
+                            end
+                        end
+                    end
+
+                    --actions table--
+                    while curaction <= table.getn(mods_msg) and beat >= mods_msg[curaction][1] do
+                        if mods_msg[curaction][3] or beat < mods_msg[curaction][1] + 2 then
+                            if type(mods_msg[curaction][2]) == 'function' then
+                                mods_msg[curaction][2]()
+                            elseif type(mods_msg[curaction][2]) == 'string' then
+                                MESSAGEMAN:Broadcast(mods_msg[curaction][2])
+                            end
+                        end
+                        curaction = curaction + 1
+                    end
+
+                end
+            end
+
+        end
+--------elements---------------------------------------------------------------
+        self:queuecommand('Update')
+    end"
+    UpdateCommand="%function(self)
+        self:tween(9E9, 'wavestep_update(GAMESTATE:GetSongBeat())') --okay, this is epic (thanks ky!)
+    end"/>
+
+	<ULayer File="gfx/bg/bg1" OnCommand="%function(self)
+        wavestep_bg1 = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<ULayer File="gfx/bg/bg2" OnCommand="%function(self)
+        wavestep_bg2 = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<ULayer File="gfx/bg/bg3" OnCommand="%function(self)
+        wavestep_bg3 = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<ULayer File="gfx/bg/bg4" OnCommand="%function(self)
+        wavestep_bg4 = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<ULayer File="gfx/bg/bg2" OnCommand="%function(self)
+        wavestep_bgCutTop = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+        self:cropbottom(0.5)
+        self:cropright(1)
+    end"/>
+
+	<ULayer File="gfx/bg/bg2" OnCommand="%function(self)
+        wavestep_bgCutBot = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+        self:croptop(0.5)
+        self:cropleft(1)
+    end"/>
+
+	<ULayer File="gfx/bible/1" OnCommand="%function(self)
+        wavestep_bible1 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/2" OnCommand="%function(self)
+        wavestep_bible2 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/3" OnCommand="%function(self)
+        wavestep_bible3 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/4" OnCommand="%function(self)
+        wavestep_bible4 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+    
+	<ULayer File="gfx/bible/5" OnCommand="%function(self)
+        wavestep_bible5 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/6a" OnCommand="%function(self)
+        wavestep_bible6a = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+    
+	<ULayer File="gfx/bible/6b" OnCommand="%function(self)
+        wavestep_bible6b = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/6c" OnCommand="%function(self)
+        wavestep_bible6c = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/6d" OnCommand="%function(self)
+        wavestep_bible6d = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/7" OnCommand="%function(self)
+        wavestep_bible7 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+	<ULayer File="gfx/bible/8" OnCommand="%function(self)
+        wavestep_bible8 = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:zoom(0.9)
+        self:rotationz(180)
+        self:hidden(1)
+        self:diffusealpha(0.8)
+    end"/>
+
+
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyra9a = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.46);
+        self:rotationz(180); self:hidden(1);
+        self:diffuse(1,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyra9b = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.52);
+        self:rotationz(180); self:hidden(1);
+        self:diffuse(1,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyra9c = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.58);
+        self:rotationz(180); self:hidden(1);
+        self:diffuse(1,0,0,1); self:blend('subtract');
+    end"/>
+
+	<VLayer File="gfx/lyr/a10" OnCommand="%function(self) wavestep_lyra10 = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.32);
+        self:rotationz(180); self:hidden(1);
+        self:diffuse(1,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a11" OnCommand="%function(self) wavestep_lyra11 = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.38);
+        self:rotationz(90); self:hidden(1);
+        self:diffuse(1,1,0,1); self:blend('normal');
+    end"/>
+	<VLayer File="gfx/lyr/a12" OnCommand="%function(self) wavestep_lyra12 = self;
+        self:x(SCREEN_WIDTH*0.4); self:y(SCREEN_HEIGHT*0.5);
+        self:rotationz(92); self:hidden(1);
+        self:diffuse(1,1,1,1); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/a1" OnCommand="%function(self) wavestep_lyra1 = self;
+        self:x(SCREEN_WIDTH*0.17); self:y(SCREEN_HEIGHT*0.225);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a2" OnCommand="%function(self) wavestep_lyra2 = self;
+        self:x(SCREEN_WIDTH*0.13); self:y(SCREEN_HEIGHT*0.345);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a3" OnCommand="%function(self) wavestep_lyra3 = self;
+        self:x(SCREEN_WIDTH*0.146); self:y(SCREEN_HEIGHT*0.45);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a4" OnCommand="%function(self) wavestep_lyra4 = self;
+        self:x(SCREEN_WIDTH*0.281); self:y(SCREEN_HEIGHT*0.45);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a5" OnCommand="%function(self) wavestep_lyra5 = self;
+        self:x(SCREEN_WIDTH*0.13); self:y(SCREEN_HEIGHT*0.55);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a6" OnCommand="%function(self) wavestep_lyra6 = self;
+        self:x(SCREEN_WIDTH*0.195); self:y(SCREEN_HEIGHT*0.65);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a7" OnCommand="%function(self) wavestep_lyra7 = self;
+        self:x(SCREEN_WIDTH*0.39); self:y(SCREEN_HEIGHT*0.65);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a8" OnCommand="%function(self) wavestep_lyra8 = self;
+        self:x(SCREEN_WIDTH*0.3); self:y(SCREEN_HEIGHT*0.79);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/a13" OnCommand="%function(self) wavestep_lyra13 = self;
+        self:x(SCREEN_WIDTH*0.3); self:y(SCREEN_HEIGHT*0.79);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/a14" OnCommand="%function(self) wavestep_lyra14 = self;
+        self:x(SCREEN_WIDTH*0.3); self:y(SCREEN_HEIGHT*0.79);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/a1" OnCommand="%function(self) wavestep_lyra1z = self;
+        self:x(SCREEN_WIDTH*0.17); self:y(SCREEN_HEIGHT*0.225);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a2" OnCommand="%function(self) wavestep_lyra2z = self;
+        self:x(SCREEN_WIDTH*0.13); self:y(SCREEN_HEIGHT*0.345);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a13" OnCommand="%function(self) wavestep_lyra13z = self;
+        self:x(SCREEN_WIDTH*0.3); self:y(SCREEN_HEIGHT*0.79);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a14" OnCommand="%function(self) wavestep_lyra14z = self;
+        self:x(SCREEN_WIDTH*0.3); self:y(SCREEN_HEIGHT*0.79);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a4" OnCommand="%function(self) wavestep_lyra4z = self;
+        self:x(SCREEN_WIDTH*0.281); self:y(SCREEN_HEIGHT*0.45);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/b1" OnCommand="%function(self) wavestep_lyrb1 = self;
+        self:x(SCREEN_WIDTH*0.2); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b2" OnCommand="%function(self) wavestep_lyrb2 = self;
+        self:x(SCREEN_WIDTH*0.36); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:zoom(0.7); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b3" OnCommand="%function(self) wavestep_lyrb3 = self;
+        self:x(SCREEN_WIDTH*0.54); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b4" OnCommand="%function(self) wavestep_lyrb4 = self;
+        self:x(SCREEN_WIDTH*0.73); self:zoom(0.7); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b5" OnCommand="%function(self) wavestep_lyrb5 = self;
+        self:x(SCREEN_WIDTH*0.855); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b6" OnCommand="%function(self) wavestep_lyrb6 = self;
+        self:x(SCREEN_WIDTH*0.2); self:y(SCREEN_HEIGHT*0.14);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b7" OnCommand="%function(self) wavestep_lyrb7 = self;
+        self:x(SCREEN_WIDTH*0.42); self:y(SCREEN_HEIGHT*0.14);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/b8" OnCommand="%function(self) wavestep_lyrb8 = self;
+        self:x(SCREEN_WIDTH*0.725); self:y(SCREEN_HEIGHT*0.14);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/c1" OnCommand="%function(self) wavestep_lyrc1 = self;
+        self:x(SCREEN_WIDTH*0.2); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.7); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/c2" OnCommand="%function(self) wavestep_lyrc2 = self;
+        self:x(SCREEN_WIDTH*0.385); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.7); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/c3" OnCommand="%function(self) wavestep_lyrc3 = self;
+        self:x(SCREEN_WIDTH*0.535); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.7); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/c4" OnCommand="%function(self) wavestep_lyrc4 = self;
+        self:x(SCREEN_WIDTH*0.73); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.7); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/c5" OnCommand="%function(self) wavestep_lyrc5 = self;
+        self:x(SCREEN_WIDTH*0.855); self:y(SCREEN_HEIGHT*2);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.7); self:blend('add');
+    end"/>
+
+	<VLayer File="gfx/lyr/a1" OnCommand="%function(self) wavestep_lyrs1 = self;
+        self:x(SCREEN_WIDTH*0.83); self:y(SCREEN_HEIGHT*0.225);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a2" OnCommand="%function(self) wavestep_lyrs2 = self;
+        self:x(SCREEN_WIDTH*0.87); self:y(SCREEN_HEIGHT*0.345);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a3" OnCommand="%function(self) wavestep_lyrs3 = self;
+        self:x(SCREEN_WIDTH*0.7); self:y(SCREEN_HEIGHT*0.45);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.5); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4a = self;
+        self:x(SCREEN_WIDTH*0.75); self:y(SCREEN_HEIGHT*0.47);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4b = self;
+        self:x(SCREEN_WIDTH*0.78); self:y(SCREEN_HEIGHT*0.49);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4c = self;
+        self:x(SCREEN_WIDTH*0.81); self:y(SCREEN_HEIGHT*0.51);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4d = self;
+        self:x(SCREEN_WIDTH*0.84); self:y(SCREEN_HEIGHT*0.53);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4e = self;
+        self:x(SCREEN_WIDTH*0.87); self:y(SCREEN_HEIGHT*0.55);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+
+	<VLayer File="gfx/lyr/a1" OnCommand="%function(self) wavestep_lyrs1_2 = self;
+        self:x(SCREEN_WIDTH*0.83); self:y(SCREEN_HEIGHT*0.525);
+        self:rotationz(0); self:hidden(1);
+        self:diffusealpha(0.8); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a2" OnCommand="%function(self) wavestep_lyrs2_2 = self;
+        self:x(SCREEN_WIDTH*0.87); self:y(SCREEN_HEIGHT*0.645);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.8); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a3" OnCommand="%function(self) wavestep_lyrs3_2 = self;
+        self:x(SCREEN_WIDTH*0.7); self:y(SCREEN_HEIGHT*0.75);
+        self:rotationz(0); self:zoom(0.9); self:hidden(1);
+        self:diffusealpha(0.8); self:blend('add');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4a_2 = self;
+        self:x(SCREEN_WIDTH*0.75); self:y(SCREEN_HEIGHT*0.87);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4b_2 = self;
+        self:x(SCREEN_WIDTH*0.78); self:y(SCREEN_HEIGHT*0.89);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4c_2 = self;
+        self:x(SCREEN_WIDTH*0.81); self:y(SCREEN_HEIGHT*0.91);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4d_2 = self;
+        self:x(SCREEN_WIDTH*0.84); self:y(SCREEN_HEIGHT*0.93);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+	<VLayer File="gfx/lyr/a9" OnCommand="%function(self) wavestep_lyrs4e_2 = self;
+        self:x(SCREEN_WIDTH*0.87); self:y(SCREEN_HEIGHT*0.95);
+        self:rotationz(-90); self:hidden(1);
+        self:diffuse(0,0,0,1); self:blend('subtract');
+    end"/>
+
+	<VLayer File="gfx/lyr/c6" OnCommand="%function(self) wavestep_lyrc6 = self;
+        self:x(SCREEN_CENTER_X); self:y(SCREEN_HEIGHT*0.52);
+        self:rotationz(0); self:hidden(1);
+        self:diffuse(1,1,1,0.5); self:blend('add');
+    end"/>
+
+	<WLayer File="gfx/bg/vhs.sprite" OnCommand="%function(self)
+        wavestep_vhsoverlay = self
+        self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:blend('add')
+        self:diffusealpha(0.15)
+    end"/>
+
+    <!--judgements-->
+    <XLAER Type="ActorFrame" InitCommand="%function(self) judc = self end"><children>
+        <LAER Type="ActorProxy" InitCommand="%function(self) jud1p = self end"
+        ProxyInitMessageCommand="%function(self) if P1 then self:SetTarget(P1:GetChild('Judgment')) end end"/>
+        <LAER Type="ActorProxy" InitCommand="%function(self) jud2p = self end"
+        ProxyInitMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('Judgment')) end end"/>
+        </children></XLAER>
+        <XLAER Type="ActorFrame" InitCommand="%function(self) comc = self end"><children>
+        <LAER Type="ActorProxy" InitCommand="%function(self) com1p = self end"
+        ProxyInitMessageCommand="%function(self) if P1 then self:SetTarget(P1:GetChild('Combo')) end end"/>
+        <LAER Type="ActorProxy" InitCommand="%function(self) com2p = self end"
+        ProxyInitMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('Combo')) end end"/>
+    </children></XLAER>
+
+    <!--playfields-->
+	<YLAYER Type="ActorFrame" OnCommand="%function(self) wavestep_af = self; self:fov(45); self:SetFarDist(9999); end"><children>
+        <ActorProxy OnCommand="%function(self) wavestep_prx1 = self; self:hidden(1); self:sleep(0.02); end"
+        ProxyInitMessageCommand="%function(self) if P1 then self:SetTarget(P1:GetChild('NoteField')) end end"/>
+        <ActorProxy OnCommand="%function(self) wavestep_prx2 = self; self:hidden(1); self:sleep(0.02); end"
+        ProxyInitMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('NoteField')) end end"/>
+	</children></YLAYER>
+
+    <YLayerB Type="Quad" Var=wavestep_white OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,1,1,1,0;hidden,1;"/>
+
+	<YLayerB File="gfx/open/artist" OnCommand="%function(self)
+        wavestep_artist = self
+        self:x(SCREEN_CENTER_X-26)
+        self:y(SCREEN_HEIGHT*0.405)
+        self:hidden(1)
+        self:diffusealpha(0.9)
+    end"/>
+
+	<YLayerB File="gfx/open/copyleft" OnCommand="%function(self)
+        wavestep_copyleft = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_HEIGHT*0.8)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<YLayerB File="gfx/open/effector" OnCommand="%function(self)
+        wavestep_effector = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_HEIGHT*0.73)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<YLayerB File="gfx/open/title" OnCommand="%function(self)
+        wavestep_title = self
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_HEIGHT*0.3)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<YLayerC File="gfx/bg/crash" OnCommand="%function(self)
+        wavestep_crash = self
+        self:zoomto(SCREEN_HEIGHT*(4/3),SCREEN_HEIGHT)
+        self:x(SCREEN_CENTER_X)
+        self:y(SCREEN_CENTER_Y)
+        self:hidden(1)
+        self:diffusealpha(1)
+    end"/>
+
+	<Yy Type="ActorFrame" OnCommand="%function(self) wavestep_af2 = self; self:fov(45); self:SetFarDist(9999); end"><children>
+        <ActorProxy OnCommand="%function(self) wavestep_prx2a = self; self:hidden(1); self:sleep(0.02); end"
+        ProxyInitMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('NoteField'))end end"/>
+	</children></Yy>
+
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array1x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.48;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array2x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.54;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array3x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.6;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array4x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.66;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array5x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.72;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array6x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.78;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array7x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.84;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x1 Text="" OnCommand="xy,SCREEN_WIDTH*0.135,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x2 Text="" OnCommand="xy,SCREEN_WIDTH*0.172,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x3 Text="" OnCommand="xy,SCREEN_WIDTH*0.208,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x4 Text="" OnCommand="xy,SCREEN_WIDTH*0.245,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x5 Text="" OnCommand="xy,SCREEN_WIDTH*0.281,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x6 Text="" OnCommand="xy,SCREEN_WIDTH*0.318,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x7 Text="" OnCommand="xy,SCREEN_WIDTH*0.354,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x8 Text="" OnCommand="xy,SCREEN_WIDTH*0.391,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x9 Text="" OnCommand="xy,SCREEN_WIDTH*0.427,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x10 Text="" OnCommand="xy,SCREEN_WIDTH*0.463,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x11 Text="" OnCommand="xy,SCREEN_WIDTH*0.5,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x12 Text="" OnCommand="xy,SCREEN_WIDTH*0.537,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x13 Text="" OnCommand="xy,SCREEN_WIDTH*0.573,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x14 Text="" OnCommand="xy,SCREEN_WIDTH*0.609,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x15 Text="" OnCommand="xy,SCREEN_WIDTH*0.646,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x16 Text="" OnCommand="xy,SCREEN_WIDTH*0.683,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x17 Text="" OnCommand="xy,SCREEN_WIDTH*0.719,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x18 Text="" OnCommand="xy,SCREEN_WIDTH*0.756,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x19 Text="" OnCommand="xy,SCREEN_WIDTH*0.792,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x20 Text="" OnCommand="xy,SCREEN_WIDTH*0.829,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+    <YLayerC Type="BitmapText" File="gfx/fonts/_perfectdos 20px" Var=wavestep_array8x21 Text="" OnCommand="xy,SCREEN_WIDTH*0.865,SCREEN_HEIGHT*0.9;zoom,0.75;diffuse,1,1,1,1;hidden,0;shadowlength,0;"/>
+
+    <YLayerD Type="Quad" Var=wavestep_finalsq1 OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT/5;y,SCREEN_HEIGHT/10;diffuse,0,0,0,1;hidden,1;"/>
+    <YLayerD Type="Quad" Var=wavestep_finalsq2 OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT/5;y,SCREEN_HEIGHT*3/10;diffuse,0,0,0,1;hidden,1;"/>
+    <YLayerD Type="Quad" Var=wavestep_finalsq3 OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT/5;y,SCREEN_HEIGHT*5/10;diffuse,0,0,0,1;hidden,1;"/>
+    <YLayerD Type="Quad" Var=wavestep_finalsq4 OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT/5;y,SCREEN_HEIGHT*7/10;diffuse,0,0,0,1;hidden,1;"/>
+    <YLayerD Type="Quad" Var=wavestep_finalsq5 OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT/5;y,SCREEN_HEIGHT*9/10;diffuse,0,0,0,1;hidden,1;"/>
+
+	<ZALayer Type="ActorFrameTexture"
+        InitCommand="%function(self)
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer( false );
+            self:EnableAlphaBuffer( false );
+            self:EnableFloat( false );
+            self:EnablePreserveTexture( true );
+            self:hidden(0);
+            self:Create();
+            wavestep_aftpxsort = self;
+        end" 
+    />
+	<ZALayer Type="Sprite"
+        Frag="shaders/pxsort.frag"
+        OnCommand="%function(self)
+            wavestep_pxsort=self
+            self:x(SCREEN_CENTER_X)
+            self:y(SCREEN_CENTER_Y)
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()));
+            self:hidden(1)
+            self:diffusealpha(1)
+            self:blend('normal')
+            self:queuecommand('renderMe')
+        end"
+        renderMeCommand="%function(self)
+            wavestep_pxsort:SetTexture(wavestep_aftpxsort:GetTexture())
+            wavestep_pxsort:hidden(1)
+        end"
+    />
+	<ZALayer Type="ActorFrameTexture"
+        InitCommand="%function(self)
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer( false );
+            self:EnableAlphaBuffer( false );
+            self:EnableFloat( false );
+            self:EnablePreserveTexture( true );
+            self:hidden(0);
+            self:Create();
+            wavestep_aftvhs = self;
+        end" 
+    />
+	<ZALayer Type="Sprite"
+        Frag="shaders/vhs/vhs.frag"
+        OnCommand="%function(self)
+            wavestep_vhs=self
+            self:x(SCREEN_CENTER_X)
+            self:y(SCREEN_CENTER_Y)
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()));
+            self:hidden(1)
+            self:diffusealpha(1)
+            self:blend('normal')
+            self:queuecommand('renderMe')
+        end"
+        renderMeCommand="%function(self)
+            wavestep_vhs:SetTexture(wavestep_aftvhs:GetTexture())
+            wavestep_vhs:hidden(1)
+        end"
+    />
+	<ZALayer Type="ActorFrameTexture"
+        InitCommand="%function(self)
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer( false );
+            self:EnableAlphaBuffer( false );
+            self:EnableFloat( false );
+            self:EnablePreserveTexture( true );
+            self:hidden(0);
+            self:Create();
+            wavestep_aftweird = self;
+        end" 
+    />
+	<ZALayer Type="Sprite"
+        Frag="shaders/weird.frag"
+        OnCommand="%function(self)
+            wavestep_weird=self
+            self:x(SCREEN_CENTER_X)
+            self:y(SCREEN_CENTER_Y)
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()));
+            self:hidden(1)
+            self:diffusealpha(1)
+            self:blend('normal')
+            self:queuecommand('renderMe')
+        end"
+        renderMeCommand="%function(self)
+            wavestep_weird:SetTexture(wavestep_aftweird:GetTexture())
+            wavestep_weird:hidden(1)
+        end"
+    />
+	<ZALayer Type="ActorFrameTexture"
+        InitCommand="%function(self)
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer( false );
+            self:EnableAlphaBuffer( false );
+            self:EnableFloat( false );
+            self:EnablePreserveTexture( true );
+            self:hidden(0);
+            self:Create();
+            wavestep_afthglitch = self;
+        end" 
+    />
+	<ZALayer Type="Sprite"
+        Frag="shaders/hglitch.frag"
+        OnCommand="%function(self)
+            wavestep_hglitch=self
+            self:x(SCREEN_CENTER_X)
+            self:y(SCREEN_CENTER_Y)
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()));
+            self:hidden(1)
+            self:diffusealpha(1)
+            self:blend('normal')
+            self:queuecommand('renderMe')
+        end"
+        renderMeCommand="%function(self)
+            wavestep_hglitch:SetTexture(wavestep_afthglitch:GetTexture())
+            wavestep_hglitch:hidden(1)
+        end"
+    />
+
+    <ZZZLayer Type="Quad" Var=wavestep_finalfader OnCommand="stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1;hidden,1;"/>
+
+</children></ActorFrame>
+</children></ActorFrame>

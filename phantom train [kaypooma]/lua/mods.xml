@@ -1,0 +1,1353 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	for pn=1,2 do
+		PJ[pn]:x( scx + sw*0.33*(pn*2-3) )
+		PC[pn]:x( scx + sw*0.33*(pn*2-3) )
+
+		PJ[pn]:basezoomx(0.75) PJ[pn]:basezoomy(0.75)
+		PJ[pn]:basezoomx(0.75) PJ[pn]:basezoomy(0.75)
+	end
+
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn]:GetChild('NoteField'))
+		P[pn]:hidden(1)
+	end
+	for pn = 1, #PP do		
+		PP[pn]:xy(0,0)
+	end
+	black_prx:SetTarget(P[3]:GetChild('NoteField'))
+
+	-- stuff
+	local function mod_outin(beat, len, per1, per2, mod, oute, ine)
+		ease
+		{beat, len/2, oute or outCirc, per2, mod}
+		{beat+len/2, len/2, ine or inCirc, per1, mod}
+	end
+
+	local function mod_hit(beat, len, per, mod, e)
+		ease
+		{beat, 0, instant, per, mod}
+		{beat, len, e or outCirc, 0, mod}
+	end
+
+	local function TiB(b)
+		return (1/GAMESTATE:GetCurBPS()) * b
+	end
+
+	local function rad(d)
+		return math.rad(d) * 100
+	end
+
+	local function modulo(a, b)
+		return a - math.floor(a/b)*b;
+	end
+	local function randomXD(t)
+		if t == 0 then return 0.5 else
+		return modulo(math.sin(t * 3229.3) * 43758.5453, 1) end
+	end
+
+	local function lerp(s, e, t) 
+		return s * (1-t) + e * t
+	end
+
+	function RealFov(fov)
+          return 360 / math.pi * math.atan(math.tan(math.pi * fov / 360) * DISPLAY:GetDisplayWidth() / DISPLAY:GetDisplayHeight() * 0.75)
+    end
+    plr_af:fov(RealFov(100))
+
+	-- your code goes here here:
+	setdefault {3, 'xmod', 100, 'stealthpastreceptors', 40, 'zoomz', 100, 'dizzyholds', 100, 'disablemines', 100, 'hidemines'}
+
+	definemod {'scene_x', 'scene_y', 'scene_z', function(sx, sy, sz) 
+		plr_af:xyz(scx+sx, scy+sy, sz)
+	end}
+	definemod {'scene_zoom', function(zz) 
+		plr_af:zoom(1 + zz)
+	end}
+	definemod {'scene_rx', 'scene_ry', 'scene_rz', function(rx, ry, rz) 
+		plr_af:rotationx(rx)
+		plr_af:rotationy(ry)
+		plr_af:rotationz(rz)
+	end}
+
+	definemod {'train_x', 'train_y', 'train_z', function(sx, sy, sz) 
+		train:xyz(sx, sy, sz)
+	end}
+	setdefault {30, 'train_y', 150, 'train_z'}
+
+	-- func {0, 999, function() print(train:GetX(), train:GetY(), train:GetZ()) end}
+
+	local function mindf_reverseRotation(angleX, angleY, angleZ)
+		local sinX = math.sin(angleX);
+		local cosX = math.cos(angleX);
+		local sinY = math.sin(angleY);
+		local cosY = math.cos(angleY);
+		local sinZ = math.sin(angleZ);
+		local cosZ = math.cos(angleZ);
+		return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+				math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+				math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+	end			
+	local function mindf_rotateAndCounter(xDegrees, yDegrees, zDegrees)
+		local DEG_TO_RAD = math.pi / 180;
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)			
+		return {xDegrees, yDegrees, zDegrees, angles[1]*100, angles[2]*100, angles[3]*100}
+	end
+	definemod {'rr_x', 'rr_y', 'rr_z', function(rx,ry,rz) 
+		local ang = mindf_rotateAndCounter(rx,ry,rz)
+
+		return ang[1], ang[2], ang[3], ang[4], ang[5], ang[6]
+	end, 'rotationx', 'rotationy', 'rotationz', 'confusionxoffset', 'confusionyoffset', 'confusionzoffset'}
+
+	blink_counters = {}
+	for i=1,2 do
+		blink_counters[i] = math.random(7,14)
+	end
+
+	func {0, function() 
+		for pn = 1,3 do 
+            local a = P[pn]
+            if a then
+                for col = 0,3 do 
+                    a:SetNumStealthGradientPoints(col,2)
+
+                    a:SetStealthGradientPoint(0,col,0)
+                    a:SetStealthGradientPoint(1,col,6)
+
+                    a:SetStealthGradientColor(0,col,0.95,0.95,0.95,1)  
+                    a:SetStealthGradientColor(1,col,0.875,0.435,0.271,1)
+                end
+            end
+        end
+	end}
+
+	-- bounce
+	func {4, 999, function(beat, poptions) 
+		local bounce_frame = math.floor(beat*8%8)+1
+		local bounce_pos = {3, -1, 1, 0, 0, 0, 0, -1}
+		local pbounce_frame = ((math.floor(beat*8)-1)%8)+1
+		local pbounce_pos = {3, -1, 1, 0, 0, 0, 0, -1}
+
+		train:y2(bounce_pos[bounce_frame])
+
+		for i=1,#pas do
+			pas[i]:y2(pbounce_pos[pbounce_frame])
+			if i==5 then pas[i]:rotationz(pbounce_pos[pbounce_frame]) end
+		end
+
+		-- print(bounce_frame, pbounce_frame)
+		-- print(#pas)/
+	end}
+
+	-- Mods
+	set
+	{0, -3, 'rotationz', -10, 'rotationy'}
+	{1, 3, 'rotationz', -10, 'rotationy'}
+	{2, -3, 'rotationz', 10, 'rotationy'}
+	{3, 3, 'rotationz', 10, 'rotationy'}
+
+	set {0, 1, 'xmod'}
+
+	for i=0,3 do
+		add {i, 0, instant, 15, 'zoom', 5, 'flip', 5, 'reverse'}
+	end
+
+	ease 
+	{3, 1, inExpo, 500, 'zoom', 50, 'flip', 90, 'rr_x'}
+	{4, 3, outExpo, 100, 'zoom', 0, 'flip', 360, 'rr_x', 360, 'rr_y', 3, 'xmod', 0, 'reverse', 0, 'rotationz', 0, 'rotationy'}
+
+	{3, 1, inExpo, 250, 'scene_z'}
+	{4, 3, outExpo, 0, 'scene_z'}
+
+	func {4, function() train_af:hidden(0) end}
+
+	-- wenis
+	set {4, 100, 'spiralholds', 1600, 'grain'}
+	ease {4, 3, flip(inExpo), 75, 'square', 75, 'digitalz'}
+	add {4, 3, linear, 82000, 'squareoffset', 82000, 'digitalzoffset'}
+	set {7, 0, 'spiralholds', 400, 'grain'}
+
+	-- mod_outin(7, 1, 0, -20, 'flip', outExpo, inExpo)
+	-- ease {7, 1, flip(linear), 50, 'stealth'}
+
+	set {6.5, 500, 'bumpyperiod', -100, 'drunkzspeed'}
+	ease 
+	{6.5, 0.5, inCirc, 200, 'bumpy', 300, 'drunkz'}
+	{7, 1, inCirc, 0, 'bumpy', 0, 'drunkz'}
+
+	{6.75, 0.25, inCirc, -200, 'tiny'}
+	{7, 1, outExpo, 0, 'tiny'}
+
+	add
+	{6.5, 0.5, inCirc, 100, 'bumpyoffset', 100, 'drunkzoffset'}
+	{7, 1, outCirc, 600, 'bumpyoffset', 2400, 'drunkzoffset'}
+
+	ease {7, 1, flip(outQuad), 50, 'stealth'}
+
+	-- add
+	-- {6.5, 0.5, inCirc, 157, 'confusionoffset'}
+	-- {7.0, 1.0, outCirc, 471, 'confusionoffset'}
+
+	mod_outin(7, 1, 0, 300, 'attenuatex')
+
+	---- chorus 1
+	reset {8}
+
+	func {8, 32, function(beat, poptions) 
+		local mult = (beat-8)/32
+		for pn=1,2 do
+			poptions[pn].x = math.sin( beat/2*math.pi )*50*mult
+			poptions[pn].y = math.cos( beat/2*math.pi )*25*mult
+
+			-- poptions[pn].rotationy = math.sin( beat/2*math.pi )*8*mult
+			-- poptions[pn].rotationx = math.cos( beat/2*math.pi )*-8*mult
+		end
+	end}
+
+	set 
+	{8, 800, 'bumpyxperiod', 25, 'drawsize', 100, 'orient', -300, 'tinyz'}
+	{8, 100, 'stealth', plr=1}
+	{8, 100, 'dark', plr=2}
+	for i,v in ipairs {8, 9, 12, 16, 17, 20, 24, 25, 28, 32, 33, 36} do
+		for pn=1,2 do
+			plr = pn
+			-- mod_outin(8, 1, 0, -50 * (pn*2-3), 'noteskewx')
+			-- mod_outin(9, 1, 0, 50 * (pn*2-3), 'noteskewx')
+
+			-- mod_outin(8, 1, 0, -100 * (pn*2-3), 'bumpyx')
+			-- mod_outin(9, 1, 0, 100 * (pn*2-3), 'bumpyx')
+
+			-- mod_outin(8, 1, 0, 40*0.64 * (pn*2-3), 'movex')
+			-- mod_outin(9, 1, 0, -40*0.64 * (pn*2-3), 'movex')
+
+			mod_outin(v, 1, 0, -100 * (pn*2-3) * (i%2*2-1), 'bumpyx')
+			mod_outin(v, 1, 0, 40*0.64 * (pn*2-3) * (i%2*2-1), 'movex')
+			plr = nil
+		end
+	end
+
+	for i=0,3 do
+		mod_outin(10+i*8, 1, 0, -10, 'reverse')
+		mod_outin(11+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{10.5-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{11.0-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+
+		add 
+		{11.0-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+		{12.0-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+
+		mod_outin(11+i*8, 1, 0, -0.1, 'scene_zoom')
+
+		mod_outin(13+i*8, 1, 0, -10, 'reverse')
+		mod_outin(14+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{13.5-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.0-0.5+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.5-0.5+i*8, 1, inOutCirc, 180, 'rr_x', plr=1}
+		{15.0-0.5+i*8, 1, inOutCirc, 180, 'rr_x', plr=1}
+
+		add {15.0-0.5+i*8, 1, inOutCirc, 180, 'rr_x', plr=2}
+		if not (i%2==1) then
+			add	{16.0-0.5+i*8, 1, inOutCirc, 180, 'rr_x', plr=2}
+		end
+
+		mod_outin(15+i*8, 1, 0, -0.1, 'scene_zoom')
+		mod_outin(15+i*8, 1, 0, 10 * (i%2*2-1), 'scene_rz')
+	end
+
+	add {24-0.5, 1, inOutCirc, 180, 'rr_x', plr=1}
+	add {40-0.5, 1, inOutCirc, 180, 'rr_x', plr=1}
+
+	local drum = {
+		{8.000,0,1},
+		{9.000,3,1},
+		{10.000,0,1},
+		{10.500,0,1},
+		{11.000,3,1},
+		{12.000,0,1},
+		{13.000,3,1},
+		{13.833,0,1},
+		{14.500,0,1},
+		{14.833,1,1},
+		{15.000,3,1},
+		{15.333,0,1},
+		{16.000,0,1},
+		{17.000,3,1},
+		{18.000,0,1},
+		{18.500,0,1},
+		{19.000,3,1},
+		{20.000,0,1},
+		{21.000,3,1},
+		{21.833,0,1},
+		{22.500,0,1},
+		{22.833,1,1},
+		{23.000,3,1},
+		{23.333,0,1},
+		{24.000,0,1},
+		{25.000,3,1},
+		{26.000,0,1},
+		{26.500,0,1},
+		{27.000,3,1},
+		{28.000,0,1},
+		{29.000,3,1},
+		{29.833,0,1},
+		{30.500,0,1},
+		{30.833,1,1},
+		{31.000,3,1},
+		{31.333,0,1},
+		{32.000,0,1},
+		{33.000,3,1},
+		{34.000,0,1},
+		{34.500,0,1},
+		{35.000,3,1},
+		{36.000,0,1},
+		{37.000,3,1},
+		{37.833,0,1},
+		{38.500,0,1},
+		{38.833,1,1},
+		{39.000,3,1},
+		{39.333,3,1},
+		{39.500,0,1},
+		{40.000,0,1},
+	}
+	local kmult=1
+	for i,v in ipairs(drum) do
+		if v[2]==0 then
+			ease {v[1], 1, impulse, 100*kmult, 'drunk'}
+			kmult=-kmult
+		elseif v[2]==3 then
+			ease 
+			{v[1]-0.25, 0.25, inExpoN, -200, 'tiny'}
+			{v[1], 1, outExpo, 0, 'tiny'}
+		end
+	end
+
+	local snarbbb = {
+		{22.333,0,1},
+		{22.5,0,1},
+		{23.0,0,1},
+		{38.333,0,1},
+		{38.5,0,1},
+		{39.0,0,1},
+		{78.333,0,1},
+		{78.5,0,1},
+		{79.0,0,1},
+		{94.333,0,1},
+		{94.5,0,1},
+		{95.0,0,1},
+
+		{158.333,0,1},
+		{158.5,0,1},
+		{159.0,0,1},
+
+		-- {172.000,0,1},
+		-- {172.500,0,1},
+		-- {173.000,0,1},
+		-- {173.500,0,1},
+	}
+	-- set {21, -100, 'tipsyspeed'}
+	for i,v in ipairs(snarbbb) do
+		local mult = i%2*2-1
+
+		ease
+		{v[1], 1, popElastic.params(2, 2), 50*mult, 'skewy'}
+		{v[1], 1, popElastic.params(1, 4), -150*mult, 'tinyx'}
+		-- add {v[1], 1, outCirc, 200, 'drunkoffset'}
+	end
+
+	---- pre sec 2
+	ease {40-1, 2, inOutCirc, 150, 'scene_z', 80, 'scene_y'}
+	set {36, 0, 'tinyz'}
+	set {36, 50, 'drawsize', plr=3}
+
+	func {36, function() 
+		P[3]:SetAwake(true)
+		P[3]:SetInputPlayer(0)
+
+		PP[3]:hidden(0)
+		PP[3]:y(-100)
+	end}
+
+	ease 
+	{36, 0, outCirc, 600, 'x', plr=3}
+	{36, 4, outQuad, 0, 'x', plr=3}
+
+	ease {40, 2, outCubic, 200, 'drunk', 100, 'tipsy', 100, 'stealth', 100, 'dark'}
+
+	ease {40, 8, linear, 2, 'xmod', plr=3}
+	func {40, 8, function(beat, poptions) 
+		local mult = outCubic((beat-40)/8)
+
+		poptions[3].rr_x = math.sin(beat)*45*mult
+		poptions[3].rr_y = math.cos(beat)*45*mult
+	end}
+
+	ease 
+	{46, 2, inCirc, 0, 'scene_z', 0, 'scene_y'}
+	{46, 2, inCirc, 0, 'stealth', 0, 'dark', 0, 'drunk', 0, 'tipsy', plr=1}
+	{46, 2, inCirc, -600, 'x', plr=3}
+
+	func {48, function() P[3]:SetAwake(false) PP[3]:hidden(1) end}
+
+	-- local sbeat = 36
+	-- while sbeat<48 do
+	-- 	local len = 0.25
+
+	-- 	plr=3
+	-- 	add {sbeat, len, inOutSine, math.random(-5,5), 'rotationy'}
+	-- 	add {sbeat+len/2, len, inOutSine, math.random(-5,5), 'rotationy'}
+	-- 	plr=nil
+
+	-- 	sbeat = sbeat+len
+	-- end
+	local function noise(t)
+		low = math.floor(t)
+		high = low+1
+		dist = t-low
+
+		low_slope = randomXD(low)
+		high_slope = randomXD(high)
+
+		low_pos = low_slope * dist
+		high_pos = -high_slope * (1-dist)
+
+		local c = dist * dist * (3.0 - 2.0 * dist)
+ 		return (low_pos*(1-c)) + (high_pos*c)
+	end
+	set {36, -100, 'drunkspeed', -10, 'drunkperiod', 100, 'orient', plr=3}
+	func {36, 12, function(beat, poptions) 
+		poptions[3].rotationz = -10 + noise(beat*2)*4 + noise(beat*4)*4
+		poptions[3].parabolax = -100 + noise(beat*2)*200 + noise(beat*4)*200 + noise(beat*8)*200
+
+		PP[3]:x2(noise(beat*2)*30 + noise(beat*4)*10 + noise(beat*8)*10)
+	end}
+
+	ease {40, 8, inOutSine, 50, 'drunk', 50, 'tipsy', plr=3}
+
+	-- repeat
+	set {48, -100, 'drunkspeed', 9999, 'tipsyspeed', 40, 'drawsize'}
+	set {46, 500, 'drunk', 100, 'stealth', 100, 'dark', 0, 'tipsy', plr=2}
+	for i=0,11 do
+		local mult = i%2*2-1
+		local pn = (i+1)%2+1
+
+		mod_outin(48+i, 1, 0, -0.2, 'scene_zoom', outExpo, inExpo)
+		-- mod_outin(48+i, 1, 0, 10*mult, 'scene_ry', outExpo, inExpo)
+
+		ease 
+		{48+i, 0, outExpo, -500*mult, 'drunk', 100, 'stealth', 100, 'dark', plr=pn}
+		{48+i, 1, outExpo, 0, 'drunk', 0, 'stealth', 0, 'dark', plr=pn}
+
+		{48+i, 0, outExpo, 0, 'drunk', 0, 'stealth', 0, 'dark', plr=3-pn}
+		{48+i, 1, outExpo, 500*mult, 'drunk', 100, 'stealth', 100, 'dark', plr=3-pn}
+
+		ease {48+i, 1, flip(outCirc), 100, 'tipsy'}
+
+		set {48+i, math.random(-30,30), 'rotationx', math.random(-30,30), 'rotationy', plr=pn}
+	end
+
+	set {48, 100, 'reverse', plr=2}
+	set {60, 0, 'rotationx', 0, 'rotationy'}
+
+	---- maybe a bit too reaction time funny (can probably put in a slumpage maybe)
+	-- func {46, function() 
+	-- 	P[1]:SetHiddenRegions({ {49, 50}, {51, 52}, {53, 54}, {55, 56}, {57, 58}, {59, 60} })
+	-- 	P[2]:SetHiddenRegions({ {48, 49}, {50, 51}, {52, 53}, {54, 55}, {56, 57}, {58, 59} })
+	-- end}
+
+	ease 
+	{58, 2, inExpo, 500, 'zoom', 50, 'flip', 50, 'reverse'}
+	{60, 4, outExpo, 100, 'zoom', 0, 'flip', 0, 'reverse'}
+
+	{58, 2, inExpo, 250, 'scene_z'}
+	{60, 4, outExpo, 0, 'scene_z'}
+
+	add 
+	{58, 2, inExpo, 90, 'rr_x'}
+	{60, 4, outExpo, 270, 'rr_x', 360, 'rr_y'}
+
+	for i,v in ipairs {60, 60.5, 61, 61.5, 62, 63, 63.5} do
+		local mult = (i%2*2-1)
+
+		local rand = math.random(-25,25)
+
+		ease 
+		{v-0.5, 0.5, inExpo, 25*mult, 'skewx', -25*mult, 'noteskewx'}
+		{v, 2, outElastic, 0, 'skewx', 0, 'noteskewx'}
+
+		{v-0.5, 0.5, inExpo, rand, 'skewy', -rand, 'noteskewy'}
+		{v, 2, outElastic.params(1, 0.4), 0, 'skewy', 0, 'noteskewy'}
+	end
+
+	local snar = {
+		{62.000,0,1},
+		{62.271,0,1},
+		{62.500,0,1},
+		{62.813,0,1},
+		{63.000,0,1},
+		{63.271,0,1},
+		{63.479,0,1},
+	}
+	set {60, -100, 'tipsyspeed', 200, 'drunkoffset', 700, 'drunkspacing'}
+	for i,v in ipairs(snar) do
+		local mult = i%2*2-1
+
+		ease
+		{v[1], 1, popElastic.params(2, 4), 50*mult, 'tipsy', 25*mult, 'drunk', -100, 'tinyx'}
+		add {v[1], 1, outCirc, 200, 'drunkoffset'}
+	end
+
+	---- chorus 2
+	func {60, function() 
+		pas[1]:hidden(0)
+		pas[2]:hidden(0)
+		pas[3]:hidden(0)
+	end}
+	reset {64}
+
+	func {64, 32, function(beat, poptions) 
+		local mult = (beat-64)/31
+		if beat>64+31 then mult = 1-inCubic(beat-(64+31)) end
+		for pn=1,2 do
+			poptions[pn].x = math.sin( beat/2*math.pi )*50*1.5*mult
+			poptions[pn].y = math.cos( beat/2*math.pi )*25*1.5*mult
+
+			-- poptions[pn].rotationy = math.sin( beat/2*math.pi )*8*mult
+			-- poptions[pn].rotationx = math.cos( beat/2*math.pi )*-8*mult
+		end
+	end}
+
+	set 
+	{64, 800, 'bumpyxperiod', 25, 'drawsize', 100, 'orient', -300, 'tinyz'}
+	{64, 100, 'stealth', plr=1}
+	{64, 100, 'dark', plr=2}
+	for i,v in ipairs {8, 9, 12, 16, 17, 20, 24, 25, 28, 32, 33, 36} do
+		for pn=1,2 do
+			plr = pn
+			-- mod_outin(8, 1, 0, -50 * (pn*2-3), 'noteskewx')
+			-- mod_outin(9, 1, 0, 50 * (pn*2-3), 'noteskewx')
+
+			-- mod_outin(8, 1, 0, -100 * (pn*2-3), 'bumpyx')
+			-- mod_outin(9, 1, 0, 100 * (pn*2-3), 'bumpyx')
+
+			-- mod_outin(8, 1, 0, 40*0.64 * (pn*2-3), 'movex')
+			-- mod_outin(9, 1, 0, -40*0.64 * (pn*2-3), 'movex')
+
+			mod_outin(v+56, 1, 0, -200 * (pn*2-3) * (i%2*2-1), 'bumpyx')
+			mod_outin(v+56, 1, 0, 80*0.64 * (pn*2-3) * (i%2*2-1), 'movex')
+			plr = nil
+		end
+	end
+
+	for i=0,3 do
+		mod_outin(10+56+i*8, 1, 0, -10, 'reverse')
+		mod_outin(11+56+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{10.5-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{11.0-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+
+		add 
+		{11.0-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+		{12.0-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+
+		mod_outin(11+56+i*8, 1, 0, -0.1, 'scene_zoom')
+
+		mod_outin(13+56+i*8, 1, 0, -10, 'reverse')
+		mod_outin(14+56+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{13.5-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.0-0.5+56+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.5-0.5+56+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_x', plr=1}
+		{15.0-0.5+56+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_x', plr=1}
+
+		add {15.0-0.5+56+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_x', plr=2}
+		if i~=1 then
+			add	{16.0-0.5+56+i*8, 1, inOutCirc, 180,  i>1 and 'rr_z' or 'rr_x', plr=2}
+		end
+
+		mod_outin(15+56+i*8, 1, 0, -0.1, 'scene_zoom')
+		mod_outin(15+56+i*8, 1, 0, 10 * (i%2*2-1), 'scene_rz')
+	end
+
+	add {24-0.5+56, 1, inOutCirc, 180, 'rr_x', plr=1}
+	-- add {40-0.5+56, 1, inOutCirc, 180, 'rr_x'}
+
+	local drum2 = {
+		{8.000,0,1},
+		{9.000,3,1},
+		{10.000,0,1},
+		{10.500,0,1},
+		{11.000,3,1},
+		{12.000,0,1},
+		{13.000,3,1},
+		{13.833,0,1},
+		{14.500,0,1},
+		{14.833,1,1},
+		{15.000,3,1},
+		{15.333,0,1},
+		{16.000,0,1},
+		{17.000,3,1},
+		{18.000,0,1},
+		{18.500,0,1},
+		{19.000,3,1},
+		{20.000,0,1},
+		{21.000,3,1},
+		{21.833,0,1},
+		{22.500,0,1},
+		{22.833,1,1},
+		{23.000,3,1},
+		{23.333,3,1},
+		{23.667,3,1},
+		{24.000,0,1},
+		{25.000,3,1},
+		{26.000,0,1},
+		{26.500,0,1},
+		{27.000,3,1},
+		{28.000,0,1},
+		{29.000,3,1},
+		{29.833,0,1},
+		{30.500,0,1},
+		{30.833,1,1},
+		{31.000,3,1},
+		{31.333,0,1},
+		{32.000,0,1},
+		{33.000,3,1},
+		{34.000,0,1},
+		{34.500,0,1},
+		{35.000,3,1},
+		{36.000,0,1},
+		{37.000,3,1},
+		{37.833,0,1},
+		{38.333,3,1},
+		{38.500,0,1},
+		{38.833,0,1},
+		{39.000,3,1},
+	}
+	local kmult=1
+	for i,v in ipairs(drum2) do
+		if v[2]==0 then
+			ease {v[1]+56, 1, impulse, 100*kmult, 'drunk'}
+			kmult=-kmult
+		elseif v[2]==3 then
+			ease 
+			{v[1]-0.25+56, 0.25, inExpoN, -200, 'tiny'}
+			{v[1]+56, 1, outExpo, 0, 'tiny'}
+		end
+	end
+
+	local highnote = {
+		{80.000,1,2,length=0.667},
+		{80.833,2,1},
+		{81.000,1,2,length=0.667},
+		{81.833,0,1},
+		{82.000,1,1},
+		{82.333,2,1},
+		{82.500,3,1},
+		{82.833,1,1},
+		{83.000,2,2,length=1.000},
+		{84.000,1,2,length=0.667},
+		{84.833,3,1},
+		{85.000,1,1},
+		{85.333,2,1},
+		{85.500,0,1},
+		{85.833,3,1},
+		{86.000,2,1},
+		{86.500,0,1},
+		{87.000,2,2,length=1.000},
+		{88.000,1,2,length=0.667},
+		{88.833,2,1},
+		{89.000,3,2,length=0.667},
+		{89.833,2,1},
+		{90.000,1,1},
+		{90.333,0,1},
+		{90.500,2,1},
+		{90.833,1,1},
+		{91.000,3,2,length=1.000},
+		{92.000,1,2,length=0.667},
+		{92.833,2,1},
+		{93.000,1,1},
+		{93.333,3,1},
+		{93.500,2,1},
+		{93.833,1,1},
+		{94.000,0,1},
+		{94.500,2,1},
+		{95.000,3,2,length=1.000},
+	}
+	ease {80, 16, linear, 50000, 'digitaloffset', 50000, 'squareoffset'}
+	for i,v in ipairs(highnote) do
+		local len = highnote[i+1] and highnote[i+1][1]-highnote[i][1] or 1
+
+		ease {v[1], len, flip(linear), 30, 'digital', 10, 'square', 30, 'stealth', plr=2}
+	end
+
+	add 
+	{79.000, 0, instant, 25, 'scene_z', math.pi*50, 'confusionzoffset'}
+	{79.333, 0, instant, 25, 'scene_z', math.pi*50, 'confusionzoffset'}
+	{79.667, 0, instant, 25, 'scene_z', math.pi*50, 'confusionzoffset'}
+	{80.000-0.5, 1, inOutExpo, -75, 'scene_z', math.pi*50, 'confusionzoffset'}
+
+	------ prec3 1
+	func {95.5, 0.5, linear, sw*1.3, 0, function(a) tunnel_b:x(a) tunnel:x(a) end}
+	-- func {95.5, 0.5, linear, sw+400, 0, function(a) tunnel:x(a) end}
+
+	func {96-0.5, 1, inOutCirc, 1, 0.1, function(a) train:diffuse(0.5*a,0.5*a,1*a,1) end}
+	func {96-0.5, 1, inOutCirc, 0, 1, function(a) 
+		for i=1,3 do
+			pas[i]:diffuse(1 - 0.75*a,1 - 0.75*a,1 - 0.5*a,1) 
+		end
+	end}
+	-- for i=0,31 do
+	-- 	local col = i%4
+
+	-- 	ease {96-0.5+i, 1, inOutExpo, 100-get('reverse'..col), 'reverse'..col}
+	-- end
+	set {96, -100, 'drunkspeed', -100, 'tipsyspeed', 40, 'drawsize'}
+	set {96, 100, 'drunk', 100, 'stealth', 100, 'dark', 0, 'tipsy', plr=2}
+
+	set 
+	{96, 25, 'brake', 25, 'confusionzoffset', plr=1}
+	{96, -25, 'confusionzoffset', plr=2}
+
+	-- ease 
+	-- {96, 1, outExpo, -20, 'rotationy', plr=1}
+	-- {96, 1, outExpo, 20, 'rotationy', plr=2}
+
+	for i=0,31 do
+		local mult = i%2*2-1
+		local pn = (i+1)%2+1
+
+		ease 
+		{96+i, 0, outExpo, -100, 'drunk', 100, 'stealth', 100, 'dark', plr=pn}
+		{96+i, 1, outExpo, 0, 'drunk', 0, 'stealth', 0, 'dark', plr=pn}
+
+		{96+i, 0, outExpo, 0, 'drunk', 0, 'stealth', 0, 'dark', plr=3-pn}
+		{96+i, 1, outExpo, 100, 'drunk', 100, 'stealth', 100, 'dark', plr=3-pn}
+
+		ease
+		{95.5+i, 0.5, inQuad, 1, 'jiggle'}
+		{96+i, 0.5, inCirc, 0, 'jiggle'}
+
+		ease {96-0.5+i, 1, inOutExpo, i%4*0.05, 'scene_zoom'}
+	end
+
+	for i=0,15 do
+		local pn = (i+1)%2+1
+		local rot = math.abs( ((i+4)%8) - 4 )/4
+		local mult = math.floor(i/8)%2*2-1
+
+		set {96+16+i, rot*45*mult, 'rotationz', plr=pn}
+	end
+
+	for i=0,1 do
+		ease 
+		{96+16+i*8, 4, inOutQuad, 45 * (i%2*2-1), 'scene_rz'}
+		{100+16+i*8, 4, inOutQuad, 0, 'scene_rz'}
+	end
+
+	aux 'jiggle'
+	func {96, 32, function(beat, poptions) 
+		for pn=1,2 do
+			for c=0,3 do
+				poptions[pn]['movex'..c] = math.cos(beat*6*math.pi + math.pi*2/4*c)*10 * poptions[1].jiggle
+				poptions[pn]['movey'..c] = math.sin(beat*6*math.pi + math.pi*2/4*c)*10 * poptions[1].jiggle
+			end
+		end
+	end}
+
+	set {112, 100, 'flip', plr=2}
+
+	-- for i,v in ipairs(snar) do
+	-- 	local mult = i%2*2-1
+
+	-- 	ease
+	-- 	{v[1], 1, popElastic.params(2, 4), 50*mult, 'tipsy', 25*mult, 'drunk'}
+	-- 	add {v[1], 1, outCirc, 200, 'drunkoffset'}
+	-- end
+
+	set {96, -100, 'tipsyspeed', 200, 'drunkoffset', 700, 'drunkspacing'}
+	for i=0,7 do
+		for m,v in ipairs {97.5, 97.833, 98, 98.333, 99.5, 99.79} do
+			local mult = m%2*2-1
+			ease {v + i*4, 1, popElastic.params(2, 4), 50*mult, 'tipsy', 25*mult, 'drunk'}
+			add {v, 1, outCirc, 200, 'drunkoffset'}
+		end
+		-- ease
+		-- {97.500 + i*4, 1, popElastic.params(2, 4), 50, 'tipsy', 25, 'drunk'}
+		-- {97.833 + i*4, 1, popElastic.params(2, 4), -50, 'tipsy', -25, 'drunk'}
+		-- {98.000 + i*4, 1, popElastic.params(2, 4), 50, 'tipsy', 25, 'drunk'}
+		-- {98.333 + i*4, 1, popElastic.params(2, 4), -50, 'tipsy', -25, 'drunk'}
+
+		-- {99.500 + i*4, 1, popElastic.params(2, 4), 50, 'tipsy', 25, 'drunk'}
+		-- {99.780 + i*4, 1, popElastic.params(2, 4), -50, 'tipsy', -25, 'drunk'}
+	end
+
+	local drdrdr = {
+		{110.333,3,1},
+		{110.417,3,1},
+		{110.500,0,1},
+		{110.833,0,1},
+		{111.000,3,1},
+		{111.500,0,1},
+		{112.000,0,1},
+		{113.000,3,1},
+		{114.500,0,1},
+		{115.000,3,1},
+		{116.000,0,1},
+		{117.000,3,1},
+		{118.500,0,1},
+		{119.000,3,1},
+		{120.000,0,1},
+		{121.000,3,1},
+		{122.500,0,1},
+		{123.000,3,1},
+		{124.000,0,1},
+		{125.000,3,1},
+		{125.333,0,1},
+		{125.833,3,1},
+		{125.917,3,1},
+		{126.000,0,1},
+		{126.333,3,1},
+		{126.500,0,1},
+		{127.000,3,1},
+	}
+	for i,v in ipairs(drdrdr) do
+		if v[2]==3 then
+			ease {v[1], 1, flip(outExpo), -200, 'tinyx', 110, 'zoomx'}
+		else
+			ease {v[1], 1, flip(outExpo), -200, 'tinyy', 110, 'zoomy'}
+		end
+	end
+
+	plr=3
+	reset {126}
+	plr=nil
+	reset {127}
+	func {126, function() 
+		P[3]:SetAwake(true)
+	end}
+	func {127, function() 
+		train_af:hidden(1) 
+		PP[1]:hidden(1)
+		PP[2]:hidden(1)
+
+		black_prx:hidden(0)
+		P[3]:SetAwake(true)
+
+		tunnel:hidden(1)
+		tunnel_b:hidden(1)
+	end}
+	func {127, 1, function(beat, poptions) for pn=1,2 do poptions[pn].scene_rz = 0 end end}
+	-- func {128, function() screencover:diffusealpha(0) end}
+
+	---- presc3 2
+	plr = 3
+	set
+	{126, 65, 'zoom', 100, 'sudden', 100, 'suddenoffset'}
+
+	ease {128, 16, inCubic, 100, 'zoom'}
+
+	for i=0,6 do
+		local mult = i%2*2-1
+
+		-- ease {128+i*2, 2, pulse, 100, 'drunk'}
+		mod_outin(129.0+i*2, 0.5, 0, 60, 'tipsy', outExpo, inSine)
+		mod_outin(129.5+i*2, 0.5, 0, -30, 'tipsy', outSine, inSine)
+		mod_outin(130.0+i*2, 0.5, 0, 20, 'tipsy', outSine, inSine)
+		mod_outin(130.5+i*2, 0.5, 0, -10, 'tipsy', outSine, inSine)
+
+		-- ease {129+i*2, 1, flip(outElastic), 60, 'tipsy'}
+		ease
+		{128.5+i*2, 0.5, inQuad, 1, 'jiggle'}
+		{129+i*2, 2, outCirc, 0, 'jiggle'}
+
+		ease 
+		{128.0-0.25 + i*2, 0.5, inOutCirc, -20, 'flip', 51.2*mult, 'movex'}
+		{128.5-0.25 + i*2, 0.5, inOutCirc,  0, 'flip', 0, 'movex'}
+
+		ease 
+		{129.333-0.25 + i*2, 0.500, inOutCirc, -20*mult, 'alternate', 10*mult, 'reverse'}
+		{129.500-0.25 + i*2, 0.500, inOutCirc,  0, 'alternate', 0, 'reverse'}
+	end
+
+	func {128, 16, function(beat, poptions) 
+		for c=0,3 do
+			poptions[3]['movex'..c] = math.cos(beat*4*math.pi + math.pi*2/4*c)*10 * poptions[3].jiggle
+			poptions[3]['movey'..c] = math.sin(beat*4*math.pi + math.pi*2/4*c)*10 * poptions[3].jiggle
+
+			poptions[3]['noteskewx'..c] = math.cos(beat*4*math.pi + math.pi*2/4*c)*-25 * poptions[3].jiggle
+			poptions[3]['noteskewy'..c] = math.sin(beat*4*math.pi + math.pi*2/4*c)*25 * poptions[3].jiggle
+
+			poptions[3]['tinyx'..c] = math.cos(beat*4*math.pi + math.pi*2/4*c)*-50 * poptions[3].jiggle
+			poptions[3]['tinyy'..c] = math.sin(beat*4*math.pi + math.pi*2/4*c)*-50 * poptions[3].jiggle
+		end
+	end}
+
+	ease 
+	{143, 1, inExpo, 500, 'zoom', 50, 'flip', 50, 'reverse', 90, 'rr_x'}
+	{144, 2, outExpo, 100, 'zoom', 0, 'flip', 360, 'rr_x', 360, 'rr_y', 3, 'xmod', 0, 'reverse', 0, 'rotationz', 0, 'rotationy'}
+
+	{143, 1, inExpo, 250, 'scene_z'}
+	{144, 2, outExpo, 0, 'scene_z'}
+
+	for i,v in ipairs {60, 60.5, 61, 61.5, 62, 63, 63.5} do
+		local mult = (i%2*2-1)
+
+		local rand = math.random(-25,25)
+
+		ease 
+		{v+80-0.5, 0.5, inExpo, 25*mult, 'skewx', -25*mult, 'noteskewx'}
+		{v+80, 2, outElastic, 0, 'skewx', 0, 'noteskewx'}
+
+		{v+80-0.5, 0.5, inExpo, rand, 'skewy', -rand, 'noteskewy'}
+		{v+80, 2, outElastic.params(1, 0.4), 0, 'skewy', 0, 'noteskewy'}
+	end
+
+	local snar2 = {
+		{62.000,0,1},
+		{62.271,0,1},
+		{62.500,0,1},
+		{62.813,0,1},
+		{63.000,0,1},
+		-- {63.271,0,1},
+		-- {63.479,0,1},
+	}
+	set {60, -100, 'tipsyspeed', 200, 'drunkoffset', 700, 'drunkspacing'}
+	for i,v in ipairs(snar2) do
+		local mult = i%2*2-1
+
+		ease
+		{v[1]+80, 1, popElastic.params(2, 4), 50*mult, 'tipsy', 25*mult, 'drunk'}
+		add {v[1]+80, 1, outCirc, 200, 'drunkoffset'}
+	end
+
+	add 
+	{143.000, 0.5, outElastic, 15, 'rotationx'}
+	{143.333, 0.5, outElastic, 15, 'rotationx'}
+	{143.667, 0.5, outElastic, 15, 'rotationx'}
+
+	ease
+	{143.000, 2, flip(outExpo), -300, 'tiny', -300, 'tinyz'}
+	{143.333, 2, flip(outExpo), -300, 'tiny', -300, 'tinyz'}
+	{143.667, 2, flip(outExpo), -300, 'tiny', -300, 'tinyz'}
+	plr = nil
+
+	func {143, function() 
+		train:diffuse(0.5,0.5,1,1)
+		for i=1,3 do pas[i]:hidden(1) end
+	end}
+	func {144, function() black_prx:hidden(1) train_af:hidden(0) PP[1]:hidden(0) PP[2]:hidden(0) end}
+
+	---- chorus 3
+	reset {144, exclude={'flip', 'reverse'}}
+	func {144, function() for i=4,7 do pas[i]:hidden(0) end end}
+
+	set {143, 50, 'flip', 50, 'reverse'}
+	ease {144, 2, outExpo, 0, 'flip', 0, 'reverse'}
+
+	func {144, 31, function(beat, poptions) 
+		local mult = (beat-144)/31
+		if beat>174 then mult = 1-inCubic(beat-174) end
+		for pn=1,2 do
+			poptions[pn].x = math.sin( beat/2*math.pi )*50*2*mult
+			poptions[pn].y = math.cos( beat/2*math.pi )*25*1.5*mult
+
+			-- poptions[pn].rotationy = math.sin( beat/2*math.pi )*8*mult
+			-- poptions[pn].rotationx = math.cos( beat/2*math.pi )*-8*mult
+		end
+	end}
+
+	set 
+	{64+80, 800, 'bumpyxperiod', 25, 'drawsize', 100, 'orient', -300, 'tinyz'}
+	{64+80, 100, 'stealth', plr=1}
+	{64+80, 100, 'dark', plr=2}
+	for i,v in ipairs {8, 9, 12, 16, 17, 20, 24, 25, 28, 32, 33, 36} do
+		for pn=1,2 do
+			plr = pn
+			-- mod_outin(8, 1, 0, -50 * (pn*2-3), 'noteskewx')
+			-- mod_outin(9, 1, 0, 50 * (pn*2-3), 'noteskewx')
+
+			-- mod_outin(8, 1, 0, -100 * (pn*2-3), 'bumpyx')
+			-- mod_outin(9, 1, 0, 100 * (pn*2-3), 'bumpyx')
+
+			-- mod_outin(8, 1, 0, 40*0.64 * (pn*2-3), 'movex')
+			-- mod_outin(9, 1, 0, -40*0.64 * (pn*2-3), 'movex')
+
+			mod_outin(v+56+80, 1, 0, -200 * (pn*2-3) * (i%2*2-1), 'bumpyx')
+			mod_outin(v+56+80, 1, 0, 80*0.64 * (pn*2-3) * (i%2*2-1), 'movex')
+			plr = nil
+		end
+	end
+
+	for i=0,3 do
+		mod_outin(10+56+80+i*8, 1, 0, -10, 'reverse')
+		mod_outin(11+56+80+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{10.5-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{11.0-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+
+		add 
+		{11.0-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+		{12.0-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=2}
+
+		mod_outin(11+56+80+i*8, 1, 0, -0.1, 'scene_zoom')
+
+		mod_outin(13+56+80+i*8, 1, 0, -10, 'reverse')
+		mod_outin(14+56+80+i*8, 1, 0, 10, 'reverse')
+
+		add 
+		{13.5-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.0-0.5+56+80+i*8, 1, inOutCirc, 180, 'rr_y', plr=1}
+		{14.5-0.5+56+80+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_z', plr=1}
+		{15.0-0.5+56+80+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_z', plr=1}
+
+		add {15.0-0.5+56+80+i*8, 1, inOutCirc, 180, i>1 and 'rr_z' or 'rr_z', plr=2}
+		if i~=3 then
+			add	{16.0-0.5+56+80+i*8, 1, inOutCirc, 180,  i>1 and 'rr_z' or 'rr_z', plr=2}
+		end
+
+		if i~=3 then
+			mod_outin(15+56+80+i*8, 1, 0, -0.1, 'scene_zoom')
+			mod_outin(15+56+80+i*8, 1, 0, 10 * (i%2*2-1), 'scene_rz')
+		end
+	end
+
+	add {24-0.5+56+80, 1, inOutCirc, 180, 'rr_x'}
+	-- add {40-0.5+56, 1, inOutCirc, 180, 'rr_x'}
+
+	local highnote = {
+		{80.000,1,2,length=0.667},
+		{80.833,2,1},
+		{81.000,1,2,length=0.667},
+		{81.833,0,1},
+		{82.000,1,1},
+		{82.333,2,1},
+		{82.500,3,1},
+		{82.833,1,1},
+		{83.000,2,2,length=1.000},
+		{84.000,1,2,length=0.667},
+		{84.833,3,1},
+		{85.000,1,1},
+		{85.333,2,1},
+		{85.500,0,1},
+		{85.833,3,1},
+		{86.000,2,1},
+		{86.500,0,1},
+		{87.000,2,2,length=1.000},
+		{88.000,1,2,length=0.667},
+		{88.833,2,1},
+		{89.000,3,2,length=0.667},
+		{89.833,2,1},
+		{90.000,1,1},
+		{90.333,0,1},
+		{90.500,2,1},
+		{90.833,1,1},
+		{91.000,3,2,length=1.000},
+		{92.000,1,2,length=0.667},
+		{92.833,2,1},
+		{93.000,1,1},
+		{93.333,3,1},
+		{93.500,2,1},
+		{93.833,1,1},
+		{94.000,0,1},
+		{94.500,2,1},
+		{95.000,3,2,length=1.000},
+	}
+	ease {80+80, 16, linear, 100000, 'digitaloffset', 100000, 'squareoffset'}
+	set {160, 100, 'zbuffer'} {160, 100, 'bumpy', 800, 'bumpyperiod', plr=1}
+	for i,v in ipairs(highnote) do
+		local len = highnote[i+1] and highnote[i+1][1]-highnote[i][1] or 1
+
+		ease 
+		{v[1]+80, len, flip(linear), 30, 'digital', 10, 'square', 30, 'stealth', plr=2}
+		{v[1]+80, len, flip(linear), 30, 'digital', 10, 'square', 70, 'stealth', 200, 'dizzy', plr=1}
+	end
+
+	local drum3 = {
+		{144.000,0,1},
+		{145.000,3,1},
+		{146.000,0,1},
+		{146.500,0,1},
+		{147.000,3,1},
+		{148.000,0,1},
+		{149.000,3,1},
+		{149.833,0,1},
+		{150.500,0,1},
+		{150.833,1,1},
+		{151.000,3,1},
+		{151.333,0,1},
+		{152.000,0,1},
+		{153.000,3,1},
+		{154.000,0,1},
+		{154.500,0,1},
+		{155.000,3,1},
+		{156.000,0,1},
+		{157.000,3,1},
+		{157.833,0,1},
+		{158.333,3,1},
+		{158.500,0,1},
+		{158.833,1,1},
+		{159.000,3,1},
+		{159.333,3,1},
+		{159.667,0,1},
+		{160.000,0,1},
+		{161.000,3,1},
+		{162.000,0,1},
+		{162.500,0,1},
+		{163.000,3,1},
+		{164.000,0,1},
+		{165.000,3,1},
+		{165.833,0,1},
+		{166.500,0,1},
+		{166.833,1,1},
+		{167.000,3,1},
+		{167.333,0,1},
+		{168.000,0,1},
+		{169.000,3,1},
+		{169.833,3,1},
+		{170.000,0,1},
+		{170.333,0,1},
+		{170.500,3,1},
+		{170.833,0,1},
+		{171.000,3,1},
+		{171.333,0,1},
+		{171.833,0,1},
+		{171.917,0,1},
+		{172.000,3,1},
+		{172.333,0,1},
+		{172.833,0,1},
+		{172.917,0,1},
+		{173.000,3,1},
+		{173.333,0,1},
+		{173.833,0,1},
+		{173.917,0,1},
+		{174.000,3,1},
+		{174.333,3,1},
+		{174.500,0,1},
+		{174.833,0,1},
+		{175.000,0,1},
+	}
+	local kmult=1
+	for i,v in ipairs(drum3) do
+		if v[2]==0 then
+			ease {v[1], 1, impulse, 100*kmult, 'drunk'}
+			kmult=-kmult
+		elseif v[2]==3 then
+			ease 
+			{v[1]-0.25, 0.25, inExpoN, -200, 'tiny'}
+			{v[1], 1, outExpo, 0, 'tiny'}
+		end
+	end
+
+	for i,v in ipairs {172, 172.5, 173, 173.5, 174} do
+		local mult = (i%2*2-1)
+
+		local rand = math.random(-25,25)
+
+		ease 
+		{v-0.5, 0.5, inExpo, 25*mult, 'skewx', -25*mult, 'noteskewx'}
+		{v, 2, outElastic, 0, 'skewx', 0, 'noteskewx'}
+
+		{v-0.5, 0.5, inExpo, rand, 'skewy', -rand, 'noteskewy'}
+		{v, 2, outElastic.params(1, 0.4), 0, 'skewy', 0, 'noteskewy'}
+	end
+
+	mod_outin(172, 1, 0, -0.15, 'scene_zoom')
+	mod_outin(173, 1, 0, -0.2, 'scene_zoom')
+	mod_outin(174, 1, 0, -0.25, 'scene_zoom')
+
+	ease 
+	{158, 1, inCirc, 40, 'scene_z'}
+	{159.000, 0, inCirc, 30, 'scene_z'}
+	{159.333, 0, inCirc, 20, 'scene_z'}
+	{159.667, 0, inCirc, 10, 'scene_z'}
+	{160, 0, inCirc, 0, 'scene_z'}
+
+	set {175, 100, 'spiralholds', 1600, 'grain', 0, 'orient'}
+	ease {175, 4, inQuad, 75, 'digital'}
+	add {175, 4, linear, 60000, 'digitaloffset'}
+
+	func {159.667, function() train_af:hidden(1) PP[1]:hidden(1) PP[2]:hidden(1) black_prx:hidden(0) end}
+	plr=3
+	reset {158, exclude={'sudden', 'suddenoffset'}}
+	set {158, 75, 'zoom', 100, 'invert', 1, 'xmod'}
+	plr=nil
+	func {160, function() train_af:hidden(0) PP[1]:hidden(0) PP[2]:hidden(0) black_prx:hidden(1) end}
+
+	set {173, 75, 'drawsize'}
+	set {175, 50, 'stealth', plr=1}
+
+	add
+	{175, 4, outExpo, 360, 'rr_z'}
+	{175, 4, inExpo, 360*2, 'rr_z'}
+
+	add 
+	{175-0.5, 1, inOutExpo, 50, 'scene_z'}
+	{175, 4, outExpo, 50, 'scene_z'}
+	{175, 4, inExpo, 150, 'scene_z'}
+
+	add
+	{175-0.5, 1, inOutExpo, 25, 'reverse', -10, 'y', -0.5, 'xmod'}
+	{175, 4, inExpo, 25, 'reverse', 50, 'flip', -0.5, 'xmod'}
+
+	set 
+	{179, 100, 'dark', 100, 'stealth', 100, 'hidenoteflash1', 100, 'hidenoteflash2', 100, 'hidenoteflash3'}
+	func {179, function() train_af:hidden(1) end}
+
+	func {182, function() plr_af:hidden(1) end}
+
+	-- bg color stuff
+	func {4, function() bgquad:diffuse(0,0,0,1) end}
+	func {127, function() bgquad:diffuse(0.05,0.05,0.05,1) end}
+	func {144, function() bgquad:diffuse(0,0,0,1) end}
+	func {159.667, function() bgquad:diffuse(0.05,0.05,0.05,1) heart:hidden(0) end}
+	func {160, function() bgquad:diffuse(0,0,0,1) heart:hidden(1) end}
+
+	-------- speedmods
+	if GAMESTATE:GetCurrentSteps(0):GetDifficulty()==0 or GAMESTATE:GetCurrentSteps(1):GetDifficulty()==0 then
+		-- func {0, function() 
+		-- 	for pn=1,3 do
+		-- 		P[pn]:SetNoteTypeMults({ {0, 0.25} })
+		-- 	end
+		-- end}
+		func {0, 999, function(beat, poptions) 
+			for pn=1,3 do
+				poptions[pn].xmod = poptions[pn].xmod*0.5
+			end
+			-- poptions[2].dark = poptions[2].dark-20
+		end}
+
+		-- plr=2
+
+		-- ease {8, 1, outExpo, 100, 'arrowpath'}
+
+		-- plr=nil
+	end
+	if GAMESTATE:GetCurrentSteps(0):GetDifficulty()==2 or GAMESTATE:GetCurrentSteps(1):GetDifficulty()==2 then
+		func {0, 999, function(beat, poptions) 
+			for pn=1,3 do
+				poptions[pn].xmod = poptions[pn].xmod*0.75
+			end
+			-- poptions[2].dark = poptions[2].dark-20
+		end}
+	end
+
+	-------- spellcard
+	card {8, 40, 'train dance 1', 6, '#DF6F45'}
+	card {40, 48, 'window', 2, '#BFB7AE'}
+	card {48, 60, '||: :||', 4, '#DF6F45'}
+	card {64, 96, 'train dance 2', 6, '#BFB7AE'}
+	card {96, 127, 'tunnel', 6, '#DF6F45'}
+	card {128, 144, 'rest', 1, '#BFB7AE'}
+	card {144, 175, 'train dance 3', 7, '#DF6F45'}
+
+	card {159.667, 160, ':heart:', 1, '#000000'}
+
+	local endcard = 'the crossover'
+	if GAMESTATE:GetCurrentSteps(0):GetDifficulty()==2 or GAMESTATE:GetCurrentSteps(1):GetDifficulty()==2 then endcard = 'the arrow' end
+	if GAMESTATE:GetCurrentSteps(0):GetDifficulty()==0 or GAMESTATE:GetCurrentSteps(1):GetDifficulty()==0 then endcard = 'there is no crossover or arrow in this difficulty' end
+
+	card {175, 179, endcard, 1, '#BFB7AE'}
+	card {180, 181, 'i will say i modeled the sides and other wall of the train car and\nnever even utilized them in the file', 1, '#000000'}
+
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type="Quad" Name="bgquad"
+		InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;diffuse,0.05,0.05,0.05,1" />
+	<Layer File="heart" Name="heart" InitCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;zoom,0.5;hidden,1" />
+
+	<Layer Type="ActorFrame" InitCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;fov,100" FarDist="9E9" Name="plr_af"><children>
+		<Layer Type = "ActorProxy" Name = "black_prx" InitCommand="hidden,1" />
+
+		<Layer Type="ActorFrame" Name="train_af" InitCommand="hidden,1"><children>
+			<Layer Type="ActorFrame" Name="outside"><children>
+				<Layer Type="Sprite" Texture="starz_loop" 
+					InitCommand="zoomto,SCREEN_WIDTH*4,SCREEN_WIDTH*4;blend,add;customtexturerect,0,0,0.5,0.5;texcoordvelocity,0.005,0;z,-500;" />
+				<Layer Type="Sprite" Texture="starz_loop" 
+					InitCommand="zoomto,SCREEN_WIDTH*4,SCREEN_WIDTH*4;blend,add;customtexturerect,0,0,0.75,0.75;texcoordvelocity,0.01,0;z,-400" />
+
+				<Layer Type="Sprite" Texture="pole"
+					InitCommand="zoomto,SCREEN_HEIGHT*4,SCREEN_HEIGHT;diffuse,0.02,0.02,0.02,1;y,-190;texcoordvelocity,0.1,0;z,-300" />
+
+				<Layer Type="Sprite" Texture="tree_b"
+					InitCommand="zoomto,SCREEN_HEIGHT*4,SCREEN_HEIGHT;y,-80;diffuse,0.05,0.05,0.05,1;texcoordvelocity,0.3,0;z,-200" />
+
+				<Layer Type = "ActorProxy" Name = "PP[3]" InitCommand="hidden,1;z,-200" />
+
+				<Layer Type="Sprite" Texture="treeblur_f"
+					InitCommand="zoomto,SCREEN_HEIGHT*4,SCREEN_HEIGHT;diffuse,0.07,0.07,0.07,1;y,-100;texcoordvelocity,2,0;z,-100" />
+			</children></Layer>
+
+			<Layer Type="Quad" InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0;clearzbuffer,1" />
+
+			<Layer Type="Quad" Name="tunnel_b"
+				InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT*3;diffuse,0.1,0.1,0.1,1;x,SCREEN_WIDTH*1.3;z,-200" />
+			<Layer Type="Quad" Name="tunnel"
+				InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1;x,SCREEN_WIDTH" />
+
+			<Layer File="twindowbig.txt" InitCommand="zoom,0.8;zoomz,0.4;z,150;y,30;diffuse,0.5,0.5,1,1" 
+				Name="train" />
+			<Layer File="pas/p1.sprite" Name="pas[1]" InitCommand="xy,-150,95;hidden,1" />
+			<Layer File="pas/p2.sprite" Name="pas[2]" InitCommand="xy,0,95;hidden,1" />
+			<Layer File="pas/p3.sprite" Name="pas[3]" InitCommand="xy,150,260;hidden,1" />
+
+			<Layer File="pas/rob1" Name="pas[4]" InitCommand="xy,-70,70;hidden,1" />
+			<Layer File="pas/rob2" Name="pas[5]" InitCommand="xy,61-70,30;valign,1;hidden,1" />
+			<Layer File="pas/pasg.sprite" Name="pas[6]" InitCommand="xy,140,80;hidden,1" />
+			<Layer File="pas/ba" Name="pas[7]" InitCommand="xy,-150,60;hidden,1" />
+
+			<Layer Type="Quad" InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0;clearzbuffer,1" />
+		</children></Layer>
+
+		<Layer Type = "ActorProxy" Name = "PP[1]" />
+		<Layer Type = "ActorProxy" Name = "PP[2]" />
+	</children></Layer>
+
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+
+	<Layer Type="Quad" Name="screencover"
+		InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;diffuse,0,0,0,0" />
+
+	<Actor Name="blink_timer" InitCommand="queuecommand,Update"
+		UpdateCommand="%xero(function(self)
+			-- self:addx(-1)
+
+			-- if self:GetX()==0 then
+			-- 	bgchar_blink:diffusealpha(1)
+			-- 	self:addx(math.random(7,14))
+
+			-- 	bgchar_blink:sleep(0.068)
+			-- 	bgchar_blink:diffusealpha(0)
+			-- end
+			for i=1,#blink_counters do
+				blink_counters[i] = blink_counters[i]-1
+				-- print(blink_counters[i])
+				if blink_counters[i]==0 then
+					blink_counters[i] = math.random(7,14)
+
+					pas[i]:setstate(1)
+
+					-- print('tt')
+				end
+			end
+
+			self:sleep(0.408)
+			self:queuecommand('Update') 
+		end)"
+	/>
+</children></Mods>

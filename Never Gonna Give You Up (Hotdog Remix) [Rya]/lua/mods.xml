@@ -1,0 +1,249 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+		P[pn]:x(scx)
+		if pn > 2 then
+			P[pn]:SetAwake(true)
+			P[pn]:SetInputPlayer((pn+1)%2)
+			P[pn]:GetChild('Judgment'):hidden(1)
+			P[pn]:GetChild('Combo'):hidden(1)
+			table.insert(plr, pn)
+		end
+	end
+	
+	local function confOff(deg)
+		return math.rad(deg)*100
+	end
+	
+	definemod {'rotx', 'roty', 'rotz', function(x,y,z)
+		return x, confOff(-x), y, confOff(-y), z, confOff(-z)
+	end,
+	'rotationx', 'confusionxoffset',
+	'rotationy', 'confusionyoffset',
+	'rotationz', 'confusionzoffset'}
+	
+	definemod {'fov', function(a,pn) P[pn]:fov(a) end}
+	setdefault {45, 'fov'}
+	
+	flip = 1
+	val = 0
+	definemod {'val', function(a) val = a end}
+	
+	local function fliperoo()
+		-- thanks XeroOl
+		-- basically creates a near psuedo-flicker effect at 60hz
+		if (GAMESTATE:GetSongTime() * 60) % 2 < 1 then
+			return -1
+		else
+			return 1
+		end
+	end
+	
+	-- card {420, 69, 'ass', -15, '#ffdfe8'}
+	--f_sprite:SetTexture(f_aft:GetTexture())
+	
+	-- //////////////////////////
+	-- wiggly setup
+	-- //////////////////////////
+	
+	set {0, 400, 'cmod', 100, 'dizzyholds', 100, 'halgun', 100, 'stealthpastreceptors', 25, 'bumpyzoffset', 25, 'orient', -100, 'arrowpathdrawsizeback'}
+	excluding = {'cmod', 'dizzyholds', 'halgun', 'stealthpastreceptors', 'fov', 'zbuffer', 'orient', 'bumpyzoffset'}
+	
+	--set {0, 100, 'tornadoz', 50, 'tipsy', 50, 'drunk'}
+	actualChart = P1:GetNoteData(0,180)
+	P1:SetNoteData(0)
+	
+	function getHitData(b,e)
+		local shint = {}
+		P1:SetNoteData(0)
+		shint = P1:GetNoteData(b,e)
+		P1:SetNoteDataFromLua(actualChart)
+		return shint
+	end
+	
+	function range(var,tablex)
+		for _,v in pairs(tablex) do
+			if var >= v[1] and var <= v[2] then
+				return true
+			end
+		end
+		return false
+	end
+	
+	wigly1 = {}
+	wigly2 = {}
+	wigly3 = {}
+	gig = {}
+	
+	for i,v in pairs(P1:GetNoteData(0,180)) do
+		local b = v[1]
+		local c = v[2]
+		-- I'm sorry
+		if c == 0 then
+			set {b, 150, 'pulseinner'}
+			ease {b, .5, outCirc, 0, 'pulseinner'}
+			if range(b, {{68,82},{148,163.5}}) then
+				gig[#gig + 1] = b
+			end
+		elseif c == 1 then
+			--ease {b, 1, outQuint, -get('tornadoz'), 'tornadoz'}
+			set {b, 100, 'arrowpath'}
+			ease {b, 1, outCirc, 0, 'arrowpath'}
+			wigly1[#wigly1 + 1] = {b}
+		elseif c == 2 then
+			--ease {b, 1, outQuint, -get('tipsy'), 'tipsy'}
+			wigly2[#wigly2 + 1] = {b}
+		elseif c == 3 then
+			--ease {b, 1, outQuint, -get('drunk'), 'drunk'}
+			wigly3[#wigly3 + 1] = {b}
+		end
+	end
+	
+	wiggle2lua(wigly1, pop, 100, 'bumpyz')
+	wiggle2lua(wigly2, bounce, 50, 'tipsy')
+	wiggle2lua(wigly3, bounce, 25, 'drunk')
+	
+	P1:SetNoteDataFromLua(actualChart)
+	
+	-- //////////////////////////
+	-- set me free less futuristic remix
+	-- //////////////////////////
+	card {3.5, 19.5, 'set me free less futuristic remix', 2, '#331A40'}
+	
+	for b = 3, 3.75, .25 do
+		add {b, .25, outQuad, -50/4, 'flip'}
+		add {b, .25, outQuad, 50/4, 'movex', plr = 1}
+		add {b, .25, outQuad, -50/4, 'movex', plr = 2}
+	end
+	
+	for b = 4, 16-4, 4 do
+		local flip = 1
+		for pn = 1,2 do
+			ease {b+((pn-1)*2), 2, inCirc, 1000, 'movey', 100, 'stealth', flip*45, 'rotationx', plr = pn}
+			ease {b+2+((pn-1)*2), 2, outCirc, 0, 'movey', 0, 'stealth', 0, 'rotationx', plr = pn}
+			flip = -flip
+		end
+	end
+	
+	func {4, 16, function(beat,poptions)
+		local flip = 1
+		for pn = 1,2 do
+			poptions[pn].movex = math.cos((beat-4)*math.pi/4)*flip*poptions[1].movex
+			flip = -flip
+		end
+	end}
+	
+	mirror {16, 4, inOutSine, 200, 'movex'}
+	ease {16, 4, inOutSine, 0, 'flip'}
+	
+	--mirror {20, 1, outQuad, 200, 'movex'}
+	--ease {20, 1, outQuad, 0, 'flip'}
+	
+	card {19.5, 35.5, 'give me the column swappies', 3, '#351B44'}
+	
+	switcheroo(20, 2, outExpo, 'ludr', 1)
+	switcheroo(21.5, 2, outExpo, 'ldru', 2)
+	switcheroo(23, 2, outExpo, 'uldr', 1)
+	switcheroo(23.5, 2, outExpo, 'ludr', 2)
+	switcheroo(24, 2, outExpo, 'ldur', 1)
+	switcheroo(25.5, 2, outExpo, 'ldur', 2)
+	switcheroo(27, 2, outExpo, 'dlur', 1)
+	switcheroo(27.5, 2, outExpo, 'ldur', 2)
+	switcheroo(28, 2, outExpo, 'lrud', 1)
+	switcheroo(29.5, 2, outExpo, 'rldu', 2)
+	switcheroo(31, 2, outExpo, 'udlr', 1)
+	switcheroo(31.5, 2, outExpo, 'ldur', 2)
+	switcheroo(32, 2, outExpo, 'ldur', 1)
+	
+	-- //////////////////////////
+	-- yeah I was here since chrixma 2019
+	-- //////////////////////////
+	card {35.5, 67.5, 'yeah I was here since chrixma 2019', 2, '#3A2149'}
+	card {67.5, 83.5, 'hmmm today I will use skew,', 1, '#3E254E'}
+	
+	for b = 35, 67-4, 4 do
+		switcheroo(b, 1, outExpo, 'urld')
+		switcheroo(b+2, 1, outExpo, 'ldur')
+	end
+	
+	-- //////////////////////////
+	-- nhelvin gonna give you up
+	-- //////////////////////////
+	card {83.5, 147.5, 'nhelvin gonna give you up', 3, '#43264F'}
+	
+	local skewtable = {{84,89},{92,97},{116,121},{124,129},{132,137},{140,145}}
+	func {84, 64, function(beat,poptions)
+		for pn = 1,2 do
+			if range(beat,skewtable) then
+				poptions[pn].rotz = math.sin(beat*math.pi)*15
+				poptions[pn].roty = math.sin(beat*math.pi)*15
+				poptions[pn].movez0 = math.sin(beat*math.pi)*50
+				poptions[pn].movez1 = math.sin(beat*math.pi)*-50
+				poptions[pn].movez2 = math.sin(beat*math.pi)*50
+				poptions[pn].movez3 = math.sin(beat*math.pi)*-50
+			else
+				poptions[pn].rotz = math.sin(beat*math.pi)*5
+				poptions[pn].roty = math.sin(beat*math.pi)*5
+			end
+			poptions[pn].y = math.abs(math.sin(beat*math.pi))*-25
+		end
+	end}
+	
+	for b = 84, 84+64, 8 do
+		if range(b,skewtable) then -- I'm lazy
+			for c = 0,4 do
+				add {b+c, 1, outQuad, 180/5, 'rotx'}
+			end
+		end
+	end
+	
+	for b = 100, 112, 4 do
+		mirror {b+1, 1, outBack, 200, 'movex'}
+		mirror {b+1+2, 1, outBack, 0, 'movex'}
+	end
+	
+	-- //////////////////////////
+	-- mod free !
+	-- //////////////////////////
+	card {147.5, 163.5, ':actually_clueless:', -2, '#4D325A'}
+	card {163.5, 180.5, 'mod (for) free !', 1, '#4F355C'}
+	card {180.5, 180.5, 'jecket.xyz/trustme.png', -11, '#4F355C'}
+	
+	flip = 1
+	for _,b in pairs(gig) do
+		mirror {b, .25, linear, 25*flip, 'noteskewx', -25*flip, 'skewx', -50*flip, 'movex'}
+		flip = -flip
+	end
+	
+	ease {83, 1, outCirc, 0, 'noteskewx', 0, 'skewx', 0, 'movex'}
+	
+	ease {147, 1, inCirc, 1000, 'hidden', plr = 1}
+	ease {147, 1, inCirc, 1000, 'sudden', plr = 2}
+	
+	ease {164, 1, outCirc, 0, 'hidden', 0, 'sudden', 0, 'noteskewx', 0, 'skewx', 0, 'movex'}
+	
+	ease {177.75, 2, inCirc, 700, 'movey0'}
+	ease {178.5, 2, inCirc, 700, 'movey3'}
+	ease {179.25, 2, inCirc, 700, 'movey1', 700, 'movey2', 100, 'tipsy'}
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	<!--
+	<Layer Type="ActorFrameTexture" InitCommand = "%xero.aft" Name = "f_aft" />
+	<Layer Type="Sprite" InitCommand = "%xero.sprite" Name = "f_sprite" />
+	-->
+</children></Mods>

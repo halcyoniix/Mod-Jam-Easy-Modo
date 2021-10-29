@@ -1,0 +1,25 @@
+<Layer Type="ActorFrame" ><children>
+
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(172/225,172/225,170/225,1); end"/>
+
+		<Layer Type="Quad" Name="hquad[2]" OnCommand="%function(self) self:zoom(0); self:diffuse(0,0,0,1); end"/>
+		<Layer Type="Quad" Name="hquad[1]" OnCommand="%function(self) self:zoom(0); self:diffuse(167/225,70/225,83/225,1); end"/>
+		<Layer File="line.png" Name="hv[3]" OnCommand="%function(self) 
+			self:xy(-45,105)
+			self:hidden(1)
+			self:diffuse(0,0,0,.5)
+		end" />
+		
+		<Layer File="line.png" Name="hv[2]" OnCommand="%function(self) 
+			self:xy(-50,100)
+			self:hidden(1)
+		end" />
+		<Layer File="tri.png" Name="hv[1]" OnCommand="%function(self) 
+			self:zoom(.5)
+			self:hidden(1)
+		end" />
+		
+		
+
+
+</children></Layer>

@@ -1,0 +1,37 @@
+<Layer Type="ActorFrame" ><children>
+
+
+
+
+<Layer Type="Quad" OnCommand="zoom,1000;diffuse,0,0,0,1"/>
+
+<Layer Type="Aux" Name="dummy[2]" />
+<Layer File="circle.png" Name="bot[1]" />
+<Layer File="circle.png" Name="bot[2]" />
+<Layer File="circle.png" Name="bot[3]" />
+<Layer File="circle.png" Name="bot[4]" />
+<Layer File="circle.png" Name="bot[5]" />
+<Layer File="circle.png" Name="bot[6]" />
+<Layer File="circle.png" Name="bot[7]" />
+<Layer File="circle.png" Name="bot[8]" />
+<Layer File="circle.png" Name="bot[9]" />
+<Layer File="circle.png" Name="bot[10]" />
+<Layer File="circle.png" Name="bot[11]" />
+<Layer File="circle.png" Name="bot[12]" />
+<Layer File="circle.png" Name="bot[13]" />
+<Layer File="circle.png" Name="bot[14]" />
+<Layer File="circle.png" Name="bot[15]" />
+<Layer File="circle.png" Name="bot[16]" />
+<Layer File="circle.png" Name="bot[17]" />
+<Layer File="circle.png" Name="bot[18]" />
+<Layer File="circle.png" Name="bot[19]" />
+<Layer File="circle.png" Name="bot[20]" />
+
+<Layer Type="ActorFrame" Name="proxies"><children>
+<Layer Type = "ActorProxy" Name = "scprx[1]" />
+<Layer Type = "ActorProxy" Name = "scprx[2]" />
+<Layer Type = "ActorProxy" Name = "scprx[3]" />
+<Layer Type = "ActorProxy" Name = "scprx[4]" />
+
+</children></Layer>
+</children></Layer>

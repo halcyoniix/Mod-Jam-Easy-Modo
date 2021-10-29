@@ -1,0 +1,285 @@
+<ActorFrame><children>
+
+	<CODE Type="Quad" OnCommand="hidden,1"
+	InitCommand="%function(self)
+	
+---------------------------------------------------------------------------------------
+----------------------DON'T TOUCH IT KIDDO---------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			function perframe( beat, endBeat )
+				if GAMESTATE:GetSongBeat() < mod_firstSeenBeat+1 then return false end
+				if not endBeat then endBeat = beat+1 end
+				local cur = GAMESTATE:GetSongBeat();
+				if cur>=beat and cur<endBeat then return true end
+				return false
+			end
+			
+			function math.clamp(val, min, max)
+				if val < min then return min end
+				if val > max then return max end
+				return val
+			end
+			
+			function mod_insert(beat,len,mod,t,pn)
+				if not t then t = 'len' end
+				table.insert(mods,{beat,len,mod,t,pn});
+			end
+			function mod2_insert(beat,len,mod,t,pn)
+				if not t then t = 'len' end
+				table.insert(mods2,{beat,len,mod,t,pn});
+			end
+			function mod_ease(beat,len,str1,str2,mod,t,ease,pn,sus,opt1,opt2)
+				table.insert(mods_ease,{beat,len,str1,str2,mod,t,ease,pn,sus,opt1,opt2});
+			end
+			
+			function mod_message(beat,msg,p)
+				table.insert(mod_actions,{beat,msg,p});
+			end
+			
+			function mod_blacklist(t,n)
+				for i=1,table.getn(t) do
+					if t[i] == n then
+						return true
+					end
+				end
+				return false
+			end
+			
+			--how can I make simple m0d?
+			--this will instantly turn a mod on to max and then quickly turn it off with the specified parameters
+			--it's a simple mod
+			
+			function simple_m0d(beat,strength,mult,mod,pn)
+				if not strength then strength = 400 end
+				if not mult then mult = 1 end
+				if not mod then mod = 'drunk' end
+				
+				local alive = math.max(2*mult*math.abs(strength)/100,0.25)
+				
+				table.insert(mods,{beat,0.3,'*100000 '..strength..' '..mod,'len',pn});
+				table.insert(mods,{beat+.2,alive,'*'..((1/mult)*math.abs(strength)/100)..' no '..mod,'len',pn});
+			end
+			
+			function simple_m0d2(beat,strength,mult,mod,pn)
+				if not strength then strength = 400 end
+				if not mult then mult = 1 end
+				if not mod then mod = 'drunk' end
+				
+				local alive = math.max(10*mult*math.abs(strength)/100,0.25)
+				
+				table.insert(mods,{beat,0.3,'*'..math.abs(strength/10)..' '..strength..' '..mod,'len',pn});
+				table.insert(mods,{beat+.3,alive,'*'..((1/mult)*math.abs(strength)/100)..' no '..mod,'len',pn});
+			end
+			
+			function simple_m0d3(beat,strength,duration,bpm,mod,pn)
+				if not strength then strength = 400 end
+				if not duration then duration = 1 end
+				if not bpm then bpm = 120 end
+				if not mod then mod = 'drunk' end
+				
+				local alive = duration * (60/bpm)
+				local str = (1/(duration * 60/bpm)) * (math.abs(strength)/100)
+				
+				table.insert(mods,{beat-duration,duration,'*'..str..' '..strength..' '..mod,'len',pn});
+				table.insert(mods,{beat,duration*1.1,'*'..str..' no '..mod,'len',pn});
+			end
+			
+			--alternates a mod back and forth before resetting to 0
+			--beat,num,div,amt,speed,mod,pn
+			function mod_wiggle(beat,num,div,amt,speed,mod,pn,first)
+				if not speed then speed = 1 end
+				local fluct = 1
+				for i=0,(num-1) do
+					b = beat+(i/div)
+					local m = 1
+					if i==0 and not first then m = 0.5 end
+					table.insert(mods,{b,1,'*'..math.abs(m*speed*amt/10)..' '..(amt*fluct)..' '..mod..'','len',pn});
+					fluct = fluct*-1;
+				end
+				table.insert(mods,{beat+(num/div),1,'*'..math.abs(amt*speed/20)..' no '..mod..'','len',pn});
+			end
+			
+			function mod_springt(beat,strength,dur,mod,pn)
+				local fluct = 1;
+				dur = math.max(dur,0.02)
+				for i=0,dur-.01,0.02 do
+					local mult = 1;
+					local amt = (dur-i)/dur
+					local b = beat+i
+					
+					table.insert(mods2,{b,0.02,'*100000 '..(strength*amt*fluct)..' '..mod,'len',pn});
+					
+					fluct = fluct*-1;
+				end
+				table.insert(mods2,{beat+dur,0.1,'*100000 no '..mod,'len',pn});
+			end
+			
+			function mod_springt2(beat,strength,dur,mod,pn)
+				local fluct = 1;
+				for i=0,dur-.01,0.02 do
+					local b = beat+i
+					
+					table.insert(mods2,{b,0.02,'*100000 '..(strength*fluct)..' '..mod,'len',pn});
+					
+					fluct = fluct*-1;
+				end
+				table.insert(mods2,{beat+dur,0.1,'*100000 no '..mod,'len',pn});
+			end
+			
+			--turns on beat for the beat specified, at the desired strength	
+			function mod_onebeat(beat,strength,pn)
+				if not strength then strength = 1000 end;
+				table.insert(mods,{beat-.5,1,'*10000 '..strength..' beat','len',pn});
+				table.insert(mods,{beat+.5,0.25,'*10000 no beat','len',pn});
+			end
+			
+			function switcheroo_reset()
+				switcheroo_flip = {0,0,0};
+				switcheroo_invert = {0,0,0};
+			end
+			
+			switcheroo_flip = {0,0,0};
+			switcheroo_invert = {0,0,0};
+			
+			switcheroo_width = 1;
+				
+			switcheroos = {normal = {0,0}, ldur = {0,0}, reset = {0,0},
+				flip = {100,0}, rudl = {100,0}, invert = {0,100}, dlru = {0,100},
+				ludr = {25,-75}, rdul = {75,75}, drlu = {25,125}, ulrd = {75,-125}, urld = {100,-100}}
+			function switcheroo_add(beat,which,speed,len,pn)
+
+				if not speed then speed = 1000000 end
+				
+				local mpn = 3
+				if pn then mpn = pn end
+				
+				local w = {0,0}
+				
+				if type(which) == 'string' then w = switcheroos[which] end
+				if type(which) == 'table' then w = which end
+				
+				if w then
+					local targf = (switcheroos[which][1]*switcheroo_width) + ( 50 - switcheroo_width*50 )
+					local targi = (switcheroos[which][2]*switcheroo_width)
+					local sw_modlist = ''
+					if switcheroo_flip[mpn] ~= targf then
+						sw_modlist = sw_modlist..'*'..(0.01*speed*math.abs(targf-switcheroo_flip[mpn]))..' '..(targf)..' flip,'
+					else
+						sw_modlist = sw_modlist..'*1 '..(targf)..' flip,'
+					end
+					if switcheroo_invert[mpn] ~= targi then
+						sw_modlist = sw_modlist..'*'..(0.01*speed*math.abs(targi-switcheroo_invert[mpn]))..' '..(targi)..' invert'
+					else
+						sw_modlist = sw_modlist..'*1 '..(targi)..' invert'
+					end
+					table.insert(mods,{beat,len,sw_modlist,'len',pn});
+					
+					--Trace('SPEED: '..(0.01*speed*math.abs(targf-switcheroo_flip)));
+					Trace(sw_modlist);
+					
+					if mpn == 3 then
+						for apn=1,3 do
+							switcheroo_flip[apn] = targf;
+							switcheroo_invert[apn] = targi;
+						end
+					else
+						switcheroo_flip[mpn] = targf;
+						switcheroo_invert[mpn] = targi;
+					end
+				
+				end
+				
+			end
+			
+			--portable version of the effect from sugarkill X
+			function mod_sugarkiller(beat,duration,speed,minstealth,maxstealth,pn)
+				if not minstealth then minstealth = 50 end
+				if not maxstealth then maxstealth = 85 end
+				if not speed then speed = 1 end
+				local dur = duration
+				if not dur then dur = 1 end
+				dur = dur*speed;
+				for i=0,math.max(dur-1,0) do
+					table.insert(mods,{beat+(i*1/speed),.25/speed,'*10000 Invert, *10000 no flip, *10000 '..maxstealth..'% Stealth','len',pn})
+					table.insert(mods,{beat+(i*1/speed)+.25/speed,.25/speed,'*10000 Flip, *10000 no invert, *10000 '..maxstealth..'% Stealth','len',pn})
+					table.insert(mods,{beat+(i*1/speed)+.50/speed,.25/speed,'*10000 Flip,*10000 -100% Invert,*10000 '..maxstealth..'% Stealth','len',pn})
+					if i == math.max(dur-1,0) then
+						table.insert(mods,{beat+(i*1/speed)+.75/speed,.25/speed,'*10000 No Flip,*10000 No Invert,*10000 no Stealth','len',pn})
+					else
+						table.insert(mods,{beat+(i*1/speed)+.75/speed,.25/speed,'*10000 No Flip,*10000 No Invert,*10000 '..minstealth..'% Stealth','len',pn})
+					end
+				end
+			end
+			
+			function doSpline(spd,axis,path,col)
+				local str = ''
+				if path and table.getn(path) > 0 then
+					for i,v in ipairs(path) do
+						
+						str = str..'*100000 '..v[1]..' spline'..col..axis..'offset'..(i-1)..','
+						sval = spd;
+						if v[2] > 10 then sval = math.abs(v[2]*spd*0.01) end
+						str = str..'*'..sval..' '..v[2]..' spline'..col..axis..(i-1)
+						
+						if i < table.getn(path) then
+							str = str..','
+						end
+					end
+					
+					--mod_insert(s,e,str,'end',pn)
+				end
+				return str
+			end
+			
+			function doSplineAll(spd,axis,path)
+				local str = ''
+				if path and table.getn(path) > 0 then
+					for i,v in ipairs(path) do
+						
+						for col=0,3 do
+							str = str..'*100000 '..v[1]..' spline'..col..axis..'offset'..(i-1)..','
+							sval = spd;
+							if v[2] > 10 then sval = math.abs(v[2]*spd*0.01) end
+							str = str..'*'..sval..' '..v[2]..' spline'..col..axis..(i-1)..','
+						end
+						
+					end
+					
+				end
+				return str
+			end
+			
+			function mindf_reverseRotation(angleX, angleY, angleZ)
+				local sinX = math.sin(angleX);
+				local cosX = math.cos(angleX);
+				local sinY = math.sin(angleY);
+				local cosY = math.cos(angleY);
+				local sinZ = math.sin(angleZ);
+				local cosZ = math.cos(angleZ);
+				return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+						 math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+						 math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+			end
+			
+			function mindf_rotateAndCounter(xDegrees, yDegrees, zDegrees, player)
+				local DEG_TO_RAD = math.pi / 180;
+				local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD);
+				str = '*-1 '..xDegrees..' rotationx, *-1 '..
+							yDegrees..' rotationy, *-1 '..
+							zDegrees..' rotationz, *-1 '..
+							(angles[1]*100)..' confusionxoffset, *-1 '..
+							(angles[2]*100)..' confusionyoffset, *-1 '..
+							(angles[3]*100)..' confusionzoffset';
+							
+				return str
+			end
+			
+---------------------------------------------------------------------------------------
+----------------------END DON'T TOUCH IT KIDDO-----------------------------------------
+---------------------------------------------------------------------------------------
+		
+	end"
+	/>
+
+</children></ActorFrame>

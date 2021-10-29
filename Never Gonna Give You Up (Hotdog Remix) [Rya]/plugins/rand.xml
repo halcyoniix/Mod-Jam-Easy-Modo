@@ -1,0 +1,28 @@
+<Layer OnCommand = "%xero(function(self)
+    -- state
+    local s = 1
+    
+    -- rand
+    function rand(a, b, c)
+        s = s + 1
+        local r = math.abs((math.sin(1000 * s) * 1000) % 1)
+        if a then
+            if not b then
+                a, b = 1, a
+            end
+            if c then
+                -- this one is the correct one but we were using the other one so I guess I can't change it without backward compaticbility funny
+                -- return math.floor(r * (b - a + c) / c) * c + a
+                return math.floor(r * (b - a + 1) / c) * c + a
+            else
+                return math.floor(r * (b - a + 1)) + a
+            end
+        end
+        return r
+    end
+    
+    function setrandseed(x)
+        s = x
+    end
+    
+end)" />

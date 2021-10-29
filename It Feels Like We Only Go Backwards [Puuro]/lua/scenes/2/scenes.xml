@@ -1,0 +1,14 @@
+<Layer Type="ActorFrame" ><children>
+
+
+<Layer File="1/a.xml" Name="scene[2][1]" />
+<Layer File="../test/stl/a.xml" Name="scene[2][2]" OnCommand="hidden,1"/>
+<Layer File="../test/yin/a.xml" Name="scene[2][3]" OnCommand="hidden,1"/>
+<Layer File="../test/bear/a.xml" Name="scene[2][4]" OnCommand="hidden,1"/>
+<Layer File="../test/bfl/a.xml" Name="scene[2][5]" OnCommand="hidden,1"/>
+<Layer Type="ActorProxy" Name="scene[2][6]" OnCommand="hidden,1" />
+<Layer File="../test/dots/a.xml" Name="scene[2][7]" OnCommand="hidden,1"/>
+
+
+
+</children></Layer>

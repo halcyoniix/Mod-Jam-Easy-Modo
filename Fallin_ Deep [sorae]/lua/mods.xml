@@ -1,0 +1,1751 @@
+<Mods LoadCommand = "%xero(function(self)
+	scx = SCREEN_CENTER_X
+	scy = SCREEN_CENTER_Y
+	sw = SCREEN_WIDTH
+	sh = SCREEN_HEIGHT
+	
+	-- i just realized that none of the ease params work for mod_ease and mod_bounce because i didn't write them properly . fuck
+	
+	-- spellcards
+	local function rgb(r, g, b, a)
+		return {r / 255, g / 255, b / 255, a or 1}
+	end
+	card{32, 63.5, 'rise', 4, rgb(74, 9, 106)}
+	card{64, 95.75, 'explore', 5, rgb(133, 201, 178)}
+	card{96, 128, 'peak', 7, rgb(177, 222, 250)}
+	card{128, 160, 'falling', 8, rgb(236, 118, 94)}
+	card{160, 191, 'down', 9, rgb(197, 81, 137)}
+	card{191, 252, 'deeper', 4, rgb(40, 40, 40)}
+	
+	
+	-- cart two luas
+	sexweed = {
+		{0.000,0,1},
+		{0.750,1,1},
+		{1.250,2,1},
+		{2.000,3,1},
+		{2.750,0,1},
+		{3.250,1,1},
+		{4.000,2,1},
+		{4.750,3,1},
+		{5.250,0,1},
+		{6.000,1,1},
+		{6.750,2,1},
+		{7.250,3,1},
+		{8.000,0,1},
+		{8.750,1,1},
+		{9.250,2,1},
+		{10.000,3,1},
+		{10.750,0,1},
+		{11.250,1,1},
+		{12.000,2,1},
+		{12.750,3,1},
+		{13.250,0,1},
+		{14.000,1,1},
+		{14.750,2,1},
+		{15.250,3,1},
+		{16.000,0,1},
+		{16.750,1,1},
+		{17.250,2,1},
+		{18.000,3,1},
+		{18.750,0,1},
+		{19.250,1,1},
+		{20.000,2,1},
+		{20.750,3,1},
+		{21.250,0,1},
+		{22.000,1,1},
+		{22.750,2,1},
+		{23.250,3,1},
+		{24.000,0,1},
+		{24.750,1,1},
+		{25.250,2,1},
+		{26.000,3,1},
+		{26.750,0,1},
+		{27.250,1,1},
+		{28.000,2,1},
+		{28.750,3,1},
+		{29.250,0,1},
+		{30.000,1,1},
+		{30.750,2,1},
+		{31.250,3,1},
+	}
+
+	weedsex = {
+		{32.000,0,1},
+		{32.750,0,1},
+		{33.500,0,1},
+		{34.250,0,1},
+		{35.000,0,1},
+		{35.500,0,1},
+		{36.000,0,1},
+		{36.750,0,1},
+		{37.500,0,1},
+		{38.250,0,1},
+		{39.000,0,1},
+		{39.500,0,1},
+		{40.000,0,1},
+		{40.750,0,1},
+		{41.500,0,1},
+		{42.250,0,1},
+		{43.000,0,1},
+		{43.500,0,1},
+		{44.000,0,1},
+		{44.750,0,1},
+		{45.500,0,1},
+		{46.000,0,1},
+		{46.750,0,1},
+		{47.500,0,1},
+		{48.000,0,1},
+		{48.750,0,1},
+		{49.500,0,1},
+		{50.250,0,1},
+		{51.000,0,1},
+		{51.500,0,1},
+		{52.000,0,1},
+		{52.750,0,1},
+		{53.500,0,1},
+		{54.250,0,1},
+		{55.000,0,1},
+		{55.500,0,1},
+		{56.000,0,1},
+		{56.750,0,1},
+		{57.500,0,1},
+		{58.250,0,1},
+		{59.000,0,1},
+		{59.500,0,1},
+	}
+	
+	dotenata = {
+		{65.000,0,2,0.750},
+		{65.750,1,2,1.250},
+		{67.000,0,2,0.500},
+		{67.500,1,2,1.000},
+		{81.000,0,2,0.750},
+		{81.750,1,2,1.250},
+		{83.000,0,2,0.500},
+		{83.500,1,2,1.000},
+	}
+	
+	kick = {
+		{93.500,0,1},
+		{93.750,1,1},
+		{94.000,2,1},
+		{94.250,3,1},
+		{94.500,0,1},
+		{94.750,1,1},
+		{95.000,2,1},
+		{95.250,3,1},
+		{95.500,0,1},
+	}
+	
+	boosh = {
+		{97.000,3,1},
+		{97.250,2,1},
+		{97.500,1,1},
+		{97.750,0,1},
+		{98.000,3,1},
+		{98.250,2,1},
+		{98.500,1,1},
+		{98.750,0,1},
+		{99.000,3,1},
+		{113.000,0,1},
+		{113.250,1,1},
+		{113.500,2,1},
+		{113.750,3,1},
+		{114.000,0,1},
+		{114.250,1,1},
+		{114.500,2,1},
+		{114.750,3,1},
+		{115.000,0,1},
+	}
+	
+	badc2l = {
+		{128.250,1,2,0.750},
+		{131.500,0,2,0.500},
+		{132.000,1,2,0.500},
+		{132.500,0,2,0.500},
+		{133.000,1,2,0.750},
+		{133.750,0,2,1.250},
+		{135.000,1,2,0.750},
+		{135.750,3,2,0.500},
+		{136.250,3,2,0.750},
+		{139.000,0,2,0.750},
+		{139.750,2,2,0.500},
+		{140.250,3,2,0.500},
+		{140.750,2,2,0.500},
+		{141.250,3,2,0.500},
+		{141.750,2,2,0.750},
+		{159.000,0,2,0.750},
+		{159.750,1,2,0.500},
+		{160.250,0,2,0.500},
+		{160.750,1,2,0.750},
+		{163.500,0,2,0.750},
+		{164.250,1,2,0.500},
+		{164.750,0,2,0.500},
+		{165.250,1,2,0.500},
+		{165.750,3,2,1.250},
+		{167.000,1,2,0.750},
+		{167.750,0,2,0.500},
+		{168.250,1,2,0.500},
+		{168.750,0,2,0.750},
+		{171.000,1,2,0.750},
+		{171.750,3,2,0.500},
+		{172.250,4,2,0.500},
+		{172.750,3,2,0.500},
+		{173.250,4,2,0.500},
+		{173.750,3,2,0.750},
+	}
+	
+	moan = {
+		{129, 0},
+		{137, 1},
+		{161, 0},
+		{169, 1},
+	}
+	
+	shitas = {
+		{142.250,0,1},
+		{142.500,1,1},
+		{142.750,2,1},
+		{143.000,3,1},
+		{143.250,0,1},
+		{143.500,1,1},
+		{174.250,3,1},
+		{174.500,2,1},
+		{174.750,1,1},
+		{175.000,0,1},
+		{175.250,3,1},
+		{175.500,2,1},
+	}
+	
+	sexman = {
+		{192.000,0,1},
+		{192.750,0,1},
+		{193.500,0,1},
+		{194.250,0,1},
+		{195.000,0,1},
+		{195.500,0,1},
+		{196.000,0,1},
+		{196.750,0,1},
+		{197.500,0,1},
+		{198.250,0,1},
+		{199.000,0,1},
+		{199.500,0,1},
+		{200.000,0,1},
+		{200.750,0,1},
+		{201.500,0,1},
+		{202.250,0,1},
+		{203.000,0,1},
+		{203.500,0,1},
+		{204.000,0,1},
+		{204.750,0,1},
+		{205.500,0,1},
+		{206.000,0,1},
+		{206.500,0,1},
+		{207.250,0,1},
+		{208.000,0,1},
+		{208.750,0,1},
+		{209.500,0,1},
+		{210.250,0,1},
+		{211.000,0,1},
+		{211.500,0,1},
+		{212.000,0,1},
+		{212.750,0,1},
+		{213.500,0,1},
+		{214.250,0,1},
+		{215.000,0,1},
+		{215.500,0,1},
+		{216.000,0,1},
+		{216.750,0,1},
+		{217.500,0,1},
+		{218.250,0,1},
+		{219.000,0,1},
+		{219.500,0,1},
+		{220.000,0,1},
+		{220.750,0,1},
+		{221.500,0,1},
+		{222.000,0,1},
+		{222.750,0,1},
+		{223.500,0,1},
+	}
+	
+	mansex = {
+		{224.000,3,1},
+		{224.750,2,1},
+		{225.250,1,1},
+		{226.000,0,1},
+		{226.750,3,1},
+		{227.250,2,1},
+		{228.000,1,1},
+		{228.750,0,1},
+		{229.250,3,1},
+		{230.000,2,1},
+		{230.750,1,1},
+		{231.250,0,1},
+		{232.000,3,1},
+		{232.750,2,1},
+		{233.250,1,1},
+		{234.000,0,1},
+		{234.750,3,1},
+		{235.250,2,1},
+		{236.000,1,1},
+		{236.750,0,1},
+		{237.250,3,1},
+		{238.000,2,1},
+		{238.750,1,1},
+		{239.250,0,1},
+		{240.000,3,1},
+		{240.750,2,1},
+		{241.250,1,1},
+		{242.000,0,1},
+		{242.750,3,1},
+		{243.250,2,1},
+		{244.000,1,1},
+		{244.750,0,1},
+		{245.250,3,1},
+		{246.000,2,1},
+		{246.750,1,1},
+		{247.250,0,1},
+		{248.000,3,1},
+		{248.750,2,1},
+		{249.250,1,1},
+		{250.000,0,1},
+		{250.750,3,1},
+		{251.250,2,1},
+		{252.000,1,1},
+		{252.750,0,1},
+		{253.250,3,1},
+		{254.000,2,1},
+		{254.750,1,1},
+		{255.250,0,1},
+	}
+	
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	
+	-- shit
+	local me, mb = mod_ease, mod_bounce
+	
+	function modulo(a, b)
+		return a - math.floor(a/b)*b;
+	end
+	function randomXD(t)
+		if t == 0 then return 0.5 else
+		return modulo(math.sin(t * 3229.3) * 43758.5453, 1) end
+	end
+	local function rgb(r, g, b, a)
+		return {r / 255, g / 255, b / 255, a or 1}
+	end
+		
+	--auto counter rotation via funny math stolen from hurricane tortilla because all i know how to do is copypaste code
+	definemod{'rotx','roty','rotz',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+	}
+	
+	definemod{'gtopr', 'gtopg', 'gtopb', 'gtopa', function(r, g, b, a)
+		fd_gradtop:diffuse(r/255, g/255, b/255, a)
+	end}
+	definemod{'gbotr', 'gbotg', 'gbotb', 'gbota', function(r, g, b, a)
+		fd_gradbottom:diffuse(r/255, g/255, b/255, a)
+	end}
+	definemod{'grida', 'gridzoom', function(a, z)
+		fd_grid:diffusealpha(a)
+		fd_grid:zoom(z)
+	end}
+	
+	definemod{'sgrid1a', 'sgrid1z', 'sgrid2a', 'sgrid2z', function(a, b, c, d)
+		fd_stargrid1:diffusealpha(a)
+		fd_stargrid1:zoom(b)
+		fd_stargrid2:diffusealpha(c)
+		fd_stargrid2:zoom(d)
+	end}
+	
+	definemod{'cover2', function(a)
+		fd_cover:diffusealpha(a)
+	end}
+	
+	definemod{'squaresa', 'squaresy', 'squaresz', function(a, b, c)
+		for i = 1, 4 do
+			local d = _G['fd_square'..i]
+			d:diffusealpha(a)
+			d:y(b)
+		end
+		fd_square1:zoom(c)
+		fd_square2:zoom(math.pow(0.7, c))
+		fd_square3:zoom(math.pow(0.5, c))
+		fd_square4:zoom(math.pow(0.35, c))
+	end}
+	
+	definemod{'barcrop', function(a)
+		fd_blackbartop:cropbottom(a)
+		fd_blackbarbottom:croptop(a)
+	end}
+	
+	definemod{'blendr','blendg','blendb','blenda',function(r,g,b,a)
+		colorsprite:GetShader():uniform3f('col2',r/255,g/255,b/255)
+		colorsprite:GetShader():uniform1f('opacity',a/255)
+	end}
+	
+	-- stolen from mirin template docs
+	definemod {'blacksphere', function(blacksphere)
+        local invert = 50 - 50 * math.cos(blacksphere * math.pi / 180)
+        local alternate = 25 * math.sin(blacksphere * math.pi / 180)
+        local reverse = -12.5 * math.sin(blacksphere * math.pi / 180)
+        return invert, alternate, reverse
+		end,
+		'invert', 'alternate', 'reverse',
+	}
+	
+	setdefault{
+		1.75, 'xmod',
+		100, 'modtimer',
+		100, 'dizzyholds',
+		100, 'halgun',
+		100, 'stealthpastreceptors',
+		-100, 'zbuffer',
+		-100, 'drawsizeback',
+		100, 'zoomz',
+		100, 'spiralholds',
+		100, 'dizzyholds',
+		
+		18, 'gbotr',
+		0, 'gbotg',
+		56, 'gbotb',
+		0, 'gbota',
+		
+		66, 'gtopr',
+		0, 'gtopg',
+		96, 'gtopb',
+		0, 'gtopa',
+		
+		0, 'grida',
+		10, 'gridzoom',
+		
+		0, 'cover2',
+		
+		0, 'squaresa',
+		scy+150, 'squaresy',
+		1, 'squaresz',
+		
+		1, 'barcrop',
+		
+		0, 'blendr',
+		0, 'blendg',
+		0, 'blendb',
+		255, 'blenda',
+		
+		0, 'sgrid1a',
+		15, 'sgrid1z',
+		0, 'sgrid2a',
+		10, 'sgrid2z',
+		
+		-98, 'drawsizeback',
+		100, 'stealthpastreceptors',
+		
+		0, 'blacksphere',
+	}
+	
+	set{0,
+		50, 'flip',
+		50, 'reverse',
+		100, 'dizzyholds',
+		100, 'dark0',
+		100, 'dark1',
+		100, 'dark2',
+		100, 'dark3',
+	}
+	
+	-- tro in
+	func{0, function()
+		for pn = 1, 2 do
+			P[pn]:x(scx)
+		end
+		colorsprite:SetTexture(coloraft:GetTexture())
+		
+		math.randomseed(69696942069) --l ol funny
+		
+		GAMESTATE:ForceSmoothLines(0)
+	end}
+	
+	local fd_amp = 100
+	func{0, 60, function(b)
+		for c = 0, 3 do
+			for pn = 1, 2 do
+				P[pn]:SetXSpline(0, c, fd_amp*math.sin(b + c*1.5), 0, -1) 
+				P[pn]:SetYSpline(0, c, fd_amp*math.cos(b + c*1.5), 0, -1)
+				
+				P[pn]:SetXSpline(1, c, 6*fd_amp*math.sin(b + c*1.5), 600, -1)
+				P[pn]:SetYSpline(1, c, 6*fd_amp*math.cos(b + c*1.5), 600, -1)
+				
+				P[pn]:SetZSpline(0, c, 0, 0, -1)
+				P[pn]:SetZSpline(1, c, 20*fd_amp, 600, -1)
+			end
+		end
+	end}
+	
+	for i, v in ipairs(sexweed) do
+		me(v[1], 1, 25, 100, 'dark'..v[2], 'len', inSine)
+		
+		me(v[1], 1, math.random(-100, 100), 0, 'confusionxoffset'..v[2], 'len', outBack, nil, nil, 50)
+		me(v[1], 1, math.random(-100, 100), 0, 'confusionyoffset'..v[2], 'len', outBack, nil, nil, 50)
+		me(v[1], 1, math.random(-100, 100), 0, 'confusionzoffset'..v[2], 'len', outBack, nil, nil, 50)
+		
+		me(v[1], 1, math.random(-200, 200), 0, 'tinyx'..v[2], 'len', outBack, nil, nil, 50)
+		me(v[1], 1, math.random(-200, 200), 0, 'tinyy'..v[2], 'len', outBack, nil, nil, 50)
+		
+		me(v[1], 1, math.random(-50, 50), 0, 'noteskewx'..v[2], 'len', outBack, nil, nil, 50)
+		me(v[1], 1, math.random(-50, 50), 0, 'noteskewy'..v[2], 'len', outBack, nil, nil, 50)
+	end
+	
+	for i, v in ipairs(weedsex) do
+		me(v[1], 1, 20, 0, 'brake', 'len', linear)
+		for c = 0, 3 do
+			me(v[1], 1, -150*(randomXD(v[1]+c)), 0, 'tinyx'..c, 'len', outBack)
+			me(v[1], 1, -70*(randomXD(v[1]+c)), 0, 'tinyy'..c, 'len', outBack)
+			
+			me(v[1], 1, -10*(randomXD(v[1]+c)-0.5), 0, 'noteskewx'..c, 'len', outBack)
+			me(v[1], 1, -10*(randomXD(v[1]+c)-0.5), 0, 'noteskewy'..c, 'len', outBack)
+		end
+	end
+	
+	
+	ease{16, 8, inOutSine,
+		17, 'blendr',
+		9, 'blendg',
+		41, 'blendb',
+	}
+	
+	me(28, 4, 100, 0, 'brake', 'len', inSine)
+	
+	me(16, 16, 0, 0.2, 'grida', 'len', linear)
+	me(16, 16, 0, 0.7, 'sgrid1a', 'len', linear)
+	me(16, 16, 0, 0.7, 'sgrid2a', 'len', linear)
+	me(16, 16, 20, 10, 'gridzoom', 'len', inOutCubic)
+	me(16, 16, 17, 15, 'sgrid1z', 'len', inOutCubic)
+	me(16, 16, 11, 10, 'sgrid2z', 'len', inOutCubic)
+	me(16, 16, 0, 1, 'gbota', 'len', linear)
+	me(16, 16, 0, 1, 'gtopa', 'len', linear)
+	
+	me(0, 32, 150, 50, 'zoom', 'len', inCubic)
+	for c = 0, 3 do
+		me(32, 8, 100, 0, 'dark'..c, 'len', inSine)
+	end
+	
+	me(46, 1, 50, 0, 'stealth', 'len', outSine)
+	me(46, 1, -50, 0, 'tiny', 'len', outSine)
+	
+	me(46.75, 1, 50, 0, 'stealth', 'len', outSine)
+	me(46.75, 1, -50, 0, 'tiny', 'len', outSine)
+	
+	me(47.5, 1, 50, 0, 'stealth', 'len', outSine)
+	me(47.5, 1, -50, 0, 'tiny', 'len', outSine)
+	
+	func{57.5, 2.5, inCubic, 100, 0, function(p)
+		fd_amp = p
+	end}
+	me(60, 4, 50, 0, 'reverse', 'len', outCirc)
+	me(60, 1, 50, 0, 'flip', 'len', outCirc)
+	me(61, 2, 0, 50, 'flip', 'len', inCubic)
+	
+	set{60, 
+		-50, 'rotx',
+		150, 'drawsize',
+	}
+	me(60, 4, 0, 100, 'brake', 'len', outExpo)
+	me(60, 4, 1.75, 3, 'xmod', 'len', outCirc)
+	me(60, 4, 150, 500, 'zoomz', 'len', outCirc)
+	me(60, 4, 0, -200, 'attenuate', 'len', outCirc)
+	me(60, 4, 0, 50, 'orient', 'len', outCirc)
+	me(60, 4, 0, -150, 'tiny', 'len', outCirc)
+	me(60, 4, 0, -150, 'tinyz', 'len', outCirc)
+	me(60, 2, 10, 11, 'gridzoom', 'len', outCirc)
+	me(62, 1, 11, 13, 'gridzoom', 'len', inExpo)
+	
+	-- wow the part
+	set{62.9, 1, 'cover2'}
+	reset{63, exclude = {'cover2', 'gbotr', 'gtopr', 'gbotg', 'gtopg', 'gbotb', 'gtopb', 'gtopa', 'gbota'}}
+	set{64, 
+		0, 'cover2',
+		
+		176, 'gbotr',
+		221, 'gbotg',
+		255, 'gbotb',
+		
+		138, 'gtopr',
+		255, 'gtopg',
+		140, 'gtopb',
+		0.7, 'gtopa',
+		
+		-100, 'attenuate',
+		50, 'orient',
+		100, 'zbuffer',
+		
+		2.25, 'xmod',
+		100, 'drawsize',
+		
+		0.5, 'squaresa',
+		0.8, 'barcrop',
+		
+		150, 'zoomz',
+	}
+	
+	func{63, 1, outExpo, 0.2, 0.35, function(p)
+		fd_title:diffusealpha(0.7)
+		fd_title:zoom(p)
+	end}
+	func{64, function()
+		fd_title:diffusealpha(0)
+	end}
+	
+	set{64, 
+		150, 'drunkz', 
+		20, 'drunk',
+	plr = 1}
+	set{64, 
+		-150, 'drunkz', 
+		-20, 'drunk',
+	plr = 2}
+	
+	-- exclusion shit
+	-- i'm too lazy to write an actual function
+	set{64, 
+		255, 'blenda',
+		17, 'blendr',
+		9, 'blendg',
+		41, 'blendb',
+	}
+	me(73, 2, 255, 0, 'blenda', 'len', outExpo)
+	me(80, 2, 0, 255, 'blenda', 'len', outExpo)
+	me(89, 2, 255, 0, 'blenda', 'len', outExpo)
+	
+	func{64, function()
+		for i = 1, #fd_particletable do
+			fd_particletable[i]:hidden(0)
+			fd_particletable2[i]:hidden(0)
+		end
+	end}
+	
+	func{64, 64, function(b) -- particles
+		for i = 1, #fd_particletable do
+			local part = fd_particletable[i]
+			local part2 = fd_particletable2[i]
+			
+			part:y(50*math.sin(part:GetX()/100+b))
+			part:z(100*math.cos(part:GetX()/100+b))
+			
+			part2:y(50*math.sin(part2:GetX()/100+b+200))
+			part2:z(100*math.cos(part2:GetX()/100+b+200))
+			
+			if part:GetX() > 800 then
+				part:xyz(-800, 0, 0)
+				part:rotationz(math.random(-90, 90))
+				part:rotationx(math.random(-45, 45))
+				part:rotationy(math.random(-45, 45))
+			end
+			if part2:GetX() > 800 then
+				part2:xyz(-800, 0, 0)
+				part2:rotationz(math.random(-90, 90))
+				part2:rotationx(math.random(-45, 45))
+				part2:rotationy(math.random(-45, 45))
+			end
+			
+			part:addx(0.55+(math.random(1, 3)/10))
+			part2:addx(0.5+(math.random(1, 3)/10))
+		end
+	end}
+	
+	local fd_rev = 1
+	func{96, function()
+		fd_rev = -1
+	end}
+	func{64, 64, function(b)
+		for pn = 1,2 do
+			local o = ((pn-1)*4)
+			GAMESTATE:ApplyModifiers('*-1 ' .. fd_rev*fd_amp*math.sin(b*1.5+o/1.25) .. '% movez', pn)
+			GAMESTATE:ApplyModifiers('*-1 ' .. fd_amp*math.cos(b*1.5+o/1.25) .. '% movex', pn)
+		end
+	end}
+	
+	local fd_toggle = 1
+	for i = 64, 122, 2 do
+		local amp = 0
+		if i ~= 68 and i ~= 84 and i ~= 100 and i ~= 116 then
+			mb(i, 2, 0, 150*fd_toggle, 'tipsy', inExpo, outExpo)
+		end
+		if i >= 96 then
+			me(i+1, 2, 1.1, 1, 'squaresz', 'len', outCubic)
+			amp = 50
+		end
+		
+		me(i+1, 1, -150+amp, 0, 'tinyx', 'len', outExpo)
+		me(i+1, 1, -70+amp, 0, 'tinyy', 'len', outExpo)
+		fd_toggle = -fd_toggle
+	end
+	
+	for i = 68.5, 69.5, 0.5 do
+		mb(i, 0.5, 0, fd_toggle*100, 'tipsy', outCubic, inCubic)
+		fd_toggle = -fd_toggle
+	end
+	
+	for i, v in ipairs(dotenata) do
+		local which = v[2] * 2 - 1
+		mb(v[1], v[4], 0, 10*which, 'skewx', outElastic, inCirc)
+		mb(v[1], v[4], 0, -10*which, 'noteskewx', outElastic, inCirc)
+	end
+	
+	mb(70, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(70, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(70, 1, 0, 20, 'skewx', outCubic, inCubic)
+	
+	mb(71, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(71, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(71, 1, 0, -10, 'skewx', outCubic, inOutCubic)
+	
+	me(71, 3, 360, 0, 'roty', 'len', outExpo)
+	
+	mb(72, 2, 100, 20, 'zoom', outExpo, outBack, nil, nil, nil, 50)
+	
+	func{73, 1, outExpo, 0, 200, function(p)
+		fd_amp = p
+	end}
+	me(73, 2, 0.8, 1, 'barcrop', 'len', outExpo)
+	
+	for i = 73, 77 do
+		mb(i, 0.5, 0, 15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i, 0.5, 0, -10, 'noteskewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, -15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, 10, 'noteskewy', outBack, inCubic, nil, 100)
+		
+		mb(i, 1, 100, 120, 'zoomy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, -100, 'tinyy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, 20, 'tinyx', outBack, outBack, nil, 200, nil, 200)
+	end
+	
+	mb(78, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(78, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(78, 1, 0, -30, 'skewx', outCubic, inCubic)
+	me(78, 2, 0, 99.9, 'reverse', 'len', inOutExpo)
+	mb(78, 2, 50, 0, 'orient', inExpo, outExpo)
+	
+	mb(79, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(79, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(79, 1, 0, 10, 'skewx', outCubic, inOutCubic)
+	
+	func{80, 1, outExpo, 200, 0, function(p)
+		fd_amp = p
+	end}
+	me(80, 2, 1, 0.8, 'barcrop', 'len', outExpo)
+	
+		-- copypaste lol
+	for i = 84.5, 85.5, 0.5 do
+		mb(i, 0.5, 0, fd_toggle*100, 'tipsy', outCubic, inCubic)
+		fd_toggle = -fd_toggle
+	end
+	
+	mb(86, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(86, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(86, 1, 0, -20, 'skewx', outCubic, inCubic)
+	
+	mb(87, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(87, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(87, 1, 0, 10, 'skewx', outCubic, inOutCubic)
+	
+	me(87, 3, -360, 0, 'roty', 'len', outExpo)
+	
+	mb(88, 2, 100, 20, 'zoom', outExpo, outBack, nil, nil, nil, 50)
+	
+	func{89, 1, outExpo, 0, 200, function(p)
+		fd_amp = p
+	end}
+	me(89, 2, 0.8, 1, 'barcrop', 'len', outExpo)
+	
+	for i = 89, 91 do
+		mb(i, 0.5, 0, -15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i, 0.5, 0, 10, 'noteskewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, 15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, -10, 'noteskewy', outBack, inCubic, nil, 100)
+		
+		mb(i, 1, 100, 120, 'zoomy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, -100, 'tinyy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, 20, 'tinyx', outBack, outBack, nil, 200, nil, 200)
+	end
+	
+	mb(92, 1.5, 100, 150, 'zoomx', outCubic, inQuad)
+	mb(92, 1.5, 100, 70, 'zoomy', outCubic, inQuad)
+	mb(92, 1.5, 0, 25, 'skewx', outCubic, inQuad)
+	
+	me(93.5, 2.5, -360, 0, 'roty', 'len', inOutExpo)
+	me(93.5, 2.5, 99.9, 0, 'reverse', 'len', inOutCubic)
+	mb(93.5, 2.5, 50, 0, 'orient', inCubic, outCubic)
+	
+	func{93.5, 2.5, inOutExpo, 200, 0, function(p)
+		fd_amp = p
+	end}
+	
+	me(94, 2, 100, 60, 'zoom', 'len', inOutCubic)
+	me(96, 1, 60, 100, 'zoom', 'len', outElastic, nil, 200)
+	
+	for i, v in ipairs(kick) do
+		me(v[1], 1, -150, 0, 'tiny'..v[2], 'len', outCubic)
+	end
+	
+	-- the second part
+	set{96,
+		1000, 'arrowpathsize',
+		100, 'arrowpathdrawsizeback',
+		100, 'arrowpathdrawsize',
+	}
+	
+	for i, v in ipairs(boosh) do
+		me(v[1], 1, 90, 0, 'arrowpath'..v[2], 'len', outCubic)
+	end
+	
+	me(96, 1, -300, 0, 'tinyx', 'len', outCubic)
+	me(96, 1, -20, 0, 'tinyy', 'len', outCubic)
+	func{96, 2, outExpo, 0, 250, function(p)
+		fd_amp = p
+	end}
+	me(96, 4, -100, -150, 'attenuate', 'len', outExpo)
+	
+	for i = 100.5, 101.5, 0.5 do
+		mb(i, 0.5, 0, fd_toggle*100, 'tipsy', outCubic, inCubic)
+		fd_toggle = -fd_toggle
+	end
+	
+	mb(102, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(102, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(102, 1, 0, -30, 'skewx', outCubic, inCubic)
+	mb(102, 1, 0, 10, 'rotationx', outCubic, inCubic)
+	
+	mb(103, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(103, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(103, 1, 0, 20, 'skewx', outCubic, inOutCubic)
+	mb(103, 1, 0, -10, 'rotationx', outCubic, inOutCubic)
+	
+	mb(104, 2, 100, 70, 'zoom', outExpo, outBack, nil, nil, nil, 50)
+	
+	mb(105.5, 1, 100, 120, 'zoomx', outBack, outBack, nil, 100, nil, 100, nil)
+	mb(105.5, 1, 100, 80, 'zoomy', outBack, outBack, nil, 100, nil, 100, nil)
+	for i = 106, 109 do
+		mb(i, 0.5, 0, -15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i, 0.5, 0, 10, 'noteskewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, 15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, -10, 'noteskewy', outBack, inCubic, nil, 100)
+		
+		mb(i, 1, 100, 120, 'zoomy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, -100, 'tinyy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, 20, 'tinyx', outBack, outBack, nil, 200, nil, 200)
+	end
+	
+	
+	for i = 108.5, 109.75, 0.25 do
+		if fd_toggle == 1 then
+			mb(i, 0.25, 0, -150, 'tinyx', outQuad, inQuad)
+			mb(i, 0.25, 0, 50, 'tinyy', outQuad, inQuad)
+		else
+			mb(i, 0.25, 0, -150, 'tinyy', outQuad, inQuad)
+			mb(i, 0.25, 0, 50, 'tinyx', outQuad, inQuad)		
+		end
+		fd_toggle = -fd_toggle
+	end
+	
+	mb(110, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(110, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(110, 1, 0, 30, 'skewx', outCubic, inCubic)
+	me(110, 2, 0, 99.9, 'reverse', 'len', inOutExpo)
+	
+	mb(111, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(111, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(111, 1, 0, 10, 'skewx', outCubic, inOutCubic)
+	
+		-- more copypaste
+	me(96, 1, -300, 0, 'tinyx', 'len', outCubic)
+	me(96, 1, -20, 0, 'tinyy', 'len', outCubic)
+	for i = 116.5, 117.5, 0.5 do
+		mb(i, 0.5, 0, fd_toggle*120, 'tipsy', outCubic, inCubic)
+		fd_toggle = -fd_toggle
+	end
+	
+	mb(118, 1, 100, 150, 'zoomy', outCubic, inCubic)
+	mb(118, 1, 100, 70, 'zoomx', outCubic, inCubic)
+	mb(118, 1, 0, 30, 'skewx', outCubic, inCubic)
+	mb(118, 1, 0, -15, 'rotationx', outCubic, inCubic)
+	
+	mb(119, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+	mb(119, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+	mb(119, 1, 0, -20, 'skewx', outCubic, inOutCubic)
+	mb(119, 1, 0, 15, 'rotationx', outCubic, inOutCubic)
+	
+	mb(120, 2, 100, 50, 'zoom', outExpo, outBack, nil, nil, nil, 100)
+	
+	for i = 121, 123 do
+		mb(i, 0.5, 0, -15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i, 0.5, 0, 10, 'noteskewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, 15, 'skewy', outBack, inCubic, nil, 100)
+		mb(i+0.5, 0.5, 0, -10, 'noteskewy', outBack, inCubic, nil, 100)
+		
+		mb(i, 1, 100, 120, 'zoomy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, -100, 'tinyy', outBack, outBack, nil, 200, nil, 200)
+		mb(i, 1, 0, 20, 'tinyx', outBack, outBack, nil, 200, nil, 200)
+	end
+	
+	func{124, 2, outExpo, 250, 0, function(p)
+		fd_amp = p
+	end}
+	me(124, 2, 100, 50, 'zoom', 'len', outExpo)
+	me(124, 1, -200, 0, 'attenuate', 'len', outExpo)
+	for pn = 1, 2 do
+		local m = -1 * (pn * 2 - 3)
+		me(124, 2, m*150, 0, 'drunkz', 'len', outExpo, pn)
+		me(124, 2, m*0, 0, 'drunk', 'len', outExpo, pn)
+	end
+	me(123, 4, 99.9, 0, 'reverse', 'len', inOutCirc)
+	mb(124, 2, 0, -100, 'tinyy', inExpo, outExpo)
+	
+	me(124, 3, 0, 1000, 'movey', 'len', inExpo)
+	
+	func{124, 4, inExpo, scy, scy+600, function(b)
+		fd_particles:y(b+100)
+		fd_particles2:y(b-100)
+	end}
+	me(124, 8, 0, 0.4, 'sgrid1a', 'len', linear)
+	me(124, 8, 0, 0.4, 'sgrid2a', 'len', linear)
+	me(124, 8, scy+150, scy+250, 'squaresy', 'len', inOutExpo)
+	me(132, 192, scy+250, scy-150, 'squaresy', 'end', inOutSine)
+	
+	-- the other other part
+	reset{127, exclude = {'gbotr', 'gtopr', 'gbotg', 'gtopg', 'gbotb', 'gtopb', 'gtopa', 'gbota', 'zoomz', 'squaresa', 'squaresz', 'squaresy', 'xmod', 'sgrid1a', 'sgrid2a'}}
+	
+	set{127,
+		70, 'zoom',
+		50, 'drawsize',
+		100, 'sudden',
+		160, 'suddenoffset',
+		100, 'stealthtype',
+		1.5, 'xmod',
+		50, 'orient',
+		2000, 'arrowpathsize',
+		50, 'arrowpathdrawsize',
+		-100, 'arrowpathdrawsizeback',
+	}
+	
+	ease{124, 8, inOutSine,
+		196, 'gbotr',
+		80, 'gbotg',
+		138, 'gbotb',
+		
+		253, 'gtopr',
+		134, 'gtopg',
+		76, 'gtopb',
+	}
+	
+	for i = 128, 186, 2 do
+		local amp = 0
+		if i >= 96 then
+			--me(i+1, 4, 1.07, 1, 'squaresz', 'len', outCubic)
+			amp = 50
+		end
+		if i ~= 128 and i ~= 144 and i ~= 160 and i ~= 176 then
+			me(i+1, 1, -200+amp, 0, 'tinyx', 'len', outCubic)
+			me(i+1, 1, -100+amp, 0, 'tinyy', 'len', outCubic)
+		end
+		
+		if i < 158 then
+			me(i+1, 1, -30, 0, 'flip', 'len', outCubic)
+		elseif i >= 160 then
+			me(i+1, 1, 120, 100, 'flip', 'len', outCubic)
+		end
+		
+		fd_toggle = -fd_toggle
+	end
+	
+	func{128, 60, inOutSine, 0.01, 0.03, function(p)
+		fd_stargrid1:texcoordvelocity(0, p, 0)
+		fd_stargrid2:texcoordvelocity(0, p-0.002, 0)
+	end}
+	
+	me(127, 4, -1000, 0, 'movey', 'len', outExpo)
+	
+	for i = 128, 176, 16 do
+		me(i, 1, -400, 0, 'tinyx', 'len', outCubic)
+		me(i, 1, -200, 0, 'tinyy', 'len', outCubic)
+		me(i, 4, 40, 0, 'stealth', 'len', outCubic)
+	end
+	
+	me(128, 4, 0, 20, 'brake', 'len', outCubic)
+	
+	me(128, 8, 0, 50, 'drunkz', 'len', inOutSine, 1)
+	me(128, 8, 0, -50, 'drunkz', 'len', inOutSine, 2)
+	
+	-- particles 2
+	local fd_colors2 = {
+		{145/255, 42/255, 93/255}, 
+		{249/255, 96/255, 24/255}
+	}
+	
+	func{128, function()
+		fd_particles:xy(scx-200, scy)
+		fd_particles2:xy(scx+200, scy)
+		
+		for i = 1, #fd_particletable do
+			-- ?????
+			local rand1 = math.random(-sh-250, sh+250)
+			local rand2 = math.random(-sh-250, sh+250)
+			local rand3 = math.random(3, 7)/10
+			local rand4 = math.random(3, 7)/10
+			
+			local obj1 = fd_particletable[i]
+			local obj2 = fd_particletable2[i]
+			
+			
+			obj1:xyz(0, rand1, 0)
+			obj2:xyz(0, rand2, 0)
+			
+			local c = math.random(1, 2)
+			
+			obj1:diffuse(fd_colors2[c][1], fd_colors2[c][2], fd_colors2[c][3], math.random(3, 7)/10)
+			obj2:diffuse(fd_colors2[c][1], fd_colors2[c][2], fd_colors2[c][3], math.random(3, 7)/10)
+		end
+		
+		for pn = 1, 2 do
+			for c = 0, 3 do
+				P[pn]:SetNumPathGradientPoints(c, 2)
+				
+				P[pn]:SetPathGradientPoint(0, c, 0)
+				P[pn]:SetPathGradientPoint(1, c, 20)
+				
+				P[pn]:SetPathGradientColor(0, c, 1, 1, 1, 1)
+				P[pn]:SetPathGradientColor(1, c, 1, 1, 1, 0)
+			end
+		end
+	end}
+	
+	func{128, 64, function(b) -- particles
+		for i = 1, #fd_particletable do
+			local part = fd_particletable[i]
+			local part2 = fd_particletable2[i]
+			
+			part:x(50*math.sin(part:GetY()/100+b))
+			part:z(50*math.cos(part:GetY()/100+b))
+			
+			part2:x(50*math.sin(part2:GetY()/100+b+200))
+			part2:z(50*math.cos(part2:GetY()/100+b+200))
+			
+			if part:GetY() < -750 then
+				part:xyz(0, 750,  0)
+				part:rotationz(math.random(-90, 90))
+				part:rotationx(math.random(-45, 45))
+				part:rotationy(math.random(-45, 45))
+			end
+			if part2:GetY() < -750 then
+				part2:xyz(0, 750, 0)
+				part2:rotationz(math.random(-90, 90))
+				part2:rotationx(math.random(-45, 45))
+				part2:rotationy(math.random(-45, 45))
+			end
+			
+			part:addy(-0.7+(math.random(1, 2)/10))
+			part2:addy(-0.75+(math.random(1, 2)/10))
+		end
+	end}
+	
+	func{128, 16, inOutSine, 400, 200, function(p)
+		fd_particles:x(scx-p)
+		fd_particles2:x(scx+p)
+	end}
+	
+	local fd_acc = 0
+	func{128, 64, function(b, mods)
+		for pn = 1, 2 do
+			local m = pn * 2 - 3
+			-- xero was here
+			-- thanks xero
+			mods[pn].y = modulo(fd_acc*sh + sh * pn, 2 * sh) - sh
+			
+			mods[pn].rotx = 1.5*fd_amp*math.sin(b/4)
+			mods[pn].roty = m*fd_amp*math.cos(b/4)
+		end
+	end}
+	func{128, 4, inQuad, 0, -0.5, function(p)
+		fd_acc = p
+	end}
+	func{132, 60, linear, -0.5, -15, function(p)
+		fd_acc = p
+	end}
+	
+	func{128, 8, outCubic, 0, 20, function(p)
+		fd_amp = p
+	end}
+	
+	for i = 128, 180, 8 do
+		for pn = 1, 2 do
+			local m = pn * 2 - 3
+			mb(i, 8, 0, 200*m*fd_toggle, 'movex', outQuad, inQuad, pn)
+		end
+		fd_toggle = -fd_toggle
+	end
+	
+	for i, v in ipairs(badc2l) do
+		for pn = 1, 2 do
+			local m = pn * 2 - 3
+			if v[2] <= 1 then
+				mb(v[1], v[4], 0, m*60*fd_toggle, 'drunk', outBack, inCirc, pn, 100)
+			else 
+				mb(v[1], v[4], 0, m*100*fd_toggle, 'tipsy', outBack, inCirc, pn, 100)
+			end
+		end
+		fd_toggle = -fd_toggle
+	end
+	
+	for i, v in ipairs(moan) do
+		local m = v[2] * 2 - 3
+		mb(v[1], 1, 100, 150, 'zoomy', outCubic, inCubic)
+		mb(v[1], 1, 0, -50, 'tinyy', outCubic, inCubic)
+		mb(v[1], 1, 100, 70, 'zoomx', outCubic, inCubic)
+		mb(v[1], 1, 0, -10*m, 'skewx', outCubic, inCubic)
+		
+		mb(v[1]+1, 1, 100, 70, 'zoomy', outCubic, inOutCubic)
+		mb(v[1]+1, 1, 100, 130, 'zoomx', outCubic, inOutCubic)
+		mb(v[1]+1, 1, 0, -50, 'tinyx', outCubic, inOutCubic)
+		--mb(v[1]+1, 1, 0, 5*m, 'skewx', outCubic, inOutCubic)
+	end
+	
+	for i, v in ipairs(shitas) do
+		local m = 1
+		if v[1] > 144 then m = -1 end
+		me(v[1], 1, -628*m, 0, 'confusionzoffset'..v[2], 'len', outBack)
+		me(v[1], 1, -100, 0, 'tinyy'..v[2], 'len', outBack)
+		me(v[1], 1, 50, 0, 'tinyx'..v[2], 'len', outBack)
+		
+		me(v[1], 1, 100, 0, 'arrowpath'..v[2], 'len', outCirc)
+	end
+	
+	for i = 145, 150 do
+		add{i, 1, outBack, 90, 'blacksphere'}
+	end
+	add{151.5, 1.5, outBack, -180, 'blacksphere'}
+	for i = 145, 149, 2 do
+		mb(i, 1, 100, 110, 'zoomy', outCubic, inQuad)
+		mb(i, 1, 100, 90, 'zoomx', outCubic, inQuad)
+		mb(i, 1, 0, -100, 'tinyy', outCubic, inQuad)
+		
+		mb(i+1, 1, 100, 90, 'zoomy', outCubic, inQuad)
+		mb(i+1, 1, 100, 110, 'zoomx', outCubic, inQuad)
+		mb(i+1, 1, 0, -100, 'tinyx', outCubic, inQuad)
+	end
+	
+	mb(133.75, 2.5, 0, -25, 'invert', outCirc, outExpo)
+	mb(133.75, 2.5, 0, 40, 'skewx', outCirc, outExpo)
+	mb(133.75, 2.5, 100, 130, 'zoomy', outCirc, outExpo)
+	mb(133.75, 2.5, 0, 40, 'noteskewy', outCirc, outExpo)
+	
+	for i = 139.75, 141.75, 0.5 do
+		if fd_toggle == 1 then
+			mb(i, 0.5, 0, -150, 'tinyx', outBack, inQuad)
+			mb(i, 0.5, 0, 50, 'tinyy', outBack, inQuad)
+		else
+			mb(i, 0.5, 0, -150, 'tinyy', outBack, inQuad)
+			mb(i, 0.5, 0, 50, 'tinyx', outBack, inQuad)		
+		end
+		fd_toggle = -fd_toggle
+	end
+	
+	--me(158, 4, 0, 99.9, 'reverse', 'len', inOutExpo)
+	me(158, 4, 0, 180, 'rotz', 'len', inOutExpo)
+	me(158, 4, 0, 100, 'flip', 'len', inOutExpo)
+	me(158, 4, 20, 25, 'brake', 'len', inOutExpo)
+	me(158, 4, 1.5, 1.4, 'xmod', 'len', inOutExpo)
+	me(158, 4, 160, 200, 'suddenoffset', 'len', inOutExpo)
+	
+		-- what
+	me(186, 2, 200, 140, 'suddenoffset', 'len', outCubic)
+	
+	mb(151, 2, 100, 120, 'zoomy', inOutExpo, inQuad)
+	mb(151, 2, 0, 40, 'skewx', inOutExpo, inQuad)
+	
+	mb(153, 2, 100, 120, 'zoomx', outExpo, inQuad)
+	mb(153, 2, 0, 40, 'skewy', outExpo, inQuad)
+	
+	mb(156, 2, 100, 110, 'zoomx', outExpo, inExpo)
+	mb(156, 2, 100, 90, 'zoomy', outExpo, inExpo)
+	mb(156, 2, 0, 35, 'skewy', outExpo, inExpo)
+	mb(156, 2, 0, -50, 'tipsy', outExpo, inExpo)
+	
+	mb(158, 2, 100, 110, 'zoomy', outExpo, inExpo)
+	mb(158, 2, 100, 90, 'zoomx', outExpo, inExpo)
+	mb(158, 2, 0, -35, 'skewy', outExpo, inExpo)
+	
+		-- copypaste harder
+	for i = 177, 182 do
+		add{i, 1, outBack, -90, 'blacksphere'}
+	end
+	add{183.5, 1.5, outBack, 180, 'blacksphere'}
+	for i = 177, 181, 2 do
+		mb(i, 1, 100, 110, 'zoomy', outCubic, inQuad)
+		mb(i, 1, 100, 90, 'zoomx', outCubic, inQuad)
+		mb(i, 1, 0, -100, 'tinyy', outCubic, inQuad)
+		
+		mb(i+1, 1, 100, 90, 'zoomy', outCubic, inQuad)
+		mb(i+1, 1, 100, 110, 'zoomx', outCubic, inQuad)
+		mb(i+1, 1, 0, -100, 'tinyx', outCubic, inQuad)
+	end
+	for i = 163.75, 165.75, 0.5 do
+		if fd_toggle == 1 then
+			mb(i, 0.5, 0, -130, 'tinyx', outBack, inQuad)
+			mb(i, 0.5, 0, 70, 'tinyy', outBack, inQuad)
+		else
+			mb(i, 0.5, 0, -130, 'tinyy', outBack, inQuad)
+			mb(i, 0.5, 0, 70, 'tinyx', outBack, inQuad)		
+		end
+		fd_toggle = -fd_toggle
+	end
+	mb(165.75, 2.5, 0, -25, 'invert', outCirc, outExpo)
+	mb(165.75, 2.5, 0, 40, 'skewx', outCirc, outExpo)
+	mb(165.75, 2.5, 100, 130, 'zoomy', outCirc, outExpo)
+	mb(165.75, 2.5, 0, 40, 'noteskewy', outCirc, outExpo)
+	for i = 171.75, 173.75, 0.5 do
+		if fd_toggle == 1 then
+			mb(i, 0.5, 0, -150, 'tinyx', outBack, inQuad)
+			mb(i, 0.5, 0, 50, 'tinyy', outBack, inQuad)
+		else
+			mb(i, 0.5, 0, -150, 'tinyy', outBack, inQuad)
+			mb(i, 0.5, 0, 50, 'tinyx', outBack, inQuad)		
+		end
+		fd_toggle = -fd_toggle
+	end
+	mb(183, 2, 100, 120, 'zoomy', inOutExpo, inQuad)
+	mb(183, 2, 0, 40, 'skewx', inOutExpo, inQuad)
+	
+	mb(185, 2, 100, 120, 'zoomx', outExpo, inQuad)
+	mb(185, 2, 0, 40, 'skewy', outExpo, inQuad)
+	
+	me(187, 0.5, 100, 80, 'zoomy', 'len', outBack)
+	me(187, 0.5, 100, 120, 'zoomx', 'len', outBack)
+	me(187.5, 0.5, 80, 140, 'zoomy', 'len', outBack)
+	me(187.5, 0.5, 120, 80, 'zoomx', 'len', outBack)
+	
+	me(187.5, 4.5, 140, 0, 'zoomy', 'len', inCubic)
+	me(187.5, 4.5, 80, 0, 'zoomx', 'len', inExpo)
+	
+	func{189, 3, inCubic, 200, 500, function(p)
+		fd_particles:x(scx-p)
+		fd_particles2:x(scx+p)
+	end}
+	me(189, 3, scy-150, scy-600, 'squaresy', 'len', inCubic)
+	func{189, 3, inCubic, 0, 0.6, function(p) fd_stargrid1:texcoordvelocity(p, 0.03, 0) end}
+	func{189, 3, inCubic, 0, 0.55, function(p) fd_stargrid2:texcoordvelocity(p, 0.028, 0) end}
+	func{189, 3, inCubic, 0, 2, function(p) fd_grid:texcoordvelocity(p, 0.15, 0) end}
+	func{192, 3, outCubic, 0.6, 0, function(p) fd_stargrid1:texcoordvelocity(p, 0.01, 0) end}
+	func{192, 3, outCubic, 0.55, 0, function(p) fd_stargrid2:texcoordvelocity(p, 0.008, 0) end}
+	func{192, 3, outCubic, 2, 0, function(p) fd_grid:texcoordvelocity(p, 0.15, 0) end}
+	me(189, 6, 0, 0.2, 'grida', 'len', inOutCubic)
+	ease{189, 6, inOutSine,
+		29, 'gbotr',
+		23, 'gbotg',
+		57, 'gbotb',
+		
+		188, 'gtopr',
+		116, 'gtopg',
+		128, 'gtopb',
+		
+		0.5, 'gtopa',
+		
+		0.8, 'sgrid1a',
+		0.8, 'sgrid2a',
+	}
+	func{189, 6, inOutSine, 0.75, 1, function(p) fd_gradtop:fadetop(p) end}
+	
+	-- the part that is just the ending that's just copypasted from the intro lol
+	reset{192, exclude = {'gbotr', 'gtopr', 'gbotg', 'gtopg', 'gbotb', 'gtopb', 'gtopa', 'gbota', 'zoomz', 'squaresa', 'squaresz', 'squaresy', 'xmod', 'sgrid1a', 'sgrid2a', 'zoomx', 'zoomy', 'grida'}}
+	set{192,
+		50, 'flip',
+		50, 'reverse',
+		100, 'zoomz',
+		
+		255, 'blenda',
+		17, 'blendr',
+		9, 'blendg',
+		41, 'blendb',
+	}
+	
+	func{192, 4, outExpo, 20, 100, function(p)
+		fd_amp = p
+	end}
+	me(192, 4, 0, 50, 'zoomx', 'len', outExpo)
+	me(192, 4, 0, 50, 'zoomy', 'len', outExpo)
+	me(192, 4, 0, 255, 'blenda', 'len', outExpo)
+	
+	func{192, function()
+		for pn = 1, 2 do
+			for c = 0, 3 do
+				P[pn]:SetNumArrowGradientPoints(c, 2)
+				
+				P[pn]:SetArrowGradientPoint(0, c, 0)
+				P[pn]:SetArrowGradientPoint(1, c, 6)
+				
+				P[pn]:SetArrowGradientColor(0, c, 1, 1, 1, 1)
+				P[pn]:SetArrowGradientColor(1, c, 1, 1, 1, 0)
+			end
+		end
+	end}
+	
+	func{192, 260-192, function(b)
+		for c = 0, 3 do
+			for pn = 1, 2 do
+				P[pn]:SetXSpline(0, c, fd_amp*math.sin(b + c*1.5), 0, -1) 
+				P[pn]:SetYSpline(0, c, -fd_amp*math.cos(b + c*1.5), 0, -1)
+				
+				P[pn]:SetXSpline(1, c, 6*fd_amp*math.sin(b + c*1.5), 800, -1)
+				P[pn]:SetYSpline(1, c, -6*fd_amp*math.cos(b + c*1.5), 800, -1)
+				
+				P[pn]:SetZSpline(0, c, 0, 0, -1)
+				P[pn]:SetZSpline(1, c, 20*fd_amp, 600, -1)
+			end
+		end
+	end}
+	
+	for i, v in ipairs(sexman) do
+		me(v[1], 1, 20, 0, 'brake', 'len', linear)
+		for c = 0, 3 do
+			me(v[1], 1, -150*(randomXD(v[1]+c)), 0, 'tinyx'..c, 'len', outBack)
+			me(v[1], 1, -70*(randomXD(v[1]+c)), 0, 'tinyy'..c, 'len', outBack)
+			
+			me(v[1], 1, -10*(randomXD(v[1]+c)-0.5), 0, 'noteskewx'..c, 'len', outBack)
+			me(v[1], 1, -10*(randomXD(v[1]+c)-0.5), 0, 'noteskewy'..c, 'len', outBack)
+		end
+	end
+	
+	me(192, 64, 1, 0, 'barcrop', 'len', inOutCubic)
+	func{192, 64, inOutSine, 15, 10, function(p)
+		fd_stargrid1:zoom(p)
+	end}
+	func{192, 64, inOutSine, 10, 5, function(p)
+		fd_stargrid2:zoom(p)
+	end}
+	func{192, 64, inOutSine, 10, 1, function(p)
+		fd_grid:zoom(p)
+	end}
+	
+	me(204.5, 1.5, 40, 0, 'stealth', 'len', outSine)
+	me(204.5, 1.5, -100, 0, 'tiny', 'len', outCubic)
+	
+	for i, v in ipairs({206, 206.5, 206.75}) do		
+		me(v, 1, -100, 0, 'tinyx', 'len', outCubic)
+		me(v, 1, 20, 0, 'tinyy', 'len', outCubic)
+		me(v, 1, 20, 0, 'stealth', 'len', outCubic)
+	end
+	
+	for i, v in ipairs({222, 222.75, 223.5}) do		
+		me(v, 1, -50, 0, 'tiny', 'len', outCubic)
+		me(v, 1, 40, 0, 'stealth', 'len', outCubic)
+	end
+	
+	for c = 0, 3 do
+		me(220, 4, 50, 98, 'dark'..c, 'len', inOutSine)
+	end
+	for i, v in ipairs(mansex) do
+		me(v[1], 1, -100, 0, 'tiny'..v[2], 'len', outCubic)
+		me(v[1], 0.5, 90, 98, 'dark'..v[2], 'len', outSine)
+	end
+	
+	me(224, 8, 1.4, 0.7, 'xmod', 'len', outSine)
+	me(224, 260, 100, 500, 'zoomz', 'end', linear)
+	me(224, 260, 100, 0, 'zoom', 'end', linear)
+	me(224, 260, 0, 100, 'brake', 'end', outCubic)
+	me(249.5, 4, 0, 500, 'longholds', 'len', outCubic)
+	
+	me(256, 4, 98, 100, 'dark', 'len', outCubic)
+	me(249.5, 8, 0, 200, 'holdtiny', 'len', inOutCubic)
+	me(224, 259, 0, 1, 'cover2', 'end', linear)
+	me(224, 259, 255, 0, 'blenda', 'end', linear)
+
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type = "Quad" Name = "fd_bg1"
+		InitCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;zoomtowidth,SCREEN_WIDTH;zoomtoheight,SCREEN_HEIGHT;hidden,0;diffuse,0,0,0,1;" 
+	/>
+	<Layer Type = "Quad"
+		OnCommand="%function(self)
+			fd_gradbottom = self
+			self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+			self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT)
+			
+			self:hidden(0)
+			self:diffuse(18/255, 0/255, 56/255, 1)
+		end"
+	/>
+	<Layer Type = "Quad"
+		OnCommand="%function(self)
+			fd_gradtop = self
+			self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+			self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT)
+			
+			self:hidden(0)
+			self:diffuse(66/255, 0/255, 96/255, 1)
+			
+			self:fadetop(0.75)
+		end"
+	/>
+	
+	<!-- particles copied from otamatone hurricane because ican't code -->
+	<Layer Type="ActorFrame" Var = "fd_particles" 
+		InitCommand="%function(self)
+			-- scope moment
+			scx = SCREEN_CENTER_X
+			scy = SCREEN_CENTER_Y
+			sh = SCREEN_HEIGHT
+			sw = SCREEN_WIDTH
+			
+			self:xy(scx, scy+100)
+			self:fov(45)
+			self:rotationz(-10)
+			
+			fd_particletable = {}
+			
+			fd_colors = {
+				{123/255, 195/255, 201/255}, 
+				{92/255, 214/255, 93/255}
+			}
+			
+            function fd_makeparticle(obj)
+                -- ha ha ￼ (-mang)
+				obj:hidden(1)
+				
+                obj:zoom( .2+math.random()*.4 )
+				obj:SetWidth(math.random(40, 60))
+				obj:SetHeight(math.random(40, 60))
+                obj:xyz(math.random(-sw-250, sw+250), 0, 0)
+				obj:rotationz(math.random(-90, 90))
+				obj:rotationx(math.random(-45, 45))
+				obj:rotationy(math.random(-45, 45))
+				
+				local c = math.random(1, 2)
+				
+				obj:diffuse(fd_colors[c][1], fd_colors[c][2], fd_colors[c][3], math.random(3, 7)/10)
+				
+				obj:spin()
+				obj:effectmagnitude(math.random(0, 1), math.random(0, 1), math.random(0, 5))
+                
+                table.insert(fd_particletable,obj)
+            
+            end
+		end" FarDist="9E9"><children>
+		
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle" />
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Var = "fd_particles2" 
+		InitCommand="%function(self)
+			-- scope moment
+			scx = SCREEN_CENTER_X
+			scy = SCREEN_CENTER_Y
+			sh = SCREEN_HEIGHT
+			sw = SCREEN_WIDTH
+			
+			self:xy(scx, scy-100)
+			self:fov(45)
+			self:rotationz(-10)
+			
+			fd_particletable2 = {}
+			
+			fd_colors = {
+				{123/255, 195/255, 201/255}, 
+				{92/255, 214/255, 93/255}
+			}
+			
+            function fd_makeparticle2(obj)
+                -- ha ha ￼ (-mang)
+				obj:hidden(1)
+				
+                obj:zoom( .2+math.random()*.4 )
+				obj:SetWidth(math.random(40, 60))
+				obj:SetHeight(math.random(40, 60))
+                obj:xyz(math.random(-sw-250, sw+250), 0, 0)
+				obj:rotationz(math.random(-90, 90))
+				obj:rotationx(math.random(-45, 45))
+				obj:rotationy(math.random(-45, 45))
+				
+				local c = math.random(1, 2)
+				
+				obj:diffuse(fd_colors[c][1], fd_colors[c][2], fd_colors[c][3], math.random(3, 7)/10)
+				
+				obj:spin()
+				obj:effectmagnitude(math.random(0, 1), math.random(0, 1), math.random(0, 5))
+                
+                table.insert(fd_particletable2,obj)
+            
+            end
+		end" FarDist="9E9"><children>
+		
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+		<Layer Type="Quad" InitCommand="%fd_makeparticle2" />
+	</children></Layer>
+	
+	<Layer
+		File="stargrid1.png"
+		OnCommand="%function(self)
+			fd_stargrid1 = self
+			self:x(SCREEN_CENTER_X)
+			self:y(SCREEN_CENTER_Y)
+			
+			self:customtexturerect(0, 0, 15, 15)
+			self:texcoordvelocity(0, 0.01, 0)
+			
+			self:zoom(15)
+			
+			self:spin()
+			self:effectmagnitude(0, 0, 0.5)
+			
+			self:diffusealpha(0.5)
+		end"
+	/>
+	<Layer
+		File="stargrid2.png"
+		OnCommand="%function(self)
+			fd_stargrid2 = self
+			self:x(SCREEN_CENTER_X)
+			self:y(SCREEN_CENTER_Y)
+			
+			self:customtexturerect(0, 0, 15, 15)
+			self:texcoordvelocity(0, 0.008, 0)
+			
+			self:zoom(10)
+			
+			self:spin()
+			self:effectmagnitude(0, 0, 0.3)
+			
+			self:diffusealpha(0.5)
+		end"
+	/>
+	
+	<Layer Type="ActorFrame" Var = "fd_ineedthistobeinanactorframetohave45fov" OnCommand="%function(self) self:fov(45) self:rotationx(-15) self:rotationx(-10) end"><children>
+		<Layer
+			File="square.png"
+			OnCommand="%function(self)
+				fd_grid = self
+				self:x(SCREEN_CENTER_X)
+				self:y(SCREEN_CENTER_Y)
+				
+				self:customtexturerect(0, 0, 15, 15)
+				self:texcoordvelocity(0, 0.15, 0)
+				
+				self:zoom(10)
+				
+				self:spin()
+				self:effectmagnitude(0, 0, 1)
+				
+				self:diffusealpha(0.5)
+			end"
+		/>
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Var = "fd_squares" OnCommand="%function(self) self:fov(45) end"><children>
+		<Layer
+			File="thicksquare.png"
+			OnCommand="%function(self)
+				fd_square1 = self
+				self:x(SCREEN_CENTER_X)
+				self:y(SCREEN_CENTER_Y-100)
+				
+				self:zoom(1)
+				
+				self:spin()
+				self:effectmagnitude(0, 0, 14)
+				
+				self:diffusealpha(0.5)
+			end"
+		/>
+		<Layer
+			File="thicksquare.png"
+			OnCommand="%function(self)
+				fd_square2 = self
+				self:x(SCREEN_CENTER_X)
+				self:y(SCREEN_CENTER_Y-100)
+				
+				self:zoom(0.7)
+				
+				self:spin()
+				self:effectmagnitude(0, 0, 12)
+				
+				self:diffusealpha(0.5)
+			end"
+		/>
+		<Layer
+			File="thicksquare.png"
+			OnCommand="%function(self)
+				fd_square3 = self
+				self:x(SCREEN_CENTER_X)
+				self:y(SCREEN_CENTER_Y-100)
+				
+				self:zoom(0.5)
+				
+				self:spin()
+				self:effectmagnitude(0, 0, 10)
+				
+				self:diffusealpha(0.5)
+			end"
+		/>
+		<Layer
+			File="thicksquare.png"
+			OnCommand="%function(self)
+				fd_square4 = self
+				self:x(SCREEN_CENTER_X)
+				self:y(SCREEN_CENTER_Y-100)
+				
+				self:zoom(0.35)
+				
+				self:spin()
+				self:effectmagnitude(0, 0, 8)
+				
+				self:diffusealpha(0.5)
+			end"
+		/>
+	</children></Layer>
+	
+	<Layer Type = "Quad"
+		OnCommand="%function(self)
+			fd_blackbartop = self
+			self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+			self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT)
+			
+			self:hidden(0)
+			self:diffuse(0, 0, 0, 1)
+			
+			self:cropbottom(0.85)
+		end"
+	/>
+	<Layer Type = "Quad"
+		OnCommand="%function(self)
+			fd_blackbarbottom = self
+			self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+			self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT)
+			
+			self:hidden(0)
+			self:diffuse(0, 0, 0, 1)
+			
+			self:croptop(0.85)
+		end"
+	/>
+	
+	<Layer Type = "ActorFrame" OnCommand="%function(self) self:zbuffer(1) end"><children>
+		<Layer Type = "ActorProxy" Name = "PC[1]" />
+		<Layer Type = "ActorProxy" Name = "PC[2]" />
+		<Layer Type = "ActorProxy" Name = "PJ[1]" />
+		<Layer Type = "ActorProxy" Name = "PJ[2]" />
+		<Layer Type = "ActorProxy" Name = "PP[1]" />
+		<Layer Type = "ActorProxy" Name = "PP[2]" />
+	</children></Layer>
+	
+	<Layer Type = "ActorFrameTexture" InitCommand="%xero.aft" Name="coloraft" />
+	<Layer Type = "Sprite" Frag="colorcorrect.frag" InitCommand="%xero.sprite" Name="colorsprite"/>
+	
+	<Layer Type = "Quad"
+		OnCommand="%function(self)
+			fd_cover = self
+			self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+			self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT)
+			
+			self:hidden(0)
+			self:diffuse(0, 0, 0, 0)
+		end"
+	/>
+	
+	<Layer
+		File="title.png"
+		OnCommand="%function(self)
+			fd_title = self
+			self:x(SCREEN_CENTER_X)
+			self:y(SCREEN_CENTER_Y)
+			
+			self:zoom(0.2)
+			
+			self:diffusealpha(0)
+		end"
+	/>
+</children></Mods>

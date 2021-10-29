@@ -1,0 +1,122 @@
+<Mods LoadCommand = "%xero(function(self)
+	math.randomseed(691234567178182)
+
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+		
+		PC[pn]:basezoomx(0.75)
+		PC[pn]:basezoomy(0.75)
+		PC[pn]:y(SCREEN_HEIGHT*0.55)
+		
+		PJ[pn]:basezoomx(0.75)
+		PJ[pn]:basezoomy(0.75)
+		PJ[pn]:y(SCREEN_HEIGHT*0.5)
+	end
+	-- player proxies
+	for pn = 1, 2 do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+		P[pn]:SetFarDist(100000)
+	end
+	
+	TankBg:xywh(scx,scy,sw,sh)
+	Glass:xywh(scx,scy,sw,sh)
+	
+	set{0, 2.5, 'xmod', 100, 'dizzyholds', 100, 'stealthpastreceptors', 100, 'halgun', 100, 'cover', 100, 'hidemines', 100, 'disablemines'}
+	
+	
+end)"
+Type = "ActorFrame"
+><children>
+
+	<Layer File = "kirbo/kirbo.xml" />
+	<Layer File = "nitgfan/nitgfan.xml" />
+	
+	<Layer File = "background.png" Name = "TankBg"/>
+	
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	
+	<Layer
+		Type="Sprite"
+		Texture="fire.gif"
+		Name="fire"
+		OnCommand="%function(self) 
+			xero()
+			self:xy(scx, scy+40);
+			self:zoomtowidth(SCREEN_WIDTH);
+			self:zoomtoheight(SCREEN_HEIGHT);
+			
+			self:diffusealpha(0);
+		end"
+	/>
+	
+	<Layer
+		Type="Sprite"
+		Texture="explosion 5x5.png"
+		Name="boom"
+		OnCommand="%function(self) 
+			xero()
+			self:xy(scx, scy);
+			self:zoom(15);
+			
+			self:diffusealpha(0);
+		end"
+	/>
+	
+	<Layer
+		Type="Sprite"
+		InitCommand = "%xero.sprite"
+		Name = "gas_aftsprite"
+		OnCommand = "%function(self)
+			xero()
+			self:diffusealpha(0)
+			self:zoom(1)
+			self:queuecommand('renderMe');
+		end"
+			
+		renderMeCommand="%xero(function(self)
+            self:zoom(1.05)
+            self:SetTexture(gas_aft:GetTexture())
+            self:blend('add')
+			
+			self:rotationz(90)
+			
+			self:rainbow()
+        end)"
+		HideMessageCommand="diffusealpha,0;blend,add;zoom,1.05"
+	/>
+	
+	<Layer
+		Type="Sprite"
+		InitCommand = "%xero.sprite"
+		Name = "gas_aftsprite2"
+		OnCommand = "%function(self)
+			xero()
+			self:diffusealpha(0)
+			self:zoom(1)
+			self:queuecommand('renderMe');
+		end"
+			
+		renderMeCommand="%xero(function(self)
+            self:zoom(1.05)
+            self:SetTexture(gas_aft:GetTexture())
+            -- self:blend('add')
+			
+			-- self:rainbow()
+        end)"
+		HideMessageCommand="diffusealpha,0;blend,add;zoom,1.05"
+	/>
+	
+	<Layer Type = "ActorFrameTexture" InitCommand = "%xero.aft" Name = "gas_aft" />
+	
+	
+	<Layer File = "glass.png" Name = "Glass"/>
+	
+</children></Mods>

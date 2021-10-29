@@ -1,0 +1,417 @@
+<Mods LoadCommand = "%xero(function(self)
+
+--mods here
+definemod{'rippleplop','ripplediffuse','rippleposy','ripplerotx', function(rzoom,rdiffuse,rposy,rrotx) --ripple zoom and diffuse
+	ripple:zoom(rzoom/100)
+    ripple:diffusealpha(rdiffuse/100)
+	ripple:y(rposy)
+	ripple:rotationx(rrotx)
+end}
+definemod{'keyrotz','keyypos','keydiffuse', function(krotz,ky,kdiffuse) --key stuff
+	key:rotationy(krotz)
+    key:y(ky)
+    key:diffusealpha(kdiffuse/100)
+end}
+set{0,100,'keydiffuse',-1000,'keyypos',-60,'keyrotz',128,'rippleposy',-85,'ripplerotx'}
+--here it is, the moment you have all been waiting for, the notedata that takes up half of the xml--
+local intropiano = {
+	{3.500,3,1},
+	{3.833,2,1},
+	{4.000,1,1},
+	{5.000,2,1},
+	{5.333,3,1},
+	{5.500,0,1},
+	{6.500,3,1},
+	{6.833,1,1},
+	{7.000,2,1},
+	{7.500,0,1},
+	{8.000,2,1},
+	{8.333,1,1},
+	{8.500,3,1},
+	{9.500,0,1},
+	{10.000,1,1},
+	{11.000,2,1},
+	{11.500,3,1},
+	{12.000,2,1},
+	{12.500,1,1},
+	{13.000,0,1},
+	{14.500,3,1},
+	{15.500,0,1},
+	{15.833,2,1},
+	{16.000,1,1},
+	{17.000,2,1},
+	{17.333,0,1},
+	{17.500,3,1},
+	{18.500,0,1},
+	{19.000,1,1},
+	{19.500,2,1},
+	{20.000,1,1},
+	{20.333,0,1},
+	{20.500,3,1},
+	{21.000,0,1},
+	{21.333,2,1},
+	{21.500,1,1},
+	{21.833,3,1},
+	{22.000,0,1},
+	{23.000,1,1},
+	{23.333,2,1},
+	{23.500,3,1},
+	{24.000,2,1},
+	{24.500,1,1},
+	{25.000,0,1},
+	{97.500,0,1},
+	{97.625,1,1},
+	{97.750,2,1},
+	{97.875,3,1},
+	{98.000,0,1},
+	{98.125,2,1},
+	{98.250,1,1},
+	{98.375,3,1},
+	{99.000,0,1},
+	{99.125,2,1},
+	{99.250,1,1},
+	{99.375,3,1},
+	{99.500,0,1},
+	{99.625,1,1},
+	{99.750,2,1},
+	{99.875,3,1},
+	{100.500,0,1},
+	{100.625,1,1},
+	{100.750,2,1},
+	{100.875,3,1},
+	{101.000,0,1},
+	{101.125,2,1},
+	{101.250,1,1},
+	{101.375,3,1},
+	{101.500,0,1},
+	{101.625,3,1},
+	{101.750,1,1},
+	{101.875,2,1},
+	{102.000,0,1},
+	{102.125,3,1},
+	{102.250,2,1},
+	{102.375,1,1},
+	{102.500,0,1},
+	{102.625,3,1},
+	{102.750,1,1},
+	{102.875,2,1},
+	{103.000,0,1},
+	{115.000,3,1},
+	{116.000,1,1},
+	{116.333,2,1},
+	{116.500,1,1},
+	{117.500,3,1},
+	{117.833,2,1},
+	{118.000,1,1},
+	{118.500,0,1},
+	{119.000,3,1},
+	{119.333,1,1},
+	{119.500,2,1},
+	{120.500,1,1},
+	{121.000,3,1},
+	{122.000,0,1},
+	{122.500,3,1},
+	{123.000,2,1},
+	{123.500,1,1},
+	{124.000,0,1},
+	{125.500,3,1},
+	{126.000,1,1},
+	{163.000,2,2,length=0.979},
+	{164.000,1,1},
+	{164.333,3,1},
+	{164.500,0,2,length=1.000},
+	{165.500,1,1},
+	{165.833,2,1},
+	{166.000,3,1},
+	{166.500,2,1},
+	{167.000,1,1},
+	{167.500,0,1},
+	{168.000,3,1},
+	{168.167,1,1},
+	{168.333,2,1},
+	{168.500,0,1},
+	{169.000,1,2,length=1.000},
+	{170.000,2,1},
+	{170.500,1,1},
+	{171.000,0,1},
+	{171.500,3,1},
+	{172.000,1,2,length=1.500},
+	{173.500,2,2,length=1.500},
+	{175.000,0,2,length=1.000},
+	{176.000,1,1},
+	{176.333,2,1},
+	{176.500,1,2,length=1.000},
+	{177.500,0,1},
+	{177.833,2,1},
+	{178.000,1,1},
+	{187.000,3,1},
+	{188.000,1,1},
+	{188.333,2,1},
+	{188.500,1,1},
+	{189.500,3,1},
+	{189.833,2,1},
+	{190.000,1,1},
+	{190.500,0,1},
+	{191.000,1,1},
+	{191.333,2,1},
+	{191.500,3,1},
+	{192.500,0,1},
+	{193.000,2,1},
+	{194.000,1,1},
+	{194.500,2,1},
+	{195.000,0,1},
+	{195.500,3,1},
+	{196.000,2,2,length=1.500},
+}
+local beep = {
+	{85.000,0,1},
+	{85.125,1,1},
+	{85.250,2,1},
+	{85.375,3,1},
+	{85.500,0,1},
+	{85.625,1,1},
+	{85.750,2,1},
+	{85.875,3,1},
+	{86.000,0,1},
+	{86.125,2,1},
+	{86.250,1,1},
+	{86.375,3,1},
+	{86.500,0,1},
+	{86.625,2,1},
+	{86.750,1,1},
+	{86.875,3,1},
+	{87.000,0,1},
+	{87.125,1,1},
+	{87.250,2,1},
+	{87.375,3,1},
+	{87.500,0,1},
+	{87.625,1,1},
+	{87.750,2,1},
+	{87.875,3,1},
+	{88.000,0,1},
+	{88.125,3,1},
+	{88.250,1,1},
+	{88.375,2,1},
+	{88.500,0,1},
+	{88.625,3,1},
+	{88.750,2,1},
+	{88.875,1,1},
+	{89.000,0,1},
+	{89.125,3,1},
+	{89.250,2,1},
+	{89.375,1,1},
+	{89.500,0,1},
+	{89.625,3,1},
+	{89.750,1,1},
+	{89.875,2,1},
+	{90.000,0,1},
+	{90.125,3,1},
+	{90.250,2,1},
+	{90.375,1,1},
+	{90.500,0,1},
+	{90.625,3,1},
+	{90.750,1,1},
+	{90.875,2,1},
+	{91.000,0,1},
+	{91.125,1,1},
+	{91.250,2,1},
+	{91.375,3,1},
+	{91.500,0,1},
+	{91.625,1,1},
+	{91.750,2,1},
+	{91.875,3,1},
+	{92.000,0,1},
+	{92.125,2,1},
+	{92.250,1,1},
+	{92.375,3,1},
+	{92.500,0,1},
+	{92.625,2,1},
+	{92.750,1,1},
+	{92.875,3,1},
+	{93.000,0,1},
+	{93.125,1,1},
+	{93.250,2,1},
+	{93.375,3,1},
+	{93.500,0,1},
+	{93.625,1,1},
+	{93.750,2,1},
+	{93.875,3,1},
+	{94.000,0,1},
+	{94.125,3,1},
+	{94.250,0,1},
+	{94.375,3,1},
+	{94.500,0,1},
+	{94.625,3,1},
+	{94.750,0,1},
+	{94.875,3,1},
+	{95.000,0,1},
+	{95.250,1,1},
+	{95.375,2,1},
+	{95.500,3,1},
+	{95.625,0,1},
+	{95.750,2,1},
+	{95.875,1,1},
+	{96.000,3,1},
+	{96.125,0,1},
+	{96.250,1,1},
+	{96.375,2,1},
+	{96.500,3,1},
+	{96.625,0,1},
+	{96.750,2,1},
+	{96.875,1,1},
+	{97.000,3,1},
+	{104.000,3,1},
+	{104.125,2,1},
+	{104.250,1,1},
+	{104.375,2,1},
+	{104.500,1,1},
+	{104.625,0,1},
+	{104.750,1,1},
+	{104.875,0,1},
+	{105.000,1,1},
+	{105.125,0,1},
+	{105.250,1,1},
+	{105.375,0,1},
+	{105.500,1,1},
+	{107.000,3,1},
+	{107.125,1,1},
+	{107.250,2,1},
+	{107.375,1,1},
+	{107.500,2,1},
+	{107.625,0,1},
+	{107.750,2,1},
+	{107.875,0,1},
+	{108.000,2,1},
+	{108.125,0,1},
+	{108.250,2,1},
+	{108.375,0,1},
+	{108.500,2,1},
+	{109.000,0,1},
+	{109.125,1,1},
+	{109.250,2,1},
+	{109.375,3,1},
+	{109.500,0,1},
+	{109.625,2,1},
+	{109.750,1,1},
+	{109.875,3,1},
+	{110.000,0,1},
+	{110.125,1,1},
+	{110.250,2,1},
+	{110.375,3,1},
+	{110.500,0,1},
+	{110.625,3,1},
+	{110.750,1,1},
+	{110.875,2,1},
+	{111.000,0,1},
+	{111.125,3,1},
+	{111.250,2,1},
+	{111.375,1,1},
+	{111.500,0,1},
+	{111.625,3,1},
+	{111.750,1,1},
+	{111.875,2,1},
+	{112.000,0,1},
+}
+set{0,100,'dark'}
+ease{0,4,inExpo,50,'dark'}
+for i,v in ipairs(intropiano) do
+    ease{v[1],0.25,outSine,-50,'tiny'..v[2], rand.float(-75,75),'confusionoffset'..v[2]}
+    ease{v[1]+0.25,0.75,inOutSine,0,'tiny'..v[2],0,'confusionoffset'..v[2]}
+end
+for i=4,22,1.5 do
+    ease{i,1.5,outCirc,rand.float(-20,15),'rotationz',rand.float(-20,15),'rotationx',rand.float(-150,150),'movex'}
+	
+end
+set{7,100,'ripplediffuse',0,'rippleplop'}
+ease{7,4.5,outCirc,100,'rippleplop',0,'ripplediffuse'}
+set{16,100,'ripplediffuse',0,'rippleplop'}
+ease{16,4.5,outCirc,100,'rippleplop',0,'ripplediffuse'}
+ease{23.5,1.5,outCirc,0,'rotationz',0,'rotationx',0,'movex'}
+ease{22,1.5,inSine,0,'keyypos',-20,'keyrotz'}
+ease{23.5,1.5,outSine,-75,'keyypos',-60,'keyrotz',0,'keydiffuse'}
+set{23.5,100,'ripplediffuse',0,'rippleplop'}
+ease{23.5,1.5,outCirc,100,'rippleplop',0,'ripplediffuse'}
+set{85, 500, 'bumpyxperiod', 1000, 'bumpyzperiod', 75, 'zoomz', 100, 'zbuffer', 100, 'receptorzbuffer', plr = {1,2}}
+set{85, 25, 'arrowpathdrawsize', 75, 'arrowpathdrawsizeback'} --added by PlasticRainbow
+
+func{84, 31, function(beat, poptions)
+	local mult = 1; if beat > 109 then mult = 1-inOutCirc((beat-109)/6) end --mult is not gone...
+	local sinBeat = math.sin((beat-85)*math.pi/4)
+	local cosBeat = math.cos((beat-85)*math.pi/4)
+	
+	local extra_roty = 0; if beat > 110.5 and beat < 113.5 then extra_roty = 360*inOutCirc((beat-110.5)/3) end --rotationy at the end
+
+	for pn = 1,2 do
+		poptions[pn].x = 160*cosBeat*(2*pn-3)*mult
+		poptions[pn].z = 60*sinBeat*(2*pn-3)*mult
+		
+		poptions[pn].skewx = 30*sinBeat*(2*pn-3)*mult
+		poptions[pn].noteskewx = -30*sinBeat*(2*pn-3)*mult
+		
+		poptions[pn].rotationx = 15*cosBeat*mult
+		poptions[pn].rotationy = 20*sinBeat*mult + extra_roty
+		poptions[pn].confusionyoffset = -100*math.rad(extra_roty)
+		
+		poptions[pn].bumpyx = 100*cosBeat*(2*pn-3)*mult
+		poptions[pn].bumpyz = 200*sinBeat*(2*pn-3)*mult
+	end
+end}
+set{85,-70,'squareperiod', 25, 'drawsize'} --added drawsize (PlasticRainbow)
+ease{85,3,inOutCubic,50,'square',100,'arrowpath'}
+ease{88,3,inOutCubic,0,'square',0,'arrowpath'}
+ease{91,3,inOutCubic,50,'square',100,'arrowpath'}
+ease{95.5,3,inOutCubic,0,'square',0,'arrowpath'}
+ease{104,3,outCubic,50,'square',100,'arrowpath'}
+ease{107,3,outCubic,0,'square',0,'arrowpath'}
+ease{109,1.5,inCubic,50,'square',100,'arrowpath'}
+--ease{110.5,0.5,outCubic,0,'square',0,'arrowpath'}
+ease{110.5,1.5,outCubic,0,'square',0,'arrowpath'} --changed the ease length (PlasticRainbow)
+
+for i,v in ipairs(beep) do
+	add{v[1],0.01,instant,-20,'squareoffset'}
+	ease{v[1],0.125,outCubic,-50,'tiny'..v[2]}
+	ease{v[1],0.25,inCubic,0,'tiny'..v[2]}
+end
+
+set{109, -500, 'keyypos', 0, 'keyrotz', 100, 'keydiffuse'}
+func{112, function() cool_introbg:xy(scx,scy-21*6) end, persist=true}
+ease{112  , 3  , outCubic, 160,'keyypos'}
+
+func{109, 5.25, inExpo, 0, -35, function(a) cool_introbg:rotationz(a) end, persist=true}
+local mult = 1
+for i = 114.25, 121.75, 1.5 do
+	func{i, 1.5, inOutExpo, -35*mult, 35*mult, function(a) cool_introbg:rotationz(a) end, persist=true}
+	mult = mult * -1
+end
+set{124,scy-220,'rippleposy',0,'ripplerotx',0,'rippleplop',100,'ripplediffuse'}
+ease{124,1.5,outCirc,100,'rippleplop',0,'ripplediffuse'}
+ease{125,1.5,outCirc,0,'keydiffuse'}
+func{123.25, 0.75, inExpo, -35, 0, function(a) cool_introbg:rotationz(a) end, persist=true}
+
+for i=115,122.5,1.5 do
+    ease{i,1.5,outCirc,rand.float(-15,15),'rotationz',rand.float(-15,15),'rotationx',rand.float(-150,150),'movex'}
+end
+ease{122.5,3,inOutCirc,0,'rotationz',0,'rotationx',0,'movex'}
+
+--ending corkskrew--
+set{140.5,1000,'bumpyperiod',1000,'bumpyxperiod',250,'bumpyxoffset',0,'sudden'}
+ease{140.5,1.5,inCirc,250,'bumpy',250,'bumpyx',100,'orient'}
+add{157,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{157.75,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{158.5,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{159.25,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{160,1.5,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+ease{140.5,1.5+45,linear,18600,'centered2',-18600,'movey'}
+ease{161.5,1.5,inCirc,-250,'bumpyx',-250,'bumpy',plr=2}
+add{178,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{178.75,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{179.5,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{180.25,0.75,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+add{181,1.5,outSine,200,'bumpyoffset',200,'bumpyxoffset'}
+ease{184,3,outCirc,0,'bumpyx',0,'bumpy'}
+
+for i=187,196,1.5 do
+    ease{i,1.5,outCirc,rand.float(-15,15),'rotationz',rand.float(-15,15),'rotationx',rand.float(-150,150),'movex'}
+end
+ease{197.5,3,inOutCirc,0,'rotationz',0,'rotationx',0,'movex'}
+end)"/>

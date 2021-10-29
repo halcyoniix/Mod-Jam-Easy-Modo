@@ -1,0 +1,80 @@
+<Layer LoadCommand = "%xero(function(self)
+	local swaps = {}
+	local cols = {l = 0, d = 1, u = 2, r = 3}
+	local movex = {[0] = 'movex0', 'movex1', 'movex2', 'movex3'}
+	local has = string.find
+	local function lambda(path)
+		path = path or ''
+		local e = true
+		if not has(path, 'l') then lambda(path..'l') e = false end
+		if not has(path, 'd') then lambda(path..'d') e = false end
+		if not has(path, 'u') then lambda(path..'u') e = false end
+		if not has(path, 'r') then lambda(path..'r') e = false end
+		if e then
+			local list = {}
+			for col = 0, 3 do
+				local t = cols[string.sub(path, col + 1, col + 1)]
+				list[t] = (col - t) * 100
+			end
+			swaps[path] = list
+		end
+	end
+	lambda()
+	function swap(t)
+		local which = t[4]
+		for col = 0, 3 do
+			t[4 + col * 2] = swaps[which][col]
+			t[5 + col * 2] = movex[col]
+		end
+		ease(t, 1, 'swap')
+		return swap
+	end
+	
+	switcheroos = {}
+	
+	local function permute(tab, callback, temp, temp2, temp3)
+		local j = temp3 or 1
+		local n = temp2 or table.getn(tab)
+		temp = temp or {}
+		for i = 0, n do
+			if tab[i] then
+				temp[j] = tab[i]
+				tab[i] = nil
+				if j == n then
+					callback(temp)
+				else
+					permute(tab, callback, temp, n, j + 1)
+				end
+				tab[i] = temp[j]
+			end
+		end
+	end
+	
+	lookup = {l = 1, d = 2, u = 3, r = 4}
+	
+	permute({'l', 'd', 'u', 'r'}, function(t)
+		local entry = {}
+		for i, v in ipairs(t) do
+			local offset = i - lookup[v]
+			entry[lookup[v]] = offset * 100
+		end
+		switcheroos[table.concat(t)] = entry
+	end)
+	
+	switcheroos.normal = switcheroos.ldur
+	switcheroos.reset = switcheroos.ldur
+	switcheroos.invert = switcheroos.dlru
+	switcheroos.flip = switcheroos.rudl
+	
+	function switcheroo(beat, length, ease_func, which, plr)
+		which = switcheroos[which]
+		if which then
+			ease{beat, length, ease_func, which[1], 'movex0', which[2], 'movex1', which[3], 'movex2', which[4], 'movex3', plr = plr}
+		else
+			error('invalid column swap', 2)
+		end
+	end
+	
+	swaps2 = {'flip', 'invert', 'ludr', 'rdul', 'reset', 'drlu', 'ulrd', 'urld'}
+	
+end)" />

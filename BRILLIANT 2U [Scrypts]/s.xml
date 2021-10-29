@@ -1,0 +1,24 @@
+<ActorFrame InitCommand="%function(self)
+	function nitg_send_spellcards(cards)
+		if table.getn(cards) == 0 or tonumber(GAMESTATE:GetVersionDate()) < 20170714 then return false end
+		local s = GAMESTATE:GetCurrentSong()
+		s:SetNumSpellCards(table.getn(cards))
+		for i=1,table.getn(cards) do
+			local a = cards[i]
+			s:SetSpellCardTiming(i-1,a[1],a[2])
+			s:SetSpellCardName(i-1,a[3])
+			s:SetSpellCardDifficulty(i-1,a[4])
+			s:SetSpellCardColor(i-1,a[5][1],a[5][2],a[5][3],a[5][4])
+		end
+	end
+	prefix_spellcards = {
+		{36,64,'seek the problem',6,{1,.5,0,1}},
+		{68,100,'break',2,{0,1,1,1}},
+		{100,132,'out of ideas who????',3,{.75,.5,0.75,1}},
+		{132,160,'seek the problem 2',6,{1,.5,0,1}},
+		{164,196,'break 2',2,{0,1,1,1}},
+		{196,204,'play iidx',5,{1,0,.5,1}},
+		{204,212,'lol',0,{1,1,1,1}},
+	}
+	nitg_send_spellcards(prefix_spellcards)
+end"/>

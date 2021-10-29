@@ -1,0 +1,2430 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+	PP[pn]:SetTarget(P[pn])
+		PP1[pn]:SetTarget(P[pn])
+		PP2[pn]:SetTarget(P[pn])
+		PP3[pn]:SetTarget(P[pn])
+		PP4[pn]:SetTarget(P[pn])
+		PP5[pn]:SetTarget(P[pn])
+		PP6[pn]:SetTarget(P[pn])
+		PP7[pn]:SetTarget(P[pn])
+		
+		P[pn]:hidden(1)
+		P[pn]:SetFarDist(100000)
+	end
+	-- your code goes here here:
+	-----------setup---------------------
+	local me = mod_ease
+
+	local m = mod_insert
+
+	local mb = mod_bounce
+
+	local mk = mod_kick
+
+	local mpf = mod_perframe
+
+	local function drop(t)
+    local beat = t[1]
+    local len = t[2]
+    local step = t[3]
+    local speedmod = t[4]
+    for i = beat, beat + len, step do
+        add
+        {i, step, linear, speedmod * step * 100, 'centered2', plr = t.plr}
+        {i + step, 0, instant, -speedmod * step * 100, 'centered2', plr = t.plr}
+    end
+	end
+
+	definemod{'offset','amt','eccentricityx','eccentricityz','wavy','wavyperiod','wavyoffset',function(offset,amt,e1,e2,y,yp,offsety,plr)
+    local pi=math.pi/4
+        local movex0, movex1, movex2, movex3 =
+            math.cos(pi*(offset+0+(plr+1)*4))*(amt*e1/100),
+            math.cos(pi*(offset+1+(plr+1)*4))*(amt*e1/100),
+            math.cos(pi*(offset+2+(plr+1)*4))*(amt*e1/100),
+            math.cos(pi*(offset+3+(plr+1)*4))*(amt*e1/100)
+
+        local movez0, movez1, movez2, movez3 =
+            math.sin(pi*(offset+0+(plr+1)*4))*(amt*e2/100),
+            math.sin(pi*(offset+1+(plr+1)*4))*(amt*e2/100),
+            math.sin(pi*(offset+2+(plr+1)*4))*(amt*e2/100),
+            math.sin(pi*(offset+3+(plr+1)*4))*(amt*e2/100)
+        local movey0, movey1, movey2, movey3 =
+            math.sin(pi*(offset+0+(plr+1)*4)*yp)*(amt*y/100),
+            math.sin(pi*(offset+1+(plr+1)*4)*yp)*(amt*y/100),
+            math.sin(pi*(offset+2+(plr+1)*4)*yp)*(amt*y/100),
+            math.sin(pi*(offset+3+(plr+1)*4)*yp)*(amt*y/100)
+        return movex0, movex1, movex2, movex3, movez0, movez1, movez2, movez3,movey0, movey1, movey2, movey3
+    end,
+		'movex0','movex1','movex2','movex3',
+		'movez0','movez1','movez2','movez3',
+		'movey0','movey1','movey2','movey3',
+	}
+	setdefault{
+		100,'eccentricityx',
+		100,'eccentricityz',
+		3,'wavyperiod',
+	}
+	--use mod offset to make the wheel start to spin, (should be 1 quarter of a spin per offset)
+	--use mod amt to set size of the wheel (size is similar to using mods movex)
+	--required to use mods 50 flip for it to work properly
+
+	--eccentricityx controlling how much it stretches left and right
+	--eccentricityz controlling how much it stretches forward and back
+
+	--wavy mods make the circle bob up and down
+
+	local SineS, CubicS, QuintS, CircS, ElasticS, QuadS, QuartS, ExpoS, BackS, BounceS,
+	SineO, CubicO, QuintO, CircO, ElasticO, QuadO, QuartO, ExpoO, BackO, BounceO,
+	SineI, CubicI, QuintI, CircI, ElasticI, QuadI, QuartI, ExpoI, BackI, BounceI  
+	= inOutSine, inOutCubic, inOutQuint, inOutCirc, inOutElastic, inOutQuad, inOutQuart, inOutExpo, inOutBack, inOutBounce,
+	outSine, outCubic, outQuint, outCirc, outElastic, outQuad, outQuart, outExpo, outBack, outBounce,
+	inSine, inCubic, inQuint, inCirc, inElastic, inQuad, inQuart, inExpo, inBack, inBounce
+	-----------------------------
+	self:fov(90)
+	
+	crown:xy(scx,scy)
+	crown2:xy(scx,scy)
+
+	crownR:xy(scx,scy)
+	--------------------------------------
+	heartL:xy(scx,scy)
+
+	heart:xy(scx,scy)
+	heart2:xy(scx,scy)
+	-------------------------------------
+
+	circ12:xy(scx,scy)
+	circ11:xy(scx,scy)
+	circ10:xy(scx,scy)
+	circ9:xy(scx,scy)
+	circ8:xy(scx,scy)
+	circ7:xy(scx,scy)
+	circ6:xy(scx,scy)
+	circ5:xy(scx,scy)
+	circ4:xy(scx,scy)
+	circ3:xy(scx,scy)
+	circ2:xy(scx,scy)
+	circ1:xy(scx,scy)
+
+	Stripe:xywh(scx,scy,sw*2,sh*2)
+	
+	
+	quad1:xywh(scx,scy,sw,sh)
+	quad2:xywh(scx,scy,sw,sh)
+
+	square:xy(scx,scy)
+	square:zoomto(100,100)
+	square:diffuse(16/255,158/255,159/255,255)
+
+	square2:xy(scx,scy)
+	square2:zoomto(100,100)
+	square2:diffuse(3/255,210/255,166/255,255)
+
+	square3:xy(scx,scy)
+	square3:zoomto(100,100)
+	square3:diffuse(6/255,101/255,142/255,255)
+	------------------------------------------------------
+	rectangle1:xy(scx,scy)
+	rectangle1:zoomto(50,528)
+	rectangle1:diffuse(3/255,195/255,155/255,255)
+
+	rectangle2:xy(scx,scy)
+	rectangle2:zoomto(50,528)
+	rectangle2:diffuse(0/255,167/255,150/255,255)
+
+	rectangle3:xy(scx,scy)
+	rectangle3:zoomto(50,528)
+	rectangle3:diffuse(3/255,128/255,146/255,255)
+
+	rectangle4:xy(scx,scy)
+	rectangle4:zoomto(50,528)
+	rectangle4:diffuse(6/255,101/255,142/255,255)
+	rectangle4:faderight(0)
+	--[[
+	rectangle5:xy(scx,scy)
+	rectangle5:zoomto(500,528)
+	rectangle5:diffuse(6/255,101/255,142/255,255)
+
+	rectangle6:xy(scx,scy)
+	rectangle6:zoomto(500,528)
+	rectangle6:diffuse(0/255,167/255,150/255,255)
+	--]]
+	---------------------------------------------------
+	BG:xywh(scx,scy,sw,sh)
+	BG:diffuse(0/255,93/255,133/255,255)
+
+	BG2:xywh(scx,scy,sw,sh)
+	BG2:diffuse(5/255,103/255,142/255,255/255)
+
+	BG3:xywh(scx,scy,sw,sh)
+	BG3:diffuse(5/255,196/255,155/255,255/255)
+	-----------------------------------
+	definemod{'quadx','quady',function(x,y)
+		square:xy(x,y)
+	end}
+
+	definemod{'quadx2','quady2',function(x,y)
+		square2:xy(x,y)
+	end}
+
+	definemod{'quadx3','quady3',function(x,y)
+		square3:xy(x,y)
+	end}
+	------------------------------------------
+	definemod{'quadx4','quady4',function(x,y)
+		rectangle1:xy(x,y)
+	end}
+
+	definemod{'quadx5','quady5',function(x,y)
+		rectangle2:xy(x,y)
+	end}
+
+	definemod{'quadx6','quady6',function(x,y)
+		rectangle3:xy(x,y)
+	end}
+
+	definemod{'quadx7','quady7',function(x,y)
+		rectangle4:xy(x,y)
+	end}
+
+	definemod{'quadx8','quady8',function(x,y)
+		rectangle5:xy(x,y)
+	end}
+
+	definemod{'quadx9','quady9',function(x,y)
+		rectangle6:xy(x,y)
+	end}
+	--------------------------------------------
+	--[[
+	definemod{'rotzrec','rectanz',function(z)
+		rectangle5:rotationz(z)
+	end}
+	
+	definemod{'rotzrec2','rectanz2',function(z)
+		rectangle6:rotationz(z)
+	end}
+	--]]
+
+	definemod{'rotzrec','rectanz',function(z)
+		quad1:rotationz(z)
+	end}
+	
+	definemod{'rotzrec2','rectanz2',function(z)
+		quad2:rotationz(z)
+	end}
+	--------------------------------------------
+	definemod{'rotzsquare',function(z)
+		square:rotationz(z)
+	end}
+
+	definemod{'rotzsquare2',function(z)
+		square2:rotationz(z)
+	end}
+
+	definemod{'rotzsquare3',function(z)
+		square3:rotationz(z)
+	end}
+	--------------------------------------------
+	definemod{'zoomquad',function(z)
+		square:zoom(z)
+	end}
+
+	definemod{'zoomquad2',function(z)
+		square2:zoom(z)
+	end}
+
+	definemod{'zoomquad3',function(z)
+		square3:zoom(z)
+	end}
+	-------------------------------------------
+	definemod{'BGdiff',function(percent)
+		BG:diffusealpha(percent)
+	end}
+
+	definemod{'BG2diff',function(percent)
+		BG2:diffusealpha(percent)
+	end}
+
+	definemod{'BG3diff',function(percent)
+		BG3:diffusealpha(percent)
+	end}
+	-------------------------------------------
+	definemod{'Circzoom12',function(z)
+		circ12:zoom(z)
+	end}
+	
+	definemod{'Circzoom11',function(z)
+		circ11:zoom(z)
+	end}
+
+	definemod{'Circzoom10',function(z)
+		circ10:zoom(z)
+	end}
+
+	definemod{'Circzoom9',function(z)
+		circ9:zoom(z)
+	end}
+	
+	definemod{'Circzoom8',function(z)
+		circ8:zoom(z)
+	end}
+	
+	definemod{'Circzoom7',function(z)
+		circ7:zoom(z)
+	end}
+
+	definemod{'Circzoom6',function(z)
+		circ6:zoom(z)
+	end}
+
+	definemod{'Circzoom5',function(z)
+		circ5:zoom(z)
+	end}
+
+	definemod{'Circzoom4',function(z)
+		circ4:zoom(z)
+	end}
+	
+	definemod{'Circzoom3',function(z)
+		circ3:zoom(z)
+	end}
+
+	definemod{'Circzoom2',function(z)
+		circ2:zoom(z)
+	end}
+
+	definemod{'Circzoom',function(z)
+		circ1:zoom(z)
+	end}
+	--------------------------------------------
+	definemod{'crownz',function(z)
+		crown:zoom(z)
+	end}
+
+	definemod{'crownrotz',function(z)
+		crown:rotationz(z)
+	end}
+	-----------------------------------------
+	definemod {'striperotz', function(p)
+		Stripe:rotationz(p)
+	end}
+	-------------------------------------------
+	definemod{'heart2x','heart2y',function(x,y)
+		heart2:xy(x,y)
+	end}
+	--------------------------------------------
+	definemod{'crown2x','crown2y',function(x,y)
+		crown2:xy(x,y)
+	end}
+	--------------------------------------------
+	definemod{'hearthide',function(y)
+		heartL:hidden(y)
+	end}
+	--------------------------------------------
+	definemod{'crownhide',function(y)
+		crownR:hidden(y)
+	end}
+	-------------notedata-----------------------
+	boop = {
+		{32.000,3,1},
+		{36.000,0,1},
+		{40.000,3,1},
+		{44.000,0,1},
+		{48.000,3,1},
+		{52.000,0,1},
+		{56.000,3,1},
+		{60.000,0,1},
+		--{64.000,3,1},
+	}
+
+	tiktok = {
+		{64.000,0,1},
+		{72.000,0,1},
+		{80.000,0,1},
+		{88.000,0,1},
+		
+		{96.000,3,1},
+		{100.000,0,1},
+		{104.000,3,1},
+		{108.000,0,1},
+		{112.000,3,1},
+		{114.000,0,1},
+		{116.000,3,1},
+		{118.000,0,1},
+		{120.000,3,1},
+		{121.000,0,1},
+		{122.000,3,1},
+		{123.000,0,1},
+		{124.000,3,1},
+	}
+
+	bubble = {
+		{96.000,0,1},
+		{100.000,1,1},
+		{104.000,2,1},
+		{108.000,3,1},
+		{112.000,0,1},
+		{114.000,1,1},
+		{116.000,2,1},
+		{118.000,3,1},
+		{120.000,0,1},
+		{121.000,1,1},
+		{122.000,2,1},
+		{123.000,3,1},
+		{124.000,0,1},
+	}
+
+	dodododo = {
+		----part 1 start---
+		{0.000,0,1},
+		{1.000,2,1},
+		{1.667,3,1},
+		
+		{4.000,0,1},
+		{5.000,2,1},
+		{5.667,3,1},
+		
+		{8.000,3,1},
+		{9.000,2,1},
+		{9.667,0,1},
+
+		{12.000,3,1},
+		{13.000,2,1},
+		{13.667,0,1},
+
+		{16.000,0,1},
+		{17.000,2,1},
+		{17.667,3,1},
+
+		{20.000,0,1},
+		{21.000,2,1},
+		{21.667,3,1},
+
+		{24.000,3,1},
+		{25.000,2,1},
+		{25.667,0,1},
+
+		{28.000,3,1},
+		{29.000,2,1},
+		{29.667,0,1},
+
+		{30.000,3,1},
+		{31.000,2,1},
+		{31.667,0,1},
+
+		{32.000,3,1},
+		{33.000,2,1},
+		{33.667,0,1},
+
+		{36.000,3,1},
+		{37.000,2,1},
+		{37.667,0,1},
+
+		{40.000,0,1},
+		{41.000,2,1},
+		{41.667,3,1},
+
+		{44.000,0,1},
+		{45.000,2,1},
+		{45.667,3,1},
+
+		{48.000,0,1},
+		{49.000,2,1},
+		{49.667,3,1},
+
+		{52.000,0,1},
+		{53.000,2,1},
+		{53.667,3,1},
+
+		{56.000,3,1},
+		{57.000,2,1},
+		{57.667,0,1},
+
+		{60.000,3,1},
+		{61.000,2,1},
+		{61.667,0,1},
+		----part 1 end---
+
+		----part 2 start----
+		{336.000,0,1},
+		{337.000,2,1},
+		{337.667,3,1},
+
+		{340.000,0,1},
+		{341.000,2,1},
+		{341.667,3,1},
+
+		{344.000,3,1},
+		{345.000,2,1},
+		{345.667,0,1},
+
+		{348.000,3,1},
+		{349.000,2,1},
+		{349.667,0,1},
+
+		{352.000,0,1},
+		{353.000,2,1},
+		{353.667,3,1},
+
+		{356.000,0,1},
+		{357.000,2,1},
+		{357.667,3,1},
+
+		{360.000,3,1},
+		{361.000,2,1},
+		{361.667,0,1},
+
+		{364.000,3,1},
+		{365.000,2,1},
+		{365.667,0,1},
+
+		{366.000,3,1},
+		{367.000,2,1},
+		{367.667,0,1},
+
+		{368.000,3,1},
+		{369.000,2,1},
+		{369.667,0,1},
+
+		{372.000,3,1},
+		{373.000,2,1},
+		{373.667,0,1},
+
+		{376.000,0,1},
+		{377.000,2,1},
+		{377.667,3,1},
+
+		{380.000,0,1},
+		{381.000,2,1},
+		{381.667,3,1},
+
+		{384.000,0,1},
+		{385.000,2,1},
+		{385.667,3,1},
+
+		{388.000,0,1},
+		{389.000,2,1},
+		{389.667,3,1},
+
+		{392.000,3,1},
+		{393.000,2,1},
+		{393.667,0,1},
+
+		{396.000,3,1},
+		{397.000,2,1},
+		{397.667,0,1},
+		----part 2 end----
+	}
+
+	bap = {
+		{96.000,0,1},
+		{98.000,3,1},
+		{99.667,1,1},
+		{100.667,2,1},
+		{101.667,0,1},
+		{101.000,3,1},
+		{102.667,2,1},
+		{103.667,0,1},
+		{104.667,3,1},
+		{105.667,2,1},
+		{106.667,3,1},
+		{107.000,0,1},
+		{107.667,3,1},
+		{108.667,1,1},
+		{109.000,2,1},
+		{109.667,1,1},
+		{110.000,3,1},
+		{110.667,2,1},
+		{111.000,3,1},
+		{111.667,0,1},
+		--[[
+		{112.000,1,1},
+		{112.667,0,1},
+		{113.000,3,1},
+		{113.667,3,1},
+		{114.000,2,1},
+		{114.667,3,1},
+		{115.000,0,1},
+		{115.667,1,1},
+		{116.000,0,1},
+		{116.667,3,1},
+		{117.000,0,1},
+		{117.667,3,1},
+		{118.000,2,1},
+		{118.333,1,1},
+		{118.667,0,1},
+		{119.000,3,1},
+		{119.667,0,1},
+		{120.000,3,1},
+		{120.333,2,1},
+		{120.667,1,1},
+		{121.000,0,1},
+		{121.333,1,1},
+		{121.667,2,1},
+		{122.000,3,1},
+		{122.333,1,1},
+		{122.667,2,1},
+		{123.000,0,1},
+		{123.333,2,1},
+		{123.667,1,1},
+		{124.000,3,1},
+		{124.333,2,1},
+		{124.667,1,1},
+		{125.000,0,1},
+		{125.333,2,1},
+		{125.667,1,1},
+		{126.000,3,1},
+		--]]
+		
+	}
+
+	tak = {
+		{169.000,0,1},
+		{169.333,3,1},
+		{169.667,0,1},
+		{170.000,3,1},
+		{170.333,0,1},
+		{170.667,3,1},
+		{171.000,0,1},
+		{171.333,3,1},
+		{171.667,0,1},
+		--{172.000,3,1},
+		
+		
+		{294.000,0,1},
+		{294.333,3,1},
+		{294.667,0,1},
+		{295.000,3,1},
+		{295.333,0,1},
+		{295.667,3,1},
+		{296.000,0,1},
+	}
+
+	tuk = {
+		{195.000,0,1},
+		{195.333,3,1},
+		{195.667,0,1},
+		{196.000,3,1},
+		{196.333,0,1},
+		{196.667,3,1},
+		{197.000,0,1},
+		{197.333,3,1},
+		{197.667,0,1},
+		{198.000,3,1},
+		{198.333,0,1},
+		{198.667,3,1},
+		{199.000,0,1},
+		{199.333,3,1},
+		{199.667,0,1},
+		{200.000,3,1},
+	}
+
+	no = {
+		{200.000,3,2,length=1.000},
+		{201.000,0,1},
+		{201.667,3,1},
+		--{202.000,0,1},
+		{202.667,3,1},
+		--{203.000,0,1},
+	}
+
+	yis = {
+		{206.000,1,1},
+		{206.667,2,1},
+		{207.000,1,1},
+		{207.333,0,1},
+		{207.667,3,1},
+	}
+
+	simp = {
+		{232.000,3,2,length=2.000},
+		{234.000,2,2,length=2.000},
+		{236.000,1,2,length=2.000},
+		{238.000,2,2,length=2.000},
+		{240.000,3,2,length=2.000},
+		
+		{243.000,2,1},
+		
+		{244.000,1,2,length=2.000},
+		--[[
+		{246.000,0,1},
+		{247.000,2,1},
+		{247.667,1,1},
+		--]]
+		{248.000,3,2,length=2.000},
+		{250.000,2,2,length=2.000},
+		{252.000,3,2,length=2.000},
+		{254.000,0,1},
+		{254.667,1,1},
+		{255.000,0,1},
+		{255.667,2,1},
+		{256.000,0,2,length=2.000},
+		{258.000,3,1},
+		{258.667,2,1},
+		{259.000,3,1},
+		{259.667,1,1},
+		{260.000,3,2,length=2.000},
+		{262.000,1,2,length=2.000},
+		{264.000,2,2,length=2.000},
+		{266.000,0,2,length=1.000},
+		{267.000,1,1},
+		{267.667,2,1},
+		{268.000,3,2,length=2.000},
+		{270.000,0,2,length=2.000},
+		{272.000,3,1},
+	}
+
+	ay = {
+		{176.000,0,2,length=2.000},
+		{178.000,1,2,length=2.000},
+		{180.000,2,2,length=2.000},
+		{182.000,3,2,length=2.000},
+		{184.000,0,2,length=6.000},
+	}
+
+	boule = {
+		{238.000,2,2,length=2.000},
+		{240.000,0,2,length=2.000},
+		{244.000,2,2,length=2.000},
+		{248.000,1,2,length=2.000},
+		{252.000,3,2,length=2.000},
+		{256.000,1,2,length=2.000},
+		{260.000,3,2,length=2.000},
+		{262.000,1,2,length=2.000},
+		{264.000,2,2,length=2.000},
+		{266.000,0,2,length=1.000},
+		{268.000,3,2,length=2.000},
+		{270.000,0,2,length=2.000},
+		{272.000,0,2,length=2.000},
+	}
+
+	pickle = {
+		{238.000,2,2,length=2.000},
+		{240.000,0,2,length=2.000},
+		{244.000,2,2,length=2.000},
+		{248.000,1,2,length=2.000},
+		{252.000,3,2,length=2.000},
+		{256.000,1,2,length=2.000},
+		{260.000,3,2,length=2.000},
+		{262.000,1,2,length=2.000},
+		{264.000,2,2,length=2.000},
+		{266.000,0,2,length=1.000},
+		{268.000,3,2,length=2.000},
+		{270.000,0,2,length=2.000},
+		{272.000,2,2,length=2.000},
+	}
+
+	bot = {
+		
+	
+	
+		{275.667,0,2,length=1.333},
+		{277.000,3,2,length=1.000},
+		
+		{280.000,0,2,length=2.000},
+		{282.000,1,2,length=2.000},
+		{284.000,0,2,length=1.000},
+		{285.000,2,2,length=1.000},
+		{286.000,1,4,length=1.000},
+		{287.000,3,4,length=1.000},
+		{288.000,2,2,length=2.000},
+		{290.000,3,2,length=2.000},
+		{292.000,1,2,length=1.000},
+		{293.000,2,2,length=1.000},
+		{294.000,0,4,length=1.000},
+		{295.000,3,4,length=1.000},
+		
+		{298.000,3,2,length=1.000},
+	
+		{300.000,1,2,length=1.000},
+		{302.000,3,2,length=1.000},
+		
+		{304.000,2,2,length=2.000},
+		{306.000,0,2,length=2.000},
+		{308.000,1,2,length=1.000},
+		{309.000,2,2,length=1.667},
+		{310.667,3,2,length=1.333},
+		{312.000,1,2,length=4.000},
+		
+		{320.000,0,2,length=4.000},
+		
+		{328.000,0,2,length=6.000},
+	}
+
+	chlr = {
+		{400.000,3,'M'},
+		{401.000,0,'M'},
+		{402.000,3,'M'},
+		{403.000,0,'M'},
+		{404.000,3,'M'},
+		{405.000,0,'M'},
+		{406.000,3,'M'},
+		{407.000,0,'M'},
+	}
+	----------mod intro-------------------(section 0-63)
+	set {0,1.5,'xmod',100,'cover',100,'dizzyholds',0,'spiralholds',0,'drawsize',0,'drawsizeback',0,'drawsizefront',100,'disablemines',100,'minestealth'}
+	set {0,100,'dark'}
+	set {64,100,'drawsize',100,'drawsizeback',100,'drawsizefront'}
+	me(28,6,100,0,'dark','len',outExpo,2)
+	me(32,6,100,0,'dark','len',outExpo,1)
+	--set {0,100,'dark', plr=2}
+	--me(0,3,0,-700,'tinyz','len',inOutExpo)
+	
+
+	me(0,1,100,100,'reverse','len',outExpo,1)
+	me(64,7,100,0,'reverse','len',outExpo,1)
+	--me(64,6,100,0,'reverse','len',outExpo,2)
+	---------------------------------------
+	
+	for i = 0, 58 + 1, 8 do
+        add
+        {i+0, 8, inverse, 1.5 * 8 * 100, 'centered2', plr = 2}
+    end
+
+	for i = 4, 60 + 1, 8 do
+        add
+        {i+0, 8, inverse, 1.5 * 8 * 100, 'centered2', plr = 1}
+    end
+
+	add {60, 8, inverse, 1.5 * 8 * 0, 'centered2', plr = 1}
+	
+	me(64,2,1.5,2,'xmod','len',outExpo)
+
+	---------------------------------------------(section 64-126)
+	local fluct = 1
+    for i = 64,87,4 do 
+    mod_bounce(i-0,4,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_bounce(i-0,4,0,50*fluct,'x','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,4,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-10*fluct,'rotationy','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-10*fluct,'rotationz','Cubic','Cubic')
+    mod_kick(i,4,0,100,'y','Cubic','Cubic')
+	
+   	--ease {i, 2, flip(outCubic), 100*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	local fluct = 1
+    for i = 88,94,2 do 
+    mod_bounce(i-0,2,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_bounce(i-0,2,0,50*fluct,'x','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-10*fluct,'rotationy','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-10*fluct,'rotationz','Cubic','Cubic')
+    mod_kick(i,2,0,100,'y','Cubic','Cubic')
+   	--ease {i, 2, flip(outCubic), 100*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	local fluct = 1
+    for i = 96,108,4 do 
+    mod_bounce(i-0,4,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_bounce(i-0,4,0,50*fluct,'x','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,4,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-10*fluct,'rotationy','Cubic','Cubic')
+    mod_bounce(i-0,4,0,-10*fluct,'rotationz','Cubic','Cubic')
+    mod_kick(i,4,0,100,'y','Cubic','Cubic')
+   	--ease {i, 2, flip(outCubic), 100*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	local fluct = 1
+    for i = 112,118,2 do 
+	mod_bounce(i-0,2,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_kick(i,2,0,100,'y','Cubic','Cubic')
+	mod_bounce(i-0,4,0,50*fluct,'x','Cubic','Cubic')
+	mod_kick(i-0,2,0,300*fluct,'drunk','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-10*fluct,'rotationy','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-10*fluct,'rotationz','Cubic','Cubic')
+    --ease {i, 1, flip(outCubic), 10*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	local fluct = 1
+    for i = 120,124,1 do 
+    mod_bounce(i-0,1,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_kick(i,1,0,100,'y','Cubic','Cubic')
+	mod_bounce(i-0,4,0,50*fluct,'x','Cubic','Cubic')
+	mod_kick(i-0,1,0,300*fluct,'drunk','Cubic','Cubic')
+	mod_bounce(i-0,1,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,1,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,1,0,-10*fluct,'rotationy','Cubic','Cubic')
+    mod_bounce(i-0,1,0,-10*fluct,'rotationz','Cubic','Cubic')
+    --ease {i, 1, flip(outCubic), 10*fluct, 'x'}
+	fluct = fluct*-1
+	end
+
+	local fluct = 1
+	for i=1, table.getn(tiktok) do
+	local beat = tiktok[i][1]
+	local col = tiktok[i][2]
+		ease {beat,2,flip(outCirc),25,'stealth'}
+		ease {beat,1,flip(outCubic),-800,'tinyx'}
+		ease {beat,2,flip(outCubic),-1900,'tinyz'}
+	fluct = fluct*-1
+	end
+
+	local fluct = 1
+	for i=1, table.getn(bap) do
+	local beat = bap[i][1]
+	local col = bap[i][2]
+		if col == 0 then
+			ease {beat, 1, flip(outCubic), -100, 'movey0'}
+			
+		elseif col == 1 then
+			ease {beat, 1, flip(outCubic), -100, 'movey1'}
+
+		elseif col == 2 then
+			ease {beat, 1, flip(outCubic), -100, 'movey2'}
+			
+		elseif col == 3 then
+			ease {beat, 1, flip(outCubic), -100, 'movey3'}
+		end	
+	fluct = fluct*-1
+	end
+
+	me(123.25,4,-360*6,0,'rotationy','len',inOutCubic)
+	me(123.25,4,628*6,0,'confusionyoffset','len',inOutCubic)
+
+	mb(124,2,30,-150,'mini','Sine','Cubic')
+	me(124,2,-628,0,'confusionoffset','len',outExpo)
+	me(124,2,-200,0,'tiny','len',outExpo)
+	me(128,3,70,0,'mini','len',outElastic)
+	ease2 (128, 2, inverse, 1000, 'x')
+	---------------------------------------------(section 128-190)
+	
+	--ease2 (130, 1.9, inverse, 900, 'x')
+	--ease2 (132, 1.9, inverse, 900, 'x')
+	--ease2 (136, 2, inverse, 1000, 'x')
+	
+	
+	
+	set {127.50,200,'tiny0',plr=1}
+	set {127.50,200,'tiny1',plr=2}
+	set {127.50,200,'tiny2',plr=1}
+	set {127.50,200,'tiny3',plr=2}
+	
+
+	set {143.50,0,'tiny0',plr=1}
+	set {143.50,0,'tiny1',plr=2}
+	set {143.50,0,'tiny2',plr=1}
+	set {143.50,0,'tiny3',plr=2}
+
+	set {144,200,'tiny0',plr=1}
+	set {144,200,'tiny1',plr=1}
+	set {144,200,'tiny2',plr=2}
+	set {144,200,'tiny3',plr=2}
+
+	
+	set {159.95,0,'tiny0',plr=1}
+	set {159.95,0,'tiny1',plr=1}
+	set {159.95,0,'tiny2',plr=2}
+	set {159.95,0,'tiny3',plr=2}
+
+	set {160,200,'tiny0',plr=2}
+	set {160,200,'tiny1',plr=1}
+	set {160,200,'tiny2',plr=1}
+	set {160,200,'tiny3',plr=2}
+
+	set {190,0,'tiny0',plr=2}
+	set {190,0,'tiny1',plr=1}
+	set {190,0,'tiny2',plr=1}
+	set {190,0,'tiny3',plr=2}
+	
+	--[[
+	me(129,0.9,100,190,'zoomx','len',inCirc)
+	me(130,0.9,390,100,'zoomx','len',outCirc)
+
+	me(131,0.9,100,190,'zoomx','len',inCirc)
+	me(132,0.9,390,100,'zoomx','len',outCirc)
+
+	me(133,0.9,100,190,'zoomx','len',inCirc)
+	me(134,0.9,390,100,'zoomx','len',outCirc)
+
+	me(135,0.9,100,190,'zoomx','len',inCirc)
+	me(136,0.9,390,100,'zoomx','len',outCirc)
+	--]]
+	
+
+	me(128,1,-200,-200,'x','len',inOutCubic)
+	me(129,2,-200,150,'x','len',inOutCubic)
+	me(131,2,150,480,'x','len',inOutCubic)
+	me(133,2,480,800,'x','len',inOutCubic)
+	me(137,2,800,-200,'x','len',inOutCubic)
+	me(139,2,-200,150,'x','len',inOutCubic)
+	--me(137,2,-200,-200,'x','len',inverse)
+	--me(132,3,150,480,'x','len',inOutCubic)
+	
+	--me(134,3,480,800,'x','len',inOutCubic)
+	--[[
+	me(136,3,800,-150,'x','len',inOutCubic)
+	me(138,3,-150,150,'x','len',inOutCubic)
+
+	
+	ease{137,1,outExpo,450,'movex2',
+		450,'movex3'
+	}
+
+	ease{138,1,outExpo,450,'movex0',
+		450,'movex1'
+	}
+	--]]
+	
+
+	ease{140,2,outExpo,0,'movex0',
+		0,'movex1',
+		0,'movex2',
+		0,'movex3',
+		0,'x',
+		0,'reverse3',
+		0,'reverse2',
+		100,'reverse1',
+		100,'reverse0'
+	}
+
+	
+	ease{141,2,outExpo,0,'movex0',
+		0,'movex1',
+		0,'movex2',
+		0,'movex3',
+		0,'reverse3',
+		0,'reverse2',
+		0,'reverse1',
+		0,'reverse0'
+	}
+	
+	local fluct = 1
+	for i = 128,174,2 do 
+	--mod_bounce(i+0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i+0,2,0,200*fluct,'drunkz','Cubic','Cubic')
+	mod_bounce(i+0,2,0,100*fluct,'movez','Expo','Cubic',1)
+	mod_bounce(i+0,2,0,-100*fluct,'movez','Expo','Cubic',2)
+	mod_kick(i,2,0,-100,'bounce','Cubic','Circ')
+	mod_kick(i,2,0,-20*fluct,'rotationz','Cubic','Expo')
+	mod_kick(i,2,0,100,'y','Cubic','Circ')
+	fluct = fluct*-1
+	end
+	
+	local fluct = 1
+	for i = 136,138,1 do 
+	mod_bounce(i+0,1,0,-100*fluct,'tipsy','Cubic','Circ')
+	mod_bounce(i+0,1,0,-100*fluct,'drunk','Cubic','Circ')
+	fluct = fluct*-1
+	end
+
+	local fluct = 1
+	for i = 144,146,1 do 
+	mod_bounce(i+0,1,0,-100*fluct,'tipsy','Cubic','Circ')
+	mod_bounce(i+0,1,0,-100*fluct,'drunk','Cubic','Circ')
+	fluct = fluct*-1
+	end
+	
+	me(148,2,628,0,'confusionoffset','len',outExpo)
+
+	sugarkiller(135,1,1,50,85)
+	sugarkiller(142,3,1,50,85)
+	sugarkiller(150,3,1,50,85)
+
+	
+	---dododo effect--
+	me(138.66,1,0,100,'reverse0','len',outExpo)
+	me(139,1,0,100,'reverse1','len',outExpo)
+	me(139.33,1,0,100,'reverse2','len',outExpo)
+	me(139.66,1,0,100,'reverse3','len',outExpo)
+
+	me(147,1,0,100,'reverse0','len',outExpo)
+	me(147.33,1,0,100,'reverse1','len',outExpo)
+	me(147.66,1,0,100,'reverse2','len',outExpo)
+	me(148,1,0,100,'reverse3','len',outExpo)
+	----------------------------------------
+	--me(148,0.9,100,690,'zoomx','len',inCirc)
+	--me(149,0.9,690,100,'zoomx','len',outCirc)
+	me(149,1,0,-100,'x','len',outCubic)
+	
+	ease2 (149, 1.5, inverse, -900, 'x')
+
+	local fluct = 1
+	for i = 150,151,1 do 
+	mod_bounce(i+0,1,0,-200*fluct,'tipsy','Cubic','Circ')
+	mod_bounce(i+0,1,0,-200*fluct,'drunk','Cubic','Circ')
+	fluct = fluct*-1
+	end
+
+	local fluct = 1
+	for i = 152,158,2 do 
+	mod_bounce(i+0,2,100,190,'zoomx','Cubic','Circ')
+	--mod_bounce(i+0,2,0,-10*fluct,'rotationz','Cubic','Circ')
+	fluct = fluct*-1
+	end
+	
+	me(152,2,100,0,'reverse3','len',outExpo)
+	me(154,2,100,0,'reverse2','len',outExpo)
+	me(156,2,100,0,'reverse1','len',outExpo)
+	me(158,2,100,0,'reverse0','len',outExpo)
+
+	--me(161,1,0,100,'plannedomspeed','len',outCubic)
+	--me(161.66,1,0,100,'plannedomspeed','len',outCubic)
+
+	me(164,1.5,200,70,'zoomx','len',inOutCubic)
+	me(164,1.5,100,250,'zoomy','len',inOutCubic)
+	me(166,1.5,70,150,'zoomx','len',inOutCubic)
+	me(166,1.5,250,50,'zoomy','len',inOutCubic)
+	me(168,1.5,150,100,'zoomx','len',inOutCubic)
+	me(168,1.5,50,100,'zoomy','len',inOutCubic)
+
+	me(166,1.5,0,50,'y','len',inOutCubic)
+	me(168,1.5,50,0,'y','len',inOutCubic)
+
+	--me(162,0.9,100,690,'zoomx','len',inCirc)
+	--me(163,0.9,690,100,'zoomx','len',outCirc)
+	ease2 (163, 1.5, inverse, 1000, 'x')
+	me(163,1,-150,0,'x','len',outCubic)
+
+	local fluct = 1
+	for i=1, table.getn(tak) do
+	local beat = tak[i][1]
+	local col = tak[i][2]
+		mod_bounce(beat,1,0,-100*fluct,'drunk','Cubic','Circ')
+		mod_kick(beat,1,0,20,'rotationy','Cubic','Cubic')
+		mod_kick(beat,1,0,20,'rotationx','Cubic','Cubic')
+	fluct = fluct*-1
+	end
+
+	me(172,1,0,-20,'skewy','len',outExpo)
+	me(174,1,-20,20,'skewy','len',outExpo)
+	me(176,1,20,-20,'skewy','len',outExpo)
+	me(178,1,-20,20,'skewy','len',outExpo)
+	me(180,1,20,-20,'skewy','len',outExpo)
+	me(182,1,-20,20,'skewy','len',outExpo)
+	me(184,1,20,0,'skewy','len',outExpo)
+	
+	me(174,1,0,-50,'flip','len',outQuart)
+	me(188,1,-50,0,'flip','len',outQuart)
+
+	me(172,1,0,60,'skewx','len',outExpo)
+	me(174,1,60,-60,'skewx','len',outExpo)
+	me(176,1,-60,60,'skewx','len',outExpo)
+	me(178,1,60,-60,'skewx','len',outExpo)
+	me(180,1,-60,60,'skewx','len',outExpo)
+	me(182,1,60,-60,'skewx','len',outExpo)
+	me(184,1,-60,0,'skewx','len',outExpo)
+
+	
+
+	me(176,2,0,-25,'confusionyoffset','len',outCubic)
+	me(178,1,-25,25,'confusionyoffset','len',outCubic)
+	me(180,1,25,-25,'confusionyoffset','len',outCubic)
+	me(182,1,-25,25,'confusionyoffset','len',outCubic)
+	me(184,1,25,0,'confusionyoffset','len',outCubic)
+
+
+	local fluct = 1
+    for i = 176,184,2 do 
+    mod_bounce(i-0,2,0,-70*fluct,'orient','Cubic','Cubic')
+    mod_bounce(i-0,2,0,50*fluct,'x','Cubic','Cubic')
+    mod_bounce(i-0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	--mod_bounce(i-0,2,0,-100*fluct,'drunk','Cubic','Cubic')
+    mod_bounce(i-0,2,0,25*fluct,'rotationy','Cubic','Cubic')
+    --mod_bounce(i-0,2,0,20*fluct,'rotationz','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-30*fluct,'rotationx','Cubic','Cubic')
+    mod_kick(i,2,0,100,'y','Cubic','Cubic')
+   	--ease {i, 2, flip(outCubic), 100*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	me(162,2,-628,0,'confusionoffset','len',outExpo)
+	
+	me(162,1,0,105,'scrollspeedmult','len',outCubic)
+	--me(160,2,0,-400,'parabolay','len',outCubic)
+	--me(164,2,-400,0,'parabolay','len',outCubic)
+	me(162,1,0,100,'bumpyy','len',outCubic)
+	me(164,1,100,0,'bumpyy','len',outCubic)
+
+	--me(162,1,0,30,'reverse','len',outCirc)
+	--me(163,1,30,0,'reverse','len',outCirc)
+	
+	me(176,2,0,-200,'drunk','len',inOutCubic)
+	me(178,2,-200,200,'drunk','len',inOutCubic)
+	me(180,2,200,-200,'drunk','len',inOutCubic)
+	me(182,2,-200,200,'drunk','len',inOutCubic)
+
+	me(184,3,0,20000000,'drunksize','len',inOutCubic)
+	me(190,3,20000000,0,'drunksize','len',inOutCubic)
+	
+	me(184,3,200,-10000,'drunk','len',inOutCubic)
+	me(185,6,-10000,0,'drunk','len',inOutCubic)
+
+	me(184,2,0,1000,'holdgirth','len',inOutCubic)
+	me(185,6,1000,0,'holdgirth','len',inOutCubic)
+
+	---------------------------------------------(section 192-199)
+	ease2 (187, 6, inverse, -1000, 'y')
+	me(188,1,0,100,'centered','len',inOutCubic)
+	me(190,1,100,0,'centered','len',inOutCubic)
+
+	me(188,1,0,50,'flip','len',inOutCubic)
+	me(190,1,50,0,'flip','len',inOutCubic)
+	ease2 (192, 2, inverse, 1000, 'z')
+	
+	local fluct = 1
+	for i = 192,194,1 do 
+	mod_bounce(i+0,1,0,-100*fluct,'tipsy','Cubic','Circ')
+	mod_bounce(i+0,1,0,-100*fluct,'drunk','Cubic','Circ')
+	fluct = fluct*-1
+	end
+
+	me(195,4,0,-150,'x','len',inOutCubic,1)
+	me(195,4,0,150,'x','len',inOutCubic,2)
+	me(195,4,628,0,'confusionoffset','len',inOutCubic,1)
+	me(195,4,-628,0,'confusionoffset','len',inOutCubic,2)
+
+	local fluct = 1
+	for i=1, table.getn(tuk) do
+	local beat = tuk[i][1]
+	local col = tuk[i][2]
+		ease {beat,2,flip(outCubic),125*fluct,'drunk'}
+		--ease {beat,1,flip(outCubic),50,'spiralz'}
+		--ease {beat,1,flip(outCubic),50,'spiralx'}
+		ease {beat,1,flip(outCubic),10*fluct,'digital'}
+	fluct = fluct*-1
+	end
+
+	sugarkiller(195,9,1,0,0)
+	---------------------------------------------(section 200-270)
+	
+	local fluct = 1
+	for i = 200,254,2 do 
+	
+	mod_bounce(i+0,2,0,200*fluct,'drunkz','Cubic','Cubic')
+	
+	
+	mod_kick(i,2,0,-20*fluct,'rotationz','Cubic','Expo')
+	mod_kick(i,2,0,100,'y','Cubic','Circ')
+	fluct = fluct*-1
+	end
+	
+	local fluct = 1
+	for i=1, table.getn(no) do
+	local beat = no[i][1]
+	local col = no[i][2]
+		mod_bounce(beat,1,0,-100*fluct,'drunk','Cubic','Cubic')
+		mod_bounce(beat,1,0,-100*fluct,'tipsy','Cubic','Cubic')
+	fluct = fluct*-1
+	end
+
+	local fluct = 1
+	for i=1, table.getn(yis) do
+	local beat = yis[i][1]
+	local col = yis[i][2]
+		if col == 0 then
+			ease {beat, 1, flip(outCubic), -100, 'movey0'}
+			
+		elseif col == 1 then
+			ease {beat, 1, flip(outCubic), -100, 'movey1'}
+
+		elseif col == 2 then
+			ease {beat, 1, flip(outCubic), -100, 'movey2'}
+			
+		elseif col == 3 then
+			ease {beat, 1, flip(outCubic), -100, 'movey3'}
+		end	
+	fluct = fluct*-1
+	end
+	
+	me(204,1,0,-40,'skewy','len',outExpo)
+	me(206,1,-40,40,'skewy','len',outExpo)
+	me(208,1,40,0,'skewy','len',outExpo)
+	
+	me(204,1,0,-30,'skewx','len',outExpo)
+	me(206,1,-30,30,'skewx','len',outExpo)
+	me(208,1,30,0,'skewx','len',outExpo)
+
+	me(205,2,-150,0,'x','len',inOutCubic,1)
+	me(205,2,150,0,'x','len',inOutCubic,2)
+
+	me(208,2,0,-50,'flip','len',inOutCubic,2)
+	me(208,2,0,-50,'flip','len',inOutCubic,1)
+
+	me(220,2,-50,0,'flip','len',inOutCubic,2)
+	me(220,2,-50,0,'flip','len',inOutCubic,1)
+
+	me(210,2,0,100,'movex0','len',inOutCubic,1)
+	me(210,2,0,100,'movex1','len',inOutCubic,1)
+
+	me(220,2,100,0,'movex0','len',inOutCubic,1)
+	me(220,2,100,0,'movex1','len',inOutCubic,1)
+
+
+	me(210,2,0,90,'stealth','len',inOutCubic,1)
+	me(220,2,90,0,'stealth','len',inOutCubic,1)
+	
+	me(210,2,0,100,'movex2','len',inOutCubic,2)
+	me(210,2,0,100,'movex3','len',inOutCubic,2)
+
+	me(220,2,100,0,'movex2','len',inOutCubic,2)
+	me(220,2,100,0,'movex3','len',inOutCubic,2)
+
+	me(212,2,0,100,'reverse','len',inOutCubic,2)
+	me(218,2,100,0,'reverse','len',inOutCubic,2)
+
+
+
+	ease{214,4,outExpo,-50,'noteskewx',
+		50,'skewx',
+		20,'skewy'
+	}
+	ease{216,4,outExpo,50,'noteskewx',
+		-50,'skewx',
+		-20,'skewy'
+	}
+	ease{218,4,outExpo,-50,'noteskewx',
+		50,'skewx',
+		20,'skewy'
+	}
+
+	ease{220,4,outExpo,50,'noteskewx',
+		-50,'skewx',
+		-20,'skewy'
+	}
+
+	ease{222,4,outExpo,0,'noteskewx',
+		0,'skewx',
+		0,'skewy'
+	}
+
+	me(220,3,-360*2,0,'rotationy','len',inOutSine)
+	me(220,3,628*2,0,'confusionyoffset','len',inOutSine)
+
+	--me(224,1,0,100,'centered','len',inOutSine)
+	--me(224,1,0,100,'reverse','len',inOutSine,2)
+	ease2 (224, 2, inverse, 1000, 'x')
+
+
+	me(225,2,0,-150,'x','len',inOutCubic,1)
+	me(225,2,0,150,'x','len',inOutCubic,2)
+
+	local fluct = 1
+	for i = 224,242,2 do 
+	
+	mod_bounce(i,2,0,-10*fluct,'rotationx','Quart','Quart')
+	mod_bounce(i,2,0,10*fluct,'rotationy','Quart','Quart',1)
+	mod_bounce(i,2,0,-10*fluct,'rotationy','Quart','Quart',2)
+	fluct = fluct*-1
+	end
+
+	me(229.50,1,-150,150,'x','len',inOutCubic,1)
+	me(229.50,1,150,-150,'x','len',inOutCubic,2)
+
+	me(233.50,1,150,-150,'x','len',inOutCubic,1)
+	me(233.50,1,-150,150,'x','len',inOutCubic,2)
+
+	me(237.50,1,-150,150,'x','len',inOutCubic,1)
+	me(237.50,1,150,-150,'x','len',inOutCubic,2)
+
+	wiggle(225, 4, .5, inOutBounce, 50, 'drunk')
+
+	local f = 1
+	for i =1, table.getn(simp) do
+	local beat = simp[i][1]
+	local col = simp[i][2]
+		if col == 3 then
+		ease2(beat,1,CubicS,0,'rotationy')
+		mod_kick(beat,1,0,-35*f,'rotationz','Cubic','Circ')
+		elseif col == 0 or col == 1 then
+		--ease2(beat,1,BackS,-10*f,'rotationy')
+		mod_kick(beat,1,0,-50*f,'skewx','Cubic','Circ')
+		mod_kick(beat,1,0,50*f,'noteskewx','Cubic','Circ')
+		
+		mod_kick(beat,1,0, 15*f,'rotationy','Cubic','Circ')
+		elseif col == 2 then
+		mod_kick(beat,1,0, 100*f,'tipsy','Cubic','Circ')
+		--mod_bounce(beat,1,0,50,'brake','Sine','Sine')
+		mod_kick(beat,1,0,15,'reverse','Cubic','Circ')
+		mod_kick(beat,1,0,35*f,'rotationz','Cubic','Circ')
+		end
+	f = f*-1
+	end
+
+	local f = 1
+	for i =1, table.getn(boule) do
+	local beat = boule[i][1]
+	local col = boule[i][2]
+		if col == 0 or col == 1 then
+		
+		ease2(beat,1,CubicS,-150,'x',1)
+		ease2(beat,1,CubicS,150,'x',2)
+		elseif col == 2 or col == 3 then
+		
+		ease2(beat,1,CubicS,150,'x',1)
+		ease2(beat,1,CubicS,-150,'x',2)
+		
+		end
+	f = f*-1
+	end
+
+	local fluct = 1
+    for i = 254,262,2 do 
+	mod_bounce(i-0,2,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_kick(i,2,0,100,'y','Cubic','Cubic')
+	
+	mod_kick(i-0,2,0,300*fluct,'drunk','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i-0,2,0,-100*fluct,'drunk','Cubic','Cubic')
+   
+    --ease {i, 1, flip(outCubic), 10*fluct, 'x'}
+    fluct = fluct*-1
+    end
+
+	local fluct = 1
+    for i = 264,272,1 do 
+    mod_bounce(i-0,1,0,-50*fluct,'orient','Cubic','Cubic')
+    mod_kick(i,1,0,100,'y','Cubic','Cubic')
+	
+	mod_kick(i-0,1,0,300*fluct,'drunk','Cubic','Cubic')
+	mod_bounce(i-0,1,0,-100*fluct,'cubicx','Cubic','Cubic')
+	
+    
+    --ease {i, 1, flip(outCubic), 10*fluct, 'x'}
+	fluct = fluct*-1
+	end
+
+	--me(123.25,4,-360*6,0,'rotationy','len',inOutCubic)
+	--me(123.25,4,628*6,0,'confusionyoffset','len',inOutCubic)
+
+	mb(270,3,30,-150,'mini','Sine','Cubic')
+	me(270,3,-628,0,'confusionoffset','len',outExpo)
+	me(270,3,-200,0,'tiny','len',outExpo)
+	me(272,2,70,0,'mini','len',outElastic)
+	
+	---------------------------------------------(section 272-332)
+	--me(272,1,0,100,'eccentricityx','len',outExpo)
+	
+	wiggle(272, 332-272, 2, outCubic, 5, 'rotationz')
+
+	local fluct = 1
+	for i = 272,332,2 do 
+	--mod_bounce(i+0,2,0,-100*fluct,'cubicx','Cubic','Cubic')
+	mod_bounce(i+0,2,0,200*fluct,'drunkz','Cubic','Cubic')
+	mod_bounce(i+0,2,0,100*fluct,'movez','Expo','Cubic',1)
+	mod_bounce(i+0,2,0,-100*fluct,'movez','Expo','Cubic',2)
+	mod_kick(i,2,0,-100,'bounce','Cubic','Circ')
+	mod_kick(i,2,0,-20*fluct,'rotationz','Cubic','Expo')
+	mod_kick(i,2,0,100,'y','Cubic','Circ')
+	fluct = fluct*-1
+	end
+
+	func {272, 60.20, function(beat, poptions)
+	local sin = math.sin(beat*math.pi*0.25)
+	local cos = math.cos(beat*math.pi*0.25)
+		poptions[1].x = 200 * cos
+		poptions[1].z = 200 * sin
+		poptions[2].x = -200 * cos
+		poptions[2].z = -200 * sin
+	end}
+
+	me(332,4,-200,0,'x','len',inOutCubic,1)
+	me(332,4,200,0,'x','len',inOutCubic,2)
+
+	local f = 1
+	for i =1, table.getn(bot) do
+	local beat = bot[i][1]
+	local col = bot[i][2]
+		if col == 3 then
+		ease2(beat,1,CubicS,0,'rotationy')
+		mod_kick(beat,1,0,-35*f,'rotationz','Cubic','Circ')
+		elseif col == 0 or col == 1 then
+		--ease2(beat,1,BackS,-10*f,'rotationy')
+		mod_kick(beat,1,0,-50*f,'skewx','Cubic','Circ')
+		mod_kick(beat,1,0,50*f,'noteskewx','Cubic','Circ')
+		
+		mod_kick(beat,1,0, 15*f,'rotationy','Cubic','Circ')
+		elseif col == 2 then
+		mod_kick(beat,1,0, 100*f,'tipsy','Cubic','Circ')
+		--mod_bounce(beat,1,0,50,'brake','Sine','Sine')
+		mod_kick(beat,1,0,15,'reverse','Cubic','Circ')
+		mod_kick(beat,1,0,35*f,'rotationz','Cubic','Circ')
+
+		mod_kick(beat,1,0,50*f,'skewx','Cubic','Circ')
+		mod_kick(beat,1,0,-50*f,'noteskewx','Cubic','Circ')
+		end
+	f = f*-1
+	end
+
+	sugarkiller(286,3,1,50,85)
+	sugarkiller(294,3,1,50,85)
+	-----------------mod outro----------------------------(section 336-407)
+	me(272,3,2,1.5,'xmod','len',linear)
+	m(336,397,'*-1 100% stealth','end',1)	
+	m(336,397,'*-1 100% dark,*-1 100% hidenoteflash, *-1 1000000 centered2','end',2)
+	for i = 336,397,2 do
+		me(i+0,2,0,180,'centered2','len',linear,2)
+		me(i+0,2,-200,0,'tiny','len',outCirc)
+		me(i+0,2,0,100,'boost','len',outCirc)
+		--m(i,i+0.1,'*-1 0.75 xmod','end',1)
+         for c = 0,3 do
+            me(i+c,0.5,100*math.random()-50,0,'confusionzoffset'..c,'len',inExpo)
+            me(i+c,0.5,100*math.random()-50,0,'confusionxoffset'..c,'len',inExpo)
+            me(i+c,0.5,100*math.random()-50,0,'confusionyoffset'..c,'len',inExpo)
+         end
+	end	
+
+	me(406,2,0,100,'dark','len',outExpo,1)
+
+	--me(400,1,0,100,'disablemines','len',outCubic)
+	----------------------------------spellcard---------------------------------------
+	card {0, 63, 'Once upon a time...', 1, '#005d85'}
+	card {64, 126, 'In the sound of the sea', 2, '#05678e'}
+	card {128, 190, 'Oh no, I lost my Twitch crown again :-:', 4, '#109e9f'}
+	card {192, 199, 'nice *nice* spell', 2, '#01a897'}
+	card {200, 270, 'Wanna go to the beach?', 5, '#05c49b'}
+	card {272, 332, 'This love song will set you free', 3, '#0ccba9'}
+	card {336, 407, 'Sweet dreams, my dear prince', 1, '#03d2a6'}
+	
+
+	--me(336,1,100,100,'hide','len',outElastic,1)
+	----------------bg/assets sections setup---------
+	--[[
+	for pn = 1, 2 do
+		for col = 0,3 do
+		P[pn]:SetNumStealthGradientPoints(col,2)
+		P[pn]:SetStealthGradientColor(0,col,1,1,1,1)
+		end
+	end
+	--]]
+	ease {0,4,outElastic, 1,'stealthpastreceptors'}
+
+	set {0,
+		50,'stealth',
+		80,'stealthglowgreen',
+		60,'stealthglowblue|1|1|0',
+		plr=1
+	}
+
+	set {0,
+		50,'stealth',
+		50,'stealthglowgreen',
+		60,'stealthglowblue|1|1|0',
+		plr=2
+	}
+
+	set {63,
+		0,'stealth',
+		0,'stealthglowgreen',
+		0,'stealthglowblue|1|1|0',
+		plr=1
+	}
+
+	set {64,
+		0,'stealth',
+		0,'stealthglowgreen',
+		0,'stealthglowblue|1|1|0',
+		plr=2
+	}
+	--------------------------------square and stuff---------
+
+	
+	me(0,1,320,320,'quadx','len',outCubic)
+	me(0,1,250,250,'quady','len',outCubic)
+
+	me(0,1,200,200,'quadx2','len',outCubic)
+	me(0,1,250,250,'quady2','len',outCubic)
+
+	me(0,1,440,440,'quadx3','len',outCubic)
+	me(0,1,250,250,'quady3','len',outCubic)
+
+	me(0,1,420,420,'quadx4','len',outCubic)
+	me(0,1,250,250,'quady4','len',outCubic)
+
+	me(0,1,470,470,'quadx5','len',outCubic)
+	me(0,1,250,250,'quady5','len',outCubic)
+
+	me(0,1,520,520,'quadx6','len',outCubic)
+	me(0,1,250,250,'quady6','len',outCubic)
+
+	me(0,1,570,570,'quadx7','len',outCubic)
+	me(0,1,250,250,'quady7','len',outCubic)
+
+	me(0,1,70,70,'quadx8','len',outCubic)
+	me(0,1,250,250,'quady8','len',outCubic)
+
+	me(0,1,570,570,'quadx9','len',outCubic)
+	me(0,1,250,250,'quady9','len',outCubic)
+
+	me(0,1,320,320,'heart2x','len',outCubic)
+	me(0,1,250,250,'heart2y','len',outCubic)
+
+	me(0,1,320,320,'crown2x','len',outCubic)
+	me(0,1,250,250,'crown2y','len',outCubic)
+	--------------------------------------------------------------------
+	
+	
+	me(226,1,320,520,'heart2x','len',inOutCubic)
+	me(226,1,250,250,'heart2y','len',inOutCubic)
+
+	me(230,1,520,320,'heart2x','len',inOutCubic)
+	me(230,1,250,350,'heart2y','len',inOutCubic)
+
+	me(234,1,320,120,'heart2x','len',inOutCubic)
+	me(234,1,350,250,'heart2y','len',inOutCubic)
+
+	me(238,1,120,320,'heart2x','len',inOutCubic)
+	me(238,1,250,150,'heart2y','len',inOutCubic)
+	-------------------------------------------
+	me(226,1,320,120,'crown2x','len',inOutCubic)
+	me(226,1,250,250,'crown2y','len',inOutCubic)
+
+	me(230,1,520,320,'crown2x','len',inOutCubic)
+	me(230,1,250,150,'crown2y','len',inOutCubic)
+
+	me(234,1,320,520,'crown2x','len',inOutCubic)
+	me(234,1,150,250,'crown2y','len',inOutCubic)
+
+	me(238,1,520,320,'crown2x','len',inOutCubic)
+	me(238,1,250,350,'crown2y','len',inOutCubic)
+
+
+	--func {224, 4, inCubic, 0, 100, function(p) rectangle5:rotationz(p) end}
+	--func {224, 4, inCubic, 0, 100, function(p) rectangle6:rotationz(p) end}
+
+	--func {224, 4, inCubic, 100, 100, function(p) rectangle5:zoom(p) end}
+	--func {224, 4, inCubic, 100, 100, function(p) rectangle6:zoom(p) end}
+	--func {64, 4, inCubic, 0, 100, function(p) rectangle4:zoomx(p) end}
+
+
+	for i=0,58,8 do
+		me(i+0,8,-360,0,'rotzsquare','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare','len',inOutCubic)
+
+		me(i+0,8,-360,0,'rotzsquare2','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare2','len',inOutCubic)
+
+		me(i+0,8,-360,0,'rotzsquare3','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare3','len',inOutCubic)
+	end
+
+	for i=336,397,8 do
+		me(i+0,8,-360,0,'rotzsquare','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare','len',inOutCubic)
+
+		me(i+0,8,-360,0,'rotzsquare2','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare2','len',inOutCubic)
+
+		me(i+0,8,-360,0,'rotzsquare3','len',inOutCubic)
+		me(i+4,8,360,0,'rotzsquare3','len',inOutCubic)
+	end
+
+	me(224,1,90,90,'striperotz','len',inOutCubic)
+	me(226,1,90,90,'striperotz','len',inOutCubic)
+	me(230,1,90,180,'striperotz','len',inOutCubic)
+	me(234,1,180,270,'striperotz','len',inOutCubic)
+	--me(238,1,270,360,'striperotz','len',outCubic)
+	--me(270,2,360,0,'striperotz','len',inOutCubic)
+
+	local fluct = 1
+	for i=1, table.getn(dodododo) do
+	local beat = dodododo[i][1]
+	local col = dodododo[i][2]
+		if col == 0 then
+			ease {beat, 2, flip(outCubic), 200*fluct, 'zoomquad2'}
+			
+		elseif col == 2 then
+			ease {beat, 2, flip(outCubic), 200*fluct, 'zoomquad'}
+			
+		elseif col == 3 then
+			ease {beat, 2, flip(outCubic), 200*fluct, 'zoomquad3'}
+		end	
+	fluct = fluct*-1
+	end
+
+	func {64, 4, linear, 0, 0.5, function(p) BG:diffusealpha(p) end}
+	func {190, 2, linear, 0.5, 0, function(p) BG:diffusealpha(p) end}
+	func {190, 2, linear, 0.5, 0, function(p) BG2:diffusealpha(p) end}
+	func {195, 2, linear, 0, 0.5, function(p) BG3:diffusealpha(p) end}
+	--func {126, 3, linear, 0.5, 0, function(p) BG:diffusealpha(p) end}
+
+	--func {126, 3, linear, 0, 0.7, function(p) BG2:diffusealpha(p) end}
+
+	--func {328, 4, linear, 0.5, 0, function(p) BG:diffusealpha(p) end}
+	func {328, 4, linear, 0.5, 0, function(p) BG3:diffusealpha(p) end}
+
+	--func {218, 2, linear, 0, 1, function(p) rectangle5:hidden(p) end}
+	func {220, 2, linear, 0, 1, function(p) rectangle5:diffusealpha(p) end}
+
+	func {224, 2, linear, 0, 0.9, function(p) Stripe:diffusealpha(p) end}
+	func {226, 1, linear, 0, 1, function(p) crown2:diffusealpha(p) end}
+	func {226, 1, linear, 0, 1, function(p) heart2:diffusealpha(p) end}
+
+	func {272, 1, linear, 1, 0, function(p) crown2:diffusealpha(p) end}
+	func {272, 1, linear, 1, 0, function(p) heart2:diffusealpha(p) end}
+	--func {222, 2, linear, 0, 1, function(p) rectangle6:diffusealpha(p) end}
+	func {328, 4, linear, 0.5, 0, function(p) BG3:diffusealpha(p) end}
+	func {328, 4, linear, 0.9, 0, function(p) Stripe:diffusealpha(p) end}
+	func {406, 1, linear, 1, 0, function(p) heartL:diffusealpha(p) end}
+	func {407, 1, linear, 1, 0, function(p) crownR:diffusealpha(p) end}
+	
+
+
+	local f = 1
+	for i =1, table.getn(pickle) do
+	local beat = pickle[i][1]
+	local col = pickle[i][2]
+		if col == 0 or col == 1 then
+		
+		ease2(beat,2,CubicS,180,'striperotz')
+		ease2(beat,2,CubicS,150,'crown2y')
+		ease2(beat,2,CubicS,350,'heart2y')
+		elseif col == 2 or col == 3 then
+		
+		ease2(beat,2,CubicS,0,'striperotz')
+		ease2(beat,2,CubicS,150,'heart2y')
+		ease2(beat,2,CubicS,350,'crown2y')
+		
+		end
+	f = f*-1
+	end
+
+	
+	me(272,60,-360*1,0,'striperotz','len',inOutCubic)
+	-------------------------------------------------------------------
+	ease{80,6,linear,0.5,'BG2diff'}
+	ease{184,6,linear,0,'BG2diff'}
+	---------------------------------------------------------
+	ease{64,6,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+
+	ease{95,6,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		100,'Circzoom12'
+	}
+	
+	ease{99,6,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		100,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+	ease{103,6,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		100,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+		
+	ease{107,4,inOutCubic,100,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		100,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	
+	ease{108.50,4,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		100,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+	ease{113.50,2,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		100,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+	ease{115.50,2,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		100,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+	ease{117.50,2,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		100,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	ease{119.50,2,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		100,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	ease{120.50,2,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		100,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	ease{121.50,2,inOutCubic,0,'Circzoom',
+		100,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	ease{122.50,2,inOutCubic,100,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+
+	
+	ease{123.50,6,inOutCubic,0,'Circzoom',
+		0,'Circzoom2',
+		0,'Circzoom3',
+		0,'Circzoom4',
+		0,'Circzoom5',
+		0,'Circzoom6',
+		0,'Circzoom7',
+		0,'Circzoom8',
+		0,'Circzoom9',
+		0,'Circzoom10',
+		0,'Circzoom11',
+		0,'Circzoom12'
+	}
+	
+	me(125,2,0,1,'crownz','len',inOutCubic)
+	me(127,2,1,0,'crownz','len',inOutCubic)
+
+	me(125,2,0,360*2,'crownrotz','len',inOutCubic)
+	me(127,2,360*2,0,'crownrotz','len',inOutCubic)
+
+	me(226,2,0,180,'rotzrec','len',inOutCubic)
+	me(226,2,0,-180,'rotzrec2','len',inOutCubic)
+	--me(222,2,180,0,'rotzrec','len',inOutCubic)
+	-------------
+	--[[
+	local f = 1
+	for i =1, table.getn(chlr) do
+	local beat = chlr[i][1]
+	local col = chlr[i][2]
+		if col == 0 then
+		
+		
+		ease2(beat,1,CubicO,100,'hearthide')
+		--ease2(beat,1,CubicO,0,'crownhide')
+		elseif col == 3 then
+		
+		
+		--ease2(beat,1,CubicO,0,'hearthide')
+		ease2(beat,1,CubicO,100,'crownhide')
+		
+		end
+	f = f*-1
+	end
+	--]]
+
+	me(399,1,1,1,'crownhide','len',outCubic)
+
+	me(400,1,1,0,'hearthide','len',outCubic)
+	me(401,1,0,1,'crownhide','len',outCubic)
+	me(401,1,1,1,'hearthide','len',outCubic)
+
+	me(402,1,0,1,'hearthide','len',outCubic)
+	me(403,1,1,0,'crownhide','len',outCubic)
+	me(404,1,1,1,'crownhide','len',outCubic)
+	
+	me(404,1,1,0,'hearthide','len',outCubic)
+	me(405,1,0,1,'crownhide','len',outCubic)
+	me(405,1,1,1,'hearthide','len',outCubic)
+
+	me(406,1,0,1,'hearthide','len',outCubic)
+	me(407,1,1,0,'crownhide','len',outCubic)
+	--me(402,1,0,100,'hearthide','len',outCubic)
+	--me(403,1,0,100,'crownhide','len',outCubic)
+	
+	------------
+
+	--func {126, 4, inCubic, 100, 10, function(p) crown:zoomz(p) end}
+
+	--[[
+	local fluct = 1
+	for i=1, table.getn(bubble) do
+	local beat = bubble[i][1]
+	local col = bubble[i][2]
+		if col == 0 then
+			--ease2(beat,1,inOutCubic,100,'Circzoom')
+			ease {beat, 7, flip(inverse), 500, 'Circzoom'}
+			--mod_bounce(i+0,5,0,100,'Circzoom','Cubic','Cubic')
+		elseif col == 1 then
+			--ease {beat, 3, flip(inOutCubic), 500, 'Circzoom2'}
+
+		elseif col == 2 then
+			--ease {beat, 3, flip(inOutCubic), 500, 'Circzoom3'}
+			
+		elseif col == 3 then
+			--ease {beat, 3, flip(inOutCubic), 500, 'Circzoom4'}
+		end	
+	fluct = fluct*-1
+	end
+	--]]
+	
+	--[[
+	func{32,function()
+		if P[pn] then
+			for col = 0,3 do
+				P[pn]:SetNumStealthGradientPoints(col,3)
+				P[pn]:SetStealthGradientColor(0,col,1,1,1,1)
+			end
+		end
+	end}
+	--]]
+	--------------------plr setup----------
+	
+	func{128,function()
+        for pn = 1,2 do
+            P[pn]:x(SCREEN_CENTER_X)
+        end
+    end}
+
+	--[[
+	func{272,function(beat)
+        for pn = 1,2 do
+			if P[pn] then 
+			P[pn]:pulse(0)
+			P[pn]:effectmagnitude(11, 12, 20) 
+			end
+        end
+    end}
+
+	func{300,function(beat)
+        for pn = 1,2 do
+			if P[pn] then 
+			P[pn]:pulse(0)
+			P[pn]:stopeffect(0, 0, 0) 
+			end
+        end
+    end}
+
+
+
+	
+	func{272,function(beat)
+        for pn = 1,2 do
+			if P[pn] then 
+			P[pn]:wag(0)
+			P[pn]:effectmagnitude(10, 10, 20) 
+			end
+        end
+    end}
+
+	func{300,function(beat)
+        for pn = 1,2 do
+			if P[pn] then 
+			P[pn]:wag(0)
+			P[pn]:stopeffect(0, 0, 0) 
+			end
+        end
+    end}
+	--]]
+	func{0,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(1)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+		end
+	end}
+
+	func{128,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(0)
+			PP2[pn]:hidden(0)
+			PP3[pn]:hidden(0)
+			PP4[pn]:hidden(0)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	
+	func{140,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(1)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	--[[
+	func{130,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(0)
+			PP2[pn]:hidden(0)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+
+	
+
+	func{132,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(0)
+			PP2[pn]:hidden(0)
+			PP3[pn]:hidden(0)
+			PP4[pn]:hidden(0)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+
+	func{134,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(0)
+			PP2[pn]:hidden(0)
+			PP3[pn]:hidden(0)
+			PP4[pn]:hidden(0)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	
+	func{137,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(1)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	
+
+	func{137,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(0)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	func{140,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(1)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	--]]
+	
+	--[[
+	func{134,function()
+        P1:x(SCREEN_CENTER_X - (sw / 4))
+        P2:x(SCREEN_CENTER_X + (sw / 4))
+	end}
+	--]]
+	
+	----------------------------------------------------------------------
+	
+	func{0,function()
+		rectangle1:hidden(1)
+		rectangle2:hidden(1)
+		rectangle3:hidden(1)
+		rectangle4:hidden(1)
+		rectangle5:hidden(1)
+		rectangle6:hidden(1)
+		BG:diffusealpha(0)
+		BG3:hidden(1)
+		BG2:hidden(0)
+		BG:hidden(0)
+		heart:hidden(1)
+		heart2:hidden(1)
+		crown:hidden(1)
+		crown2:hidden(1)
+		circ1:hidden(1)
+		circ2:hidden(1)
+		circ3:hidden(1)
+		circ4:hidden(1)
+		circ5:hidden(1)
+		circ6:hidden(1)
+		circ7:hidden(1)
+		circ8:hidden(1)
+		circ9:hidden(1)
+		circ10:hidden(1)
+		circ11:hidden(1)
+		circ12:hidden(1)
+		quad2:hidden(1)
+		quad1:hidden(1)
+		Stripe:hidden(1)
+		heartL:hidden(1)
+		crownR:hidden(1)
+	end}
+
+
+
+	func{64,function()
+		circ1:hidden(0)
+		circ2:hidden(0)
+		circ3:hidden(0)
+		circ4:hidden(0)
+		circ5:hidden(0)
+		circ6:hidden(0)
+		circ7:hidden(0)
+		circ8:hidden(0)
+		circ9:hidden(0)
+		circ10:hidden(0)
+		circ11:hidden(0)
+		circ12:hidden(0)
+	end}
+
+	func{125,function()
+		crown:hidden(0)
+	end}
+
+	func{129,function()
+		crown:hidden(1)
+	end}
+
+	func{128,function()
+		BG:diffusealpha(1)
+		BG2:diffusealpha(0)
+		BG3:hidden(0)
+		BG2:hidden(0)
+		BG:hidden(0)
+		crown2:hidden(1)
+		circ1:hidden(1)
+		circ2:hidden(1)
+		circ3:hidden(1)
+		circ4:hidden(1)
+		circ5:hidden(1)
+		circ6:hidden(1)
+		circ7:hidden(1)
+		circ8:hidden(1)
+		circ9:hidden(1)
+		circ10:hidden(1)
+		circ11:hidden(1)
+		circ12:hidden(1)
+
+		crownR:hidden(1)
+		heartL:hidden(1)
+	end}
+
+	
+
+	func{220,function()
+		rectangle1:hidden(1)
+		rectangle2:hidden(1)
+		rectangle3:hidden(1)
+		rectangle4:hidden(1)
+		rectangle5:hidden(1)
+		rectangle6:hidden(1)
+		quad2:hidden(1)
+		quad1:hidden(1)
+	end}
+
+	func{226,function()
+		rectangle1:hidden(1)
+		rectangle2:hidden(1)
+		rectangle3:hidden(1)
+		rectangle4:hidden(1)
+		rectangle5:hidden(1)
+		rectangle6:hidden(1)
+		quad2:hidden(1)
+		quad1:hidden(1)
+	end}
+
+	func{224,function()
+		Stripe:hidden(0)
+		heart2:hidden(1)
+		crown2:hidden(1)
+	end}
+
+	func{226,function()
+		Stripe:hidden(0)
+		heart2:hidden(0)
+		crown2:hidden(0)
+	end}
+
+	func{272,function()
+		rectangle1:hidden(1)
+		rectangle2:hidden(1)
+		rectangle3:hidden(1)
+		rectangle4:hidden(1)
+		rectangle5:hidden(1)
+		rectangle6:hidden(1)
+		quad2:hidden(1)
+		quad1:hidden(1)
+	end}
+
+	
+
+	
+	--[[
+	func{0,function()
+        for pn = 1,2 do
+            P[pn]:x(SCREEN_CENTER_X)
+        end
+    end}
+	--]]
+
+	
+	
+	--[[
+	func{140,function()
+		for pn = 1,2 do
+			PP1[pn]:hidden(1)
+			PP2[pn]:hidden(1)
+			PP3[pn]:hidden(1)
+			PP4[pn]:hidden(1)
+			PP5[pn]:hidden(1)
+			PP6[pn]:hidden(1)
+			PP7[pn]:hidden(1)
+
+			PP1[pn]:x(-sw*0.5)
+			PP2[pn]:x(-sw)
+			PP3[pn]:x(-sw*1.5)
+			PP4[pn]:x(-sw*2)
+		end
+	end}
+	--]]
+
+	
+end)"
+Type = "ActorFrame"
+><children>
+	<Layer Type ="Quad" Name = "BG"/>
+	<Layer Type ="Quad" Name = "BG2"/>
+	<Layer Type ="Quad" Name = "BG3"/>
+
+	
+	<Layer Type ="Quad" Name = "square"/>
+	<Layer Type ="Quad" Name = "square2"/>
+	<Layer Type ="Quad" Name = "square3"/>
+
+	<Layer Type ="Quad" Name = "rectangle1"/>
+	<Layer Type ="Quad" Name = "rectangle2"/>
+	<Layer Type ="Quad" Name = "rectangle3"/>
+	<Layer Type ="Quad" Name = "rectangle4"/>
+	<Layer Type ="Quad" Name = "rectangle5"/>
+	<Layer Type ="Quad" Name = "rectangle6"/>
+
+	<Layer File = "../images/quad1.png" Name = "quad1" />
+	<Layer File = "../images/quad2.png" Name = "quad2" />
+
+	<Layer File = "../images/Stripe.png" Name = "Stripe"/>
+
+	<Layer File = "../images/circ12.png" Name = "circ12" />
+	<Layer File = "../images/circ11.png" Name = "circ11" />
+	<Layer File = "../images/circ10.png" Name = "circ10" />
+	<Layer File = "../images/circ9.png" Name = "circ9" />
+	<Layer File = "../images/circ8.png" Name = "circ8" />
+	<Layer File = "../images/circ7.png" Name = "circ7" />
+	<Layer File = "../images/circ6.png" Name = "circ6" />
+	<Layer File = "../images/circ5.png" Name = "circ5" />
+	<Layer File = "../images/circ4.png" Name = "circ4" />
+	<Layer File = "../images/circ3.png" Name = "circ3" />
+	<Layer File = "../images/circ2.png" Name = "circ2" />
+	<Layer File = "../images/circ1.png" Name = "circ1" />
+
+
+	
+	<Layer File = "../images/crownR.png" Name = "crownR" />
+	<Layer File = "../images/heartL.png" Name = "heartL" />
+
+	<Layer File = "../images/crown.png" Name = "crown" />
+	<Layer File = "../images/crown2.png" Name = "crown2" />
+
+	<Layer File = "../images/white heart.png" Name = "heart" />
+
+	<Layer File = "../images/heart2.png" Name = "heart2" />
+
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+
+	<Layer Type = "ActorProxy" Name = "PP1[1]" />
+	<Layer Type = "ActorProxy" Name = "PP1[2]" />
+	<Layer Type = "ActorProxy" Name = "PP2[1]" />
+	<Layer Type = "ActorProxy" Name = "PP2[2]" />
+	<Layer Type = "ActorProxy" Name = "PP3[1]" />
+	<Layer Type = "ActorProxy" Name = "PP3[2]" />
+	<Layer Type = "ActorProxy" Name = "PP4[1]" />
+	<Layer Type = "ActorProxy" Name = "PP4[2]" />
+	<Layer Type = "ActorProxy" Name = "PP5[1]" />
+	<Layer Type = "ActorProxy" Name = "PP5[2]" />
+	<Layer Type = "ActorProxy" Name = "PP6[1]" />
+	<Layer Type = "ActorProxy" Name = "PP6[2]" />
+	<Layer Type = "ActorProxy" Name = "PP7[1]" />
+	<Layer Type = "ActorProxy" Name = "PP7[2]" />
+</children></Mods>

@@ -1,0 +1,1530 @@
+<ActorFrame
+InitCommand="%function(self)
+
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	
+	mod_globaloffset = PREFSMAN:GetPreference('GlobalOffsetSeconds');
+	
+	sw = SCREEN_WIDTH
+	sh = SCREEN_HEIGHT --shortcuts
+	
+	function Plr(pn)
+		return _G['P'..pn]
+	end
+	function GetJud(pn)
+		return _G['jud'..pn]
+	end
+	function GetCom(pn)
+		return _G['com'..pn]
+	end
+	
+	function mod_do(str,pn)
+		if pn then
+			GAMESTATE:ApplyGameCommand('mod,'..str,pn)
+		else
+			GAMESTATE:ApplyGameCommand('mod,'..str)
+		end
+	end
+	
+	function taro_Sound(str)
+		local met = GAMESTATE:GetCurrentSong():GetSongDir();
+		SOUND:PlayOnce(met..'lua/'..str..'.ogg');
+	end
+	
+end"
+>
+<children>
+	--ctrl c and ctrl v makes me a good programmer
+	<Layer
+    OnCommand="%function(self)
+       
+        if tonumber(GAMESTATE:GetVersionDate()) >= 20170714 then
+            --start,end,name,difficulty,color
+            local mbc3_spellcards = {
+                {36,68,'swingin\'',1,{.6,.1,.1,1}},
+                {72,104,'what is your opinion on the red room?',2,{.9,.2,.1,1}},
+				{112,168,'byoing',5,{.6,.1,.1,1}},
+				{180,208,'do you have a second opinion?',2,{.9,.2,.1,1}},
+				{212,284,'taking turns',7,{.6,.1,.1,1}},
+			}
+			
+            local s = GAMESTATE:GetCurrentSong()
+            
+            --send spellcards
+            if table.getn(mbc3_spellcards) ~= 0  then
+
+                s:SetNumSpellCards(table.getn(mbc3_spellcards))
+                for i=1,table.getn(mbc3_spellcards) do
+                    local a = mbc3_spellcards[i]
+                    s:SetSpellCardTiming(i-1,a[1],a[2])
+                    s:SetSpellCardName(i-1,a[3])
+                    s:SetSpellCardDifficulty(i-1,a[4])
+                    s:SetSpellCardColor(i-1,a[5][1],a[5][2],a[5][3],a[5][4])
+                end
+            end
+        end
+    end"
+	/>
+	<Layer
+		Type="Quad"
+		InitCommand="hidden,1"
+		OnCommand="sleep,1000"
+	/>
+	
+	<Layer File="modhelpers.xml" />
+	<Layer File="easing.xml" />
+	
+	<Layer
+		Type="Quad"
+		OnCommand="hidden,1"
+		InitCommand="%function(self)
+		
+			checked = false;
+		
+			---------------------------------------------------------
+			---------DOCUMENTATION-----------------------------------
+			---------------------------------------------------------
+			
+			--function perframe( beat, endBeat )
+				--return true if the current beat is between 'beat' and 'endBeat'
+			
+			--function mod_shader(beat,key,which)
+				--turn on shader key at specified beat (up to 10 keys available, defined by 'which' = 0-9
+				
+			--function mod_insert(beat,len,mod,len_or_end,pn)
+				--insert mod into beat mods table
+			--function mod_insert2(time,len,mod,len_or_end,pn)
+				--insert mod into time mods table
+				
+			--function mod_message(beat,msg,persistent)
+				--insert something into the actions table.
+				--msg can also be a function. If string, a message gets broadcast at that beat
+				--if 'persistent' is true, message will run even if editor starts at a beat past it
+				
+			--function mod_blacklist(t,n)
+				--check if number n occurs in table t
+				--useful for doing 'every beat EXCEPT the contents of t'
+				
+			--function simple_m0d(beat,strength,mult,mod)
+			--function simple_m0d2(beat,strength,mult,mod,pn)
+			--function simple_m0d3(beat,strength,duration,bpm,mod,pn)
+				--activate mods at specific beat but also deactivate them
+				
+			--function mod_wiggle(beat,num,div,amt,speed,mod,pn,first)
+				--alternates a mod back and forth before resetting to 0
+				
+			--function mod_springt(time,strength,dur,mod,pn)
+				--time-based per-frame alternating mod that decreases based on how much time is left.
+					--think doorstopper
+			
+			--function mod_springt2(time,strength,dur,mod,pn)
+				--time-based per-frame alternating mod
+			
+			--function mod_onebeat(beat,strength,pn)
+				--turns on beat for the beat specified, at the desired strength	
+			
+			--function switcheroo_add(beat,which,speed,len,pn)
+				--adds a column swap at the desired beat
+			--[[	switcheroos = {normal = {0,0}, ldur = {0,0}, reset = {0,0},
+					flip = {100,0}, rudl = {100,0}, invert = {0,100}, dlru = {0,100},
+					ludr = {25,-75}, rdul = {75,75}, drlu = {25,125}, ulrd = {75,-125}, urld = {100,-100}}
+			]]
+			
+			--use a variable called 'switcheroo_width' to change how much space is between each column
+			--e.g. switcheroo_width = 2 for ayakashi
+			
+			--function mod_sugarkiller(beat,duration,speed,minstealth,maxstealth,pn)
+				--portable version of the effect from sugarkill X
+				
+			--function doSpline(spd, axis, path, col)
+				--draws spline 'path' in specified axis, for specific col. Offsets are *10000, but positions use *spd
+				
+			--function doSplineAll(spd, axis, path)
+				--same as above, but for all columns
+				--(faster performance than using doSpline 4 times due to more efficient concat)
+			
+			--function mindf_rotateAndCounter(xDegrees, yDegrees, zDegrees, player)
+				--counteract euler rotations after rotating player in multiple axes, using a TON of math.
+			
+			
+			---------------------------------------------------------
+			--------END DOCUMENTATION--------------------------------
+			---------------------------------------------------------
+			
+			local m = mod_insert
+			local m2 = mod_message
+			local me = mod_ease
+			
+			
+			local l = 'len'
+			local e = 'end'
+			
+			
+			
+			
+			
+			
+			
+			init_modsp1 = '';
+			init_modsp2 = '';
+			
+			mod_plr = {};
+			
+			mod_firstSeenBeat = GAMESTATE:GetSongBeat(); --necessary to prevent long freezes
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+---------------------------------------------------------------------------------------
+----------------------Begin tables 'n stuff--------------------------------------------
+---------------------------------------------------------------------------------------
+
+			--beat based mods
+			--{beat_start, beat_end, mods, len_or_end, player_number}
+			mods = {
+				{0,9999,'*2 2.3x, *1000 no beat, *10000 -99999 cover','end'},
+			} -- guess 2x is fine, maybe 2.5x if its too slow?
+			
+			--switcheroos = {{0,0},{100,0},{0,100},{25,-75},{75,75},{25,125},{75,-125},{100,-100}}
+			
+			
+			
+			
+			
+			
+			
+			--time based mods
+			mod_time = 0;
+			--{time_start, time_end, mods, len_or_end, player_number}
+			mods2 = {
+				--{0,200.345,'3x','end',1},
+			}
+			
+			
+			
+			
+			--this is both a message broadcaster and a function runner
+			--if you put {beat,'String'}, then 'String' is broadcast as a message on that beat
+			--if you put {beat,function() somecode end}, then function() is run at that beat
+			--see example on beat 32
+			
+			curaction = 1;
+			--{beat,thing,persists}
+			mod_actions = {
+			
+			
+				
+			}
+			
+			
+			--beat-based ease mods
+			--{time_start, time_end, mod_start, mod_end, mod, len_or_end, ease_type, player_number, sustaintime, optional_param1, optional_param2}
+			--valid ease types are:
+				--linear
+				--inQuad    outQuad    inOutQuad    outInQuad
+				--inCubic   outCubic   inOutCubic   outInCubic
+				--inQuart   outQuart   inOutQuart   outInQuart
+				--inQuint   outQuint   inOutQuint   outInQuint
+				--inSine    outSine    inOutSine    outInSine
+				--inExpo    outExpo    inOutExpo    outInExpo
+				--inCirc    outCirc    inOutCirc    outInCirc
+				--inElastic outElastic inOutElastic outInElastic    --can take 2 optional parameters - amplitude & period
+				--inBack    outBack    inOutBack    outInBack       --can take 1 optional parameter  - spring amount
+				--inBounce  outBounce  inOutBounce  outInBounce
+				
+			mods_ease = {
+				-- EXAMPLE TWEEN: from beat 0 to 4, make rotationz go from 360 to 0 with the inOutBack tween
+				--{0,4,360,0,'rotationz','end',inOutBack},
+			}
+			
+			--im gonna leave comments around as like a pov: you have no clue how to mod and got one (1) idea for a file
+			--ok note to self dont put quotation marks in commments got it
+			--also lets see how many semicolons i accidently leave in because (glances at java js and c++)
+			
+			pi = 3.14 -- could add more digits but it really doesnt matter.
+			--begone, bg
+			m2(0, function()
+				--ok so apparently i should just make actors of p1 and p2 to get this black quad as the bg
+				--was gonna set the bg to diffuse to black but apparently that just doesnt work
+				--this is probably not the right thing to do but idc ill see if it works
+				bgsprite:hidden(0)
+				bgsprite:diffuse(0, 0, 0, 0)
+				bgsprite:xywh(sw/2, sh/2, sw*1.2, sh*1.2)
+				bgsprite:accelerate(4 * 60/136)
+				bgsprite:diffusealpha(1)
+				--P1:hidden(1)
+				--P2:hidden(1)
+				--P1ap:hidden(0)
+				--P2ap:hidden(0)
+				--ok i tested and it works but im gonna wait a bit to unhide the proxies for Effect
+			end)
+			
+			m2(4, function()
+				P1:hidden(1)
+				P2:hidden(1)
+				P1ap:hidden(0)
+				P2ap:hidden(0) -- gaming !
+			end)
+			
+			--ok intro mods
+			
+			me(4, 8, 100, 80, 'dark', 'end', linear)
+			m(8, 20, '-1 80 dark', 'len')
+			m(4, 24, '-1 100 drunk', 'len')
+			m(4, 24, '-1 100 tipsy', 'len')
+			m(4, 24, '-1 20 reverse', 'len')
+			m(4, 24, '-1 -50 mini', 'len')
+			me(28, 32, 80, 0, 'dark', 'end', linear)
+			me(28, 32, 100, 0, 'drunk', 'end', linear)
+			me(28, 32, 100, 0, 'tipsy', 'end', linear)
+			me(28, 32, 20, 0, 'reverse', 'end', linear)
+			me(28, 32, -50, 0, 'mini', 'end', linear)
+			
+			--ooo i could do funny confusionoffset stuff in the intro so that everyone thinks im Cool (and also because it would look cute)
+			--should make some helper functions here though
+			function setAllArrowDirections(beat_start, beat_end, angle, len_or_end)
+				--up = 0 degrees because it makes sense to me
+				--errr its radians so 0 rad. whatever.
+				--reminds me - pi constant! (put at the top just now)
+				m(beat_start, beat_end, '*-1 ' .. angle + pi * 100/2 .. ' confusionoffset0', len_or_end)
+				m(beat_start, beat_end, '*-1 ' .. angle - pi * 100 .. ' confusionoffset1', len_or_end)
+				m(beat_start, beat_end, '*-1 ' .. angle .. ' confusionoffset2', len_or_end)
+				m(beat_start, beat_end, '*-1 ' .. angle - pi * 100/2 .. ' confusionoffset3', len_or_end)
+			end
+			function easeAllArrowDirections(beat_start, beat_end, angle1, angle2, len_or_end, ease)
+				me(beat_start, beat_end, angle1 + pi * 100/2, angle2 + pi * 100/2, 'confusionoffset0', len_or_end, ease)
+				me(beat_start, beat_end, angle1 - pi * 100, angle2 - pi * 100, 'confusionoffset1', len_or_end, ease)
+				me(beat_start, beat_end, angle1, angle2, 'confusionoffset2', len_or_end, ease)
+				me(beat_start, beat_end, angle1 - pi * 100/2, angle2 - pi * 100/2, 'confusionoffset3', len_or_end, ease)
+			end
+			function easeResetAllArrowDirections(beat_start, beat_end, curangle, len_or_end, ease)
+				me(beat_start, beat_end, curangle + pi * 100/2, 0, 'confusionoffset0', len_or_end, ease)
+				me(beat_start, beat_end, curangle - pi * 100, 0, 'confusionoffset1', len_or_end, ease)
+				me(beat_start, beat_end, curangle, 0, 'confusionoffset2', len_or_end, ease)
+				me(beat_start, beat_end, curangle - pi * 100/2, 0, 'confusionoffset3', len_or_end, ease)
+			end
+			--wow this was very unnecessary. cool.
+			angle = 20
+			setAllArrowDirections(4, 32, pi * -angle/1.8, 'end') -- starting point
+			easeAllArrowDirections(5, 1, pi * -angle/1.8, 0, 'len', inSine) -- insine in the membrine
+			easeAllArrowDirections(6, 1, 0, pi * angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(7, 1, pi * angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(8, 1, 0, pi * -angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(9, 1, pi * -angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(10, 1, 0, pi * angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(11, 1, pi * angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(12, 1, 0, pi * -angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(13, 1, pi * -angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(14, 1, 0, pi * angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(15, 1, pi * angle/1.8, pi * -angle/1.8, 'len', inSine)
+			easeAllArrowDirections(16, 1, pi * -angle/1.8, pi * -(3*angle)/1.8, 'len', inSine)
+			easeAllArrowDirections(17, 2, pi * -(3*angle)/1.8, pi * (-360 + angle)/1.8, 'len', outCubic)
+			easeAllArrowDirections(19, 1, pi * angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(20, 1, 0, pi * -angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(21, 1, pi * -angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(22, 1, 0, pi * angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(23, 1, pi * angle/1.8, 0, 'len', inSine)
+			easeAllArrowDirections(24, 1, 0, pi * -angle/1.8, 'len', outCubic)
+			easeAllArrowDirections(25, 1, pi * -angle/1.8, pi * angle/1.8, 'len', inSine)
+			easeAllArrowDirections(26, 1, pi * angle/1.8, pi * (180 + angle)/1.8, 'len', outCubic)
+			easeAllArrowDirections(27, 1, pi * (180 + angle)/1.8, pi * 100, 'len', inSine)
+			easeAllArrowDirections(28, 1, pi * 100, pi * (180 - angle)/1.8, 'len', outCubic)
+			easeAllArrowDirections(29, 1, pi * (180 - angle)/1.8, pi * (180 + 1.5 * angle)/1.8, 'len', outCubic)
+			easeAllArrowDirections(30, 1, pi * (180 + 1.5 * angle)/1.8, pi * (180 - 2 * angle)/1.8, 'len', outCubic)
+			easeAllArrowDirections(31, 1, pi * (180 - 2 * angle)/1.8, pi * (180 + 2.5 * angle)/1.8, 'len', outCubic)
+			easeResetAllArrowDirections(32, 1, pi * (180 + 2.5 * angle)/1.8, 'len', outCubic)
+			
+			--ok now that that's over with, actual modding!
+			
+			me(33, 0.1, 0, 30, 'mini', 'len', outSine)
+			me(33, 0.8, 20, 0, 'tipsy', 'len', linear)
+			me(33.1, 0.7, 30, 10, 'mini', 'len', inSine)
+			me(34, 0.1, 10, 40, 'mini', 'len', outSine)
+			me(34, 0.8, 20, 0, 'tipsy', 'len', linear)
+			me(34.1, 0.7, 40, 20, 'mini', 'len', inSine)
+			me(35, 0.1, 20, 60, 'mini', 'len', outSine)
+			me(35, 0.8, 20, 0, 'tipsy', 'len', linear)
+			me(35.1, 0.7, 60, 40, 'mini', 'len', inSine)
+			me(36, 0.5, 40, 0, 'mini', 'len', outSine)
+			m(35, 500, '*-1 10000 zigzagPeriod', 'end') -- the Forever zigzag
+			for i=36, 59 do
+				mult = 1000
+				if i%2 == 1 then
+					mult = -1000
+				end
+				m(i - 0.1, 1, '*100 ' .. mult .. ' zigzag', 'len')
+				
+				--also thinking about movey across?
+				arrow = i % 4
+				move = -50
+				me(i - 0.1, 0.5, 0, move, 'movey'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, move, 0, 'movey'..arrow, 'len', inCubic)
+				--and maybe arrowpath? idk i feel like im just copying this from somewhere without realizing but oh well
+				me(i - 0.1, 0.5, 0, 100, 'arrowpath'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, 100, 0, 'arrowpath'..arrow, 'len', inCubic)
+			end
+			--ok its pretty basic but not bad!
+			m(59.75, 1, '*100 0 zigzag', 'len')
+			m(59.75, 60, '*-1 -50 mini', 'end')
+			me(60, 0.5, -50, 0, 'mini', 'len', inSine)
+			me(60.5, 0.5, -75, 0, 'mini', 'len', inSine)
+			me(61, 0.5, -100, 0, 'mini', 'len', inSine)
+			me(61.5, 0.5, -125, 0, 'mini', 'len', inSine)
+			m(62, 2, '*-1 -150 mini', 'len')
+			-- and bring the playfields together!
+			
+			jm = 32
+			judgemove = jm
+			m2(59.75, function()
+				for p=1,2 do
+					local j = judgemove
+					Plr(p):x(sw/2 - 128 + (256 * (p-1))) -- thinking
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(60.5, function()
+				for p=1,2 do
+					local j = judgemove
+					Plr(p):x(sw/2 - 96 + (192 * (p-1)))
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(61, function()
+				for p=1,2 do
+					local j = judgemove
+					Plr(p):x(sw/2 - 64 + (128 * (p-1)))
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(61.5, function()
+				for p=1,2 do
+					local j = judgemove
+					Plr(p):x(sw/2 - 32 + (64 * (p-1)))
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(62, function()
+				for p=1,2 do
+					local j = judgemove
+					Plr(p):x(sw/2)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			me(63, 64, -150, 0, 'mini', 'end', linear)
+			m(63.75, 66.75, '*10 100 tipsy, *10 100 drunk, *10 100 confusion', 'end')
+			
+			m(66.75, 5, '*100 -200 mini, *-1 0 confusion, *100 20 reverse', 'len') 
+			me(66.75, 72, -50, 0, 'tipsy', 'end', inSine)
+			me(66.75, 72, -50, 0, 'drunk', 'end', inSine)
+			me(71, 72, -200, 0, 'mini', 'end', inSine)
+			me(71, 72, 20, 0, 'reverse', 'end', inSine)
+			
+			--some accents
+			me(64.333, 0.1, 100, 0, 'arrowpath0', 'len', inSine)
+			me(64.500, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(64.833, 0.1, 100, 0, 'arrowpath2', 'len', inSine)
+			me(65.000, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			me(65.333, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(65.500, 0.1, 100, 0, 'arrowpath2', 'len', inSine)
+			me(65.833, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			me(66.000, 0.1, 100, 0, 'arrowpath0', 'len', inSine)
+			me(66.333, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(66.500, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			--OH AND A ROTATION!
+			
+			m2(66.75, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(4 * 60/136)
+					plr:rotationz(720)
+				end
+			end) -- meant to do a different rotation but this is cooler!
+			m2(72, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(0 * 60/136)
+					plr:rotationz(0)
+				end
+			end)
+			--ok what do i do for this next part i always suck at buildups uhhhh
+			--maybe just repeat the first part but move the playfield on the BA DA DA DA
+			--see how that looks
+			--also when in doubt beat
+			m(71.5, 104.5, '*-1 beat', 'end')
+			for i=72, 95 do
+				mult = 1000
+				if i%2 == 1 then
+					mult = -1000
+				end
+				m(i - 0.1, 1, '*100 ' .. mult .. ' zigzag', 'len')
+				arrow = i % 4
+				move = -50
+				me(i - 0.1, 0.5, 0, move, 'movey'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, move, 0, 'movey'..arrow, 'len', inCubic)
+				me(i - 0.1, 0.5, 0, 100, 'arrowpath'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, 100, 0, 'arrowpath'..arrow, 'len', inCubic)
+			end
+			for i=96, 101.5, 0.5 do
+				mult = 2000
+				if (i*2)%2 == 1 then
+					mult = -2000
+				end
+				m(i - 0.1, 1, '*100 ' .. mult .. ' zigzag', 'len')
+				arrow = (i*2) % 4
+				me(i - 0.1, 0.5, 0, 100, 'arrowpath'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, 100, 0, 'arrowpath'..arrow, 'len', inCubic)
+			end
+			m(102, 1, '*100 0 zigzag', 'len')
+			--now, the playfield movements
+			--there is 100% a better way to do this but idc
+			
+			m2(72, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 - 120)
+					plr:decelerate(0 * 60 / 136)
+				end
+			end) -- ok but this slide is kinda slick
+			m2(78.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 60)
+				end
+			end)
+			m2(79, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 0)
+				end
+			end)
+			m2(79.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 60)
+				end
+			end)
+			m2(80, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 120)
+				end
+			end)
+			me(78.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(79, 0.5, -100, 0, 'mini', 'len', linear)
+			me(79.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(80, 0.5, -100, 0, 'mini', 'len', linear)
+			m2(86.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 60)
+				end
+			end)
+			m2(87, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 0)
+				end
+			end)
+			m2(87.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 60)
+				end
+			end)
+			m2(88, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 120)
+				end
+			end)
+			me(86.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(87, 0.5, -100, 0, 'mini', 'len', linear)
+			me(87.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(88, 0.5, -100, 0, 'mini', 'len', linear)
+			m2(89, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(7 * 60 / 136)
+					plr:x(sw/2)
+				end
+			end)
+			
+			--and a bit of mini for the end
+			me(96, 104, 0, -150, 'mini', 'end', inSine)
+			me(100, 104, 0, 30, 'reverse', 'end', inSine)
+			m(104, 4, '*-1 -150 mini, *-1 30 reverse, *-1 50 tipsy', 'len')
+			me(108, 109, -150, 0, 'mini', 'end', outSine)
+			me(108, 109, 30, 0, 'reverse', 'end', outSine)
+			me(108, 109, 50, 0, 'tipsy', 'end', outSine)
+			--split 'em up to prepare for the next section (which is the big idea that led to me modding this)
+			m2(108, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 - 160 + (p-1)*320)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			
+			-- smaller version of it for buildup...
+			for i=109,111,1 do
+				m2(i, function()
+					for p=1,2 do
+						local beatmaybe = math.floor(GAMESTATE:GetSongBeat()+0.1)
+						local plr = Plr(p)
+						plr:decelerate(0.8 * 60 / 136)
+						local num = (1+(beatmaybe%2))
+						if p == num then
+							--enlarge field
+							plr:zoom(1.1)
+							plr:x(sw/2 - 120 + (p-1)*240)
+							--and rotate in
+							plr:rotationz(5 - ((p-1) * 10))
+						else
+							--shrink away
+							plr:zoom(0.7)
+							plr:x(sw/2 - 240 + (p-1)*480)
+							plr:rotationz(0)
+						end
+					end
+				end)
+			end
+			--and cool thing go!
+			for i=112,138,1 do
+				m2(i, function()
+					for p=1,2 do
+						local beatmaybe = math.floor(GAMESTATE:GetSongBeat()+0.1)
+						local plr = Plr(p)
+						plr:decelerate(0.9 * 60 / 136)
+						local num = (1+(beatmaybe%2))
+						if p == num then
+							--enlarge field
+							plr:zoom(1.2)
+							plr:x(sw/2 - 80 + (p-1)*160)
+							plr:rotationz(10 - ((p-1) * 20))
+						else
+							--shrink away
+							plr:zoom(0.5)
+							plr:x(sw/2 - 400 + (p-1)*800)
+							plr:rotationz(0)
+						end
+					end
+				end)
+				-- and a lil tipsy, as a treat
+				local toggle = (i%2) * 2 - 1
+				me(i, 1, 50 * toggle, -50 * toggle, 'tipsy', 'len', inOutSine)
+			end
+			
+			m2(138.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 - 160 + (p-1)*320)
+					plr:rotationz(0)
+					plr:zoom(1)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			
+			--baby mode again
+			for i=141,143,1 do
+				m2(i, function()
+					for p=1,2 do
+						local beatmaybe = math.floor(GAMESTATE:GetSongBeat()+0.1)
+						local plr = Plr(p)
+						plr:decelerate(0.8 * 60 / 136)
+						local num = (1+((beatmaybe+1)%2))
+						if p == num then
+							--enlarge field
+							plr:zoom(1.1)
+							plr:x(sw/2 - 120 + (p-1)*240)
+							--and rotate in
+							plr:rotationz(5 - ((p-1) * 10))
+						else
+							--shrink away
+							plr:zoom(0.7)
+							plr:x(sw/2 - 240 + (p-1)*480)
+							plr:rotationz(0)
+						end
+					end
+				end)
+			end
+			
+			m2(144, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(0.5 * 60 / 136)
+					plr:x(sw/2 - 60 + (p-1)*120)
+					if p == 1 then
+						plr:rotationz(0)
+					end
+				end
+			end)
+			m2(144.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(0.5 * 60 / 136)
+					plr:x(sw/2 + 60 - (p-1)*120)
+					if p == 1 then
+						plr:rotationz(-5)
+					end
+				end
+			end)
+			
+			for i=145,166,1 do
+				m2(i, function()
+					for p=1,2 do
+						local beatmaybe = math.floor(GAMESTATE:GetSongBeat()+0.1)
+						local plr = Plr(p)
+						plr:decelerate(0.9 * 60 / 136)
+						local num = (1+(beatmaybe%2))
+						if p == num then
+							--enlarge field
+							plr:zoom(1.2)
+							plr:x(sw/2 + 80 - (p-1)*160)
+							plr:rotationz(-10 + ((p-1) * 20))
+						else
+							--shrink away
+							plr:zoom(0.5)
+							plr:x(sw/2 + 440 - (p-1)*880) -- *slight* difficulty increase
+							plr:rotationz(0)
+						end
+					end
+				end)
+				-- and a lil tipsy, as a treat
+				local toggle = (i%2) * 2 - 1
+				me(i, 1, 50 * toggle, -50 * toggle, 'tipsy', 'len', inOutSine)
+			end
+			--...this is a lot less cool than i thought it would be. but still pretty cool! not disappointed
+			
+			--accenting mods:
+			m(111.5, 166.5, '*-1 beat', 'end')
+			me(127, 1, 314, 0, 'confusionoffset', 'len', outSine)
+			me(159, 1, 314, 0, 'confusionoffset', 'len', outSine)
+			
+			m2(167, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 + 160 - (p-1)*320)
+					plr:rotationz(0)
+					plr:zoom(1)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			
+			jm = 32
+			judgemove = jm
+			m2(167.75, function()
+				for p=1,2 do
+					local j = judgemove
+					local plr = Plr(p)
+					plr:decelerate(0.5 * 60 / 136)
+					plr:x(sw/2 + 160 - (p-1)*320)
+					plr:rotationz(0)
+					plr:zoom(1)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(168.5, function()
+				for p=1,2 do
+					local j = judgemove
+					local plr = Plr(p)
+					plr:x(sw/2 + 120 - (p-1)*240)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(169, function()
+				for p=1,2 do
+					local j = judgemove
+					local plr = Plr(p)
+					plr:x(sw/2 + 80 - (p-1)*160)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(169.5, function()
+				for p=1,2 do
+					local j = judgemove
+					local plr = Plr(p)
+					plr:x(sw/2 + 40 - (p-1)*80)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			judgemove = judgemove + jm
+			m2(170, function()
+				for p=1,2 do
+					local j = judgemove
+					local plr = Plr(p)
+					plr:x(sw/2 + 0 - (p-1)*0)
+					GetJud(p):x(-j + (j*2 * (p-1)))
+					GetCom(p):x(-j + (j*2 * (p-1)))
+				end
+			end)
+			m(167.75, 0.25, '*-1 -50 mini', 'len')
+			me(168, 0.5, -50, 0, 'mini', 'len', inSine)
+			me(168.5, 0.5, -75, 0, 'mini', 'len', inSine)
+			me(169, 0.5, -100, 0, 'mini', 'len', inSine)
+			me(169.5, 0.5, -125, 0, 'mini', 'len', inSine)
+			m(170, 0.5, '*-1 -150 mini', 'len')
+			me(170.5, 1.5, -150, 0, 'mini', 'len', outSine)
+			--actually im gonna just do a straight copy/paste of the first one
+			m(171.75, 174.75, '*10 100 tipsy, *10 100 drunk, *10 100 confusion', 'end')
+			
+			m(174.75, 5, '*100 -200 mini, *-1 0 confusion, *100 20 reverse', 'len') 
+			me(174.75, 180, -50, 0, 'tipsy', 'end', inSine)
+			me(174.75, 180, -50, 0, 'drunk', 'end', inSine)
+			me(179, 180, -200, 0, 'mini', 'end', inSine)
+			me(179, 180, 20, 0, 'reverse', 'end', inSine)
+			
+			me(172.333, 0.1, 100, 0, 'arrowpath0', 'len', inSine)
+			me(172.500, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(172.833, 0.1, 100, 0, 'arrowpath2', 'len', inSine)
+			me(173.000, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			me(173.333, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(173.500, 0.1, 100, 0, 'arrowpath2', 'len', inSine)
+			me(173.833, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			me(174.000, 0.1, 100, 0, 'arrowpath0', 'len', inSine)
+			me(174.333, 0.1, 100, 0, 'arrowpath1', 'len', inSine)
+			me(174.500, 0.1, 100, 0, 'arrowpath3', 'len', inSine)
+			
+			m2(174.75, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(4 * 60/136)
+					plr:rotationz(-720)
+				end
+			end)
+			m2(180, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 + 120)
+					plr:decelerate(0 * 60 / 136)
+					plr:rotationz(0)
+				end
+			end)
+			
+			--back to this!
+			--but uhh reverse? yeah why not
+			me(174.75, 180, 0, 100, 'reverse', 'end', outSine)
+			m(180, 204, '*-1 100 reverse', 'end')
+			m(179.5, 208.5, '*-1 beat', 'end')
+			for i=180, 203 do
+				mult = 2000
+				if i%2 == 1 then
+					mult = -2000
+				end
+				m(i - 0.1, 1, '*200 ' .. mult .. ' zigzag', 'len')
+				arrow = i % 4
+				move = 75 -- slightly more intense
+				me(i - 0.1, 0.5, 0, move, 'movey'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, move, 0, 'movey'..arrow, 'len', inCubic)
+				me(i - 0.1, 0.5, 0, 100, 'arrowpath'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, 100, 0, 'arrowpath'..arrow, 'len', inCubic)
+			end
+			for i=204, 207.5, 0.5 do
+				mult = 2000
+				if (i*2)%2 == 1 then
+					mult = -2000
+				end
+				m(i - 0.1, 1, '*200 ' .. mult .. ' zigzag', 'len')
+				arrow = (i*2) % 4
+				me(i - 0.1, 0.5, 0, 100, 'arrowpath'..arrow, 'len', outCubic)
+				me(i + 0.4, 0.5, 100, 0, 'arrowpath'..arrow, 'len', inCubic)
+			end
+			m2(186.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 60)
+				end
+			end)
+			m2(187, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 0)
+				end
+			end)
+			m2(187.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 60)
+				end
+			end)
+			m2(188, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 120)
+				end
+			end)
+			me(186.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(187, 0.5, -100, 0, 'mini', 'len', linear)
+			me(187.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(188, 0.5, -100, 0, 'mini', 'len', linear)
+			m2(194.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 - 60)
+				end
+			end)
+			m2(195, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 0)
+				end
+			end)
+			m2(195.5, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 60)
+				end
+			end)
+			m2(196, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:x(sw/2 + 120)
+				end
+			end)
+			m2(197, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(7 * 60 / 136)
+					plr:x(sw/2)
+				end
+			end)
+			me(194.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(195, 0.5, -100, 0, 'mini', 'len', linear)
+			me(195.5, 0.5, -100, 0, 'mini', 'len', linear)
+			me(196, 0.5, -100, 0, 'mini', 'len', linear)
+			
+			m(208, 1, '*100 0 zigzag', 'len')
+			
+			me(204, 208, 0, -150, 'mini', 'end', inSine)
+			me(204, 208, 100, 70, 'reverse', 'end', inSine)
+			m(208, 4, '*-1 -150 mini, *-1 70 reverse, *-1 50 tipsy', 'len')
+			me(210, 212, -150, 0, 'mini', 'end', inSine)
+			me(209, 212, 70, 0, 'reverse', 'end', outSine)
+			me(210, 212, 50, 0, 'tipsy', 'end', inSine)
+			--split 'em up to prepare for the next section (which is the big idea that led to me modding this)
+			m2(211, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(1 * 60 / 136)
+					plr:x(sw/2 - 160 + (p-1)*320)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			
+			--since im going to be doing to be doing the thing from earlier more sporatically, i should just make it a function
+			function emphasizePlayfield(beat, player)
+				m2(beat-0.1, function()
+					for p=1,2 do
+						local plr = Plr(p)
+						plr:decelerate(0.9 * 60 / 136)
+						if p == player then
+							--enlarge field
+							plr:zoom(1.2)
+							plr:x(sw/2 - 80 + (p-1)*160)
+							plr:rotationz(-10 + ((player-1) * 20))
+						else
+							--shrink away
+							plr:zoom(0.5)
+							plr:x(sw/2 - 400 + (p-1)*800)
+							plr:rotationz(0)
+						end
+					end
+				end)
+				--bad coding practice alert
+				--[[m2(beat + 0.9, function()
+					local plr = Plr(player)
+					plr:decelerate(0.9 * 60 / 136)
+					plr:rotationz(10 - ((player-1) * 20))
+				end)
+				m2(beat + 1.9, function()
+					local plr = Plr(player)
+					plr:decelerate(0.9 * 60 / 136)
+					plr:rotationz(-10 + ((player-1) * 20))
+				end)
+				m2(beat + 2.9, function()
+					local plr = Plr(player)
+					plr:decelerate(0.9 * 60 / 136)
+					plr:rotationz(10 - ((player-1) * 20))
+				end)]]--
+				--actually i dont like this as much as i thought i would.
+			end
+			emphasizePlayfield(212, 1)
+			emphasizePlayfield(216, 2)
+			emphasizePlayfield(220, 1)
+			emphasizePlayfield(224, 2)
+			emphasizePlayfield(228, 1)
+			emphasizePlayfield(232, 2)
+			m2(236, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(4 * 60 / 136)
+					plr:x(sw/2 - 160 + (p-1)*320)
+					plr:zoom(1)
+					plr:rotationz(0)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			emphasizePlayfield(244, 2)
+			emphasizePlayfield(248, 1)
+			emphasizePlayfield(252, 2)
+			emphasizePlayfield(256, 1)
+			emphasizePlayfield(260, 2)
+			emphasizePlayfield(264, 1)
+			m2(268, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(4 * 60 / 136)
+					plr:x(sw/2 - 160 + (p-1)*320)
+					plr:zoom(1)
+					plr:rotationz(0)
+					GetJud(p):decelerate(1 * 60 / 136)
+					GetCom(p):decelerate(1 * 60 / 136)
+					GetJud(p):x(0)
+					GetCom(p):x(0)
+				end
+			end)
+			
+			--now the mods!
+			--dont forget the beat
+			m(211.5, 284.5, '*-1 100 beat', 'end')
+			for i=212,234 do
+				me(i, 1, -100, 130, 'movey', 'len', linear, 1)
+				if i%2 == 1 then
+					me(i, 0.5, 0, 100, 'flip', 'len', outSine, 1)
+					m(i + 0.5, 0.5, '*-1 flip', 'len', 1)
+				else
+					if i ~= 212 then -- looks odd
+						me(i, 0.5, 100, 0, 'flip', 'len', outSine, 1)
+					end
+				end
+			end
+			m(236, 1, '*-1 0 movey', 'len', 1)
+			for i=216,232,8 do
+				me(i, 0.4, 0, 50, 'movey0', 'len', outSine, 2)
+				me(i, 0.4, 0, -50, 'movey1', 'len', outSine, 2)
+				me(i, 0.4, 0, 50, 'movey2', 'len', outSine, 2)
+				me(i, 0.4, 0, -50, 'movey3', 'len', outSine, 2)
+				
+				me(i + 0.5, 0.4, 0, 100, 'invert', 'len', outSine, 2)
+				m(i + 0.9, i + 2.5, '*-1 invert', 'end', 2)
+				
+				me(i + 1, 0.4, 50, 0, 'movey0', 'len', outSine, 2)
+				me(i + 1, 0.4, -50, 0, 'movey1', 'len', outSine, 2)
+				me(i + 1, 0.4, 50, 0, 'movey2', 'len', outSine, 2)
+				me(i + 1, 0.4, -50, 0, 'movey3', 'len', outSine, 2)
+				
+				me(i + 2, 0.4, 0, -50, 'movey0', 'len', outSine, 2)
+				me(i + 2, 0.4, 0, 50, 'movey1', 'len', outSine, 2)
+				me(i + 2, 0.4, 0, -50, 'movey2', 'len', outSine, 2)
+				me(i + 2, 0.4, 0, 50, 'movey3', 'len', outSine, 2)
+				
+				me(i + 2.5, 0.4, 100, 0, 'invert', 'len', outSine, 2)
+				
+				me(i + 3, 0.4, -50, 0, 'movey0', 'len', outSine, 2)
+				me(i + 3, 0.4, 50, 0, 'movey1', 'len', outSine, 2)
+				me(i + 3, 0.4, -50, 0, 'movey2', 'len', outSine, 2)
+				me(i + 3, 0.4, 50, 0, 'movey3', 'len', outSine, 2)
+			end
+			
+			--and swap for 2nd run
+			for i=244,266 do
+				me(i, 1, -100, 130, 'movey', 'len', linear, 2)
+				if i%2 == 1 then
+					me(i, 0.5, 0, 100, 'flip', 'len', outSine, 2)
+					m(i + 0.5, 0.5, '*-1 flip', 'len', 2)
+				else
+					if i ~= 244 then
+						me(i, 0.5, 100, 0, 'flip', 'len', outSine, 2)
+					end
+				end
+			end
+			m(268, 1, '*-1 0 movey', 'len', 2)
+			for i=248,264,8 do
+				me(i, 0.4, 0, 50, 'movey0', 'len', outSine, 1)
+				me(i, 0.4, 0, -50, 'movey1', 'len', outSine, 1)
+				me(i, 0.4, 0, 50, 'movey2', 'len', outSine, 1)
+				me(i, 0.4, 0, -50, 'movey3', 'len', outSine, 1)
+				
+				me(i + 0.5, 0.4, 0, 100, 'invert', 'len', outSine, 1)
+				m(i + 0.9, i + 2.5, '*-1 invert', 'end', 1)
+				
+				me(i + 1, 0.4, 50, 0, 'movey0', 'len', outSine, 1)
+				me(i + 1, 0.4, -50, 0, 'movey1', 'len', outSine, 1)
+				me(i + 1, 0.4, 50, 0, 'movey2', 'len', outSine, 1)
+				me(i + 1, 0.4, -50, 0, 'movey3', 'len', outSine, 1)
+				
+				me(i + 2, 0.4, 0, -50, 'movey0', 'len', outSine, 1)
+				me(i + 2, 0.4, 0, 50, 'movey1', 'len', outSine, 1)
+				me(i + 2, 0.4, 0, -50, 'movey2', 'len', outSine, 1)
+				me(i + 2, 0.4, 0, 50, 'movey3', 'len', outSine, 1)
+				
+				me(i + 2.5, 0.4, 100, 0, 'invert', 'len', outSine, 1)
+				
+				me(i + 3, 0.4, -50, 0, 'movey0', 'len', outSine, 1)
+				me(i + 3, 0.4, 50, 0, 'movey1', 'len', outSine, 1)
+				me(i + 3, 0.4, -50, 0, 'movey2', 'len', outSine, 1)
+				me(i + 3, 0.4, 50, 0, 'movey3', 'len', outSine, 1)
+			end
+			
+			--and for the imbetween sections (236-244 and 268+)
+			m(236, 237.833, '*200 1000 zigzag', 'end')
+			m(237.833, 239.833, '*200 -1000 zigzag', 'end')
+			m(239.833, 242, '*200 1000 zigzag', 'end')
+			m(242, 243, '*100 0 zigzag', 'end')
+			m2(242, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(2 * 60/136)
+					plr:rotationy(360 * ((p%2)*2-1))
+				end
+			end)
+			
+			me(268, 1, 0, 100, 'drunk', 'len', outSine)
+			me(270, 1, 100, -100, 'drunk', 'len', outSine)
+			me(272, 1, -100, 100, 'drunk', 'len', outSine)
+			me(274, 1, 100, -100, 'drunk', 'len', outSine)
+			me(276, 0.5, -100, 100, 'drunk', 'len', outSine)
+			me(277, 0.5, 100, -100, 'drunk', 'len', outSine)
+			me(278, 0.5, -100, 100, 'drunk', 'len', outSine)
+			me(279, 0.5, 100, -100, 'drunk', 'len', outSine)
+			m(279.5, 281, '*-1 -100 drunk', 'end')
+			me(280, 4, 0, 100, 'tipsy', 'len', linear)
+			me(281, 2, -100, 0, 'drunk', 'len', linear)
+			me(282, 2, 0, -150, 'mini', 'len', outSine)
+			me(282, 2, 0, 30, 'reverse', 'len', outSine)
+			m(284, 8, '*-1 -150 mini, *-1 30 reverse, *-1 100 tipsy', 'len')
+			m2(282, function()
+				for p=1,2 do
+					local plr = Plr(p)
+					plr:decelerate(2 * 60/136)
+					plr:x(sw/2)
+				end
+			end)
+			
+			
+			--ok its the next day and i want to add more accenting stuff just to make the file smoother
+			--all of this is probably going to be out of order but oh well
+			me(284, 6, 1570, 0, 'confusionoffset', 'len', outSine)
+			me(284, 6, 0, 100, 'drunk', 'len', outSine)
+			me(284, 6, 0, -50, 'flip', 'len', inSine)
+			me(284, 6, 0, 100, 'dark', 'len', linear)
+			me(284, 6, 100, 300, 'tipsy', 'len', linear)
+			m(290, 10, '*-1 dark', 'len')
+			
+			
+			me(88, 104, 0, 50, 'drunk', 'end', linear)
+			me(104, 108, 50, 0, 'drunk', 'end', inSine)
+			
+			me(139.5, 1.5, -628, 0, 'confusionoffset', 'len', outSine)
+			
+			--i kinda like how this is right now! could probably make some things a bit better visually, but eh. there was one thing that bothered me though:
+			m(0, 300, '*-1 200 arrowpathdrawdistance', 'len')
+			m(0, 300, '*-1 400 arrowpathdrawdistanceback', 'len')
+			--much better.
+			
+			me(236, 237.833, 25, 0, 'skewx', 'end', inSine)
+			me(237.833, 239.833, -25, 0, 'skewx', 'end', inSine)
+			me(239.833, 242, 25, 0, 'skewx', 'end', inSine)
+			
+			me(240, 0.5, -100, 0, 'tiny', 'len', outSine)
+			me(240.5, 0.5, -100, 0, 'tiny', 'len', outSine)
+			me(241, 0.5, -100, 0, 'tiny', 'len', outSine)
+			
+			me(276, 1, -20, 0, 'skewx', 'len', inSine)
+			me(277, 1, 20, 0, 'skewx', 'len', inSine)
+			me(278, 1, -20, 0, 'skewx', 'len', inSine)
+			me(279, 1, 20, 0, 'skewx', 'len', inSine)
+			
+			
+			--for testing purposes - need to delete at the end!
+			--[[for i=4,500,4 do
+				m2(i, function()
+					bgsprite:hidden(0)
+					bgsprite:xywh(sw/2, sh/2, sw*1.2, sh*1.2)
+					bgsprite:diffuse(0,0,0,1)
+					P1:hidden(1)
+					P2:hidden(1)
+					P1ap:hidden(0)
+					P2ap:hidden(0)
+				end)
+			end]]--
+---------------------------------------------------------------------------------------
+----------------------Sort the actions table-------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			function modtable_compare(a,b)
+				return a[1] < b[1]
+			end
+			
+			if table.getn(mod_actions) > 1 then
+				table.sort(mod_actions, modtable_compare)
+			end
+			
+			self:queuecommand('Update');
+			
+		end"
+		
+		UpdateCommand="%function(self)
+
+			if GAMESTATE:GetSongBeat()>=0 and not checked then
+			
+				local ThingsToGrab = {'LifeP1','LifeP2','ScoreP1','ScoreP2','BPMDisplay','LifeFrame','ScoreFrame',
+										'Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+				local ThingsToHide = {'LifeP1','LifeP2','ScoreP1','ScoreP2','BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+				
+				for i,v in ipairs(ThingsToGrab) do
+					_G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil
+				end
+				
+				for i,v in ipairs(ThingsToHide) do
+					if _G[v] then _G[v]:hidden(1) end
+				end
+				
+				table.insert(mod_plr,SCREENMAN:GetTopScreen():GetChild('PlayerP1'));
+				table.insert(mod_plr,SCREENMAN:GetTopScreen():GetChild('PlayerP2'));
+				
+				--name players, judgment and combo
+				for pn=1,2 do
+					_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+					if _G['P'..pn] then
+						_G['jud'..pn] = _G['P'..pn]:GetChild('Judgment');
+						_G['com'..pn] = _G['P'..pn]:GetChild('Combo');
+					end
+				end
+				
+				screen = SCREENMAN:GetTopScreen();
+				checked = true; --let this only run once
+				
+			end
+
+			local beat = GAMESTATE:GetSongBeat()
+			
+			
+---------------------------------------------------------------------------------------
+----------------------Begin table handlers---------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			disable = false;
+			if disable ~= true and beat > mod_firstSeenBeat+0.1 and checked then
+				
+				-----------------------
+				-- Player mod resets --
+				-----------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					for i=1,2 do
+						mod_do('clearall',i)
+					end
+				end
+				
+				------------------------------------------------------------------------------
+				-- custom mod reader by TaroNuke edited by WinDEU and re-stolen by TaroNuke --
+				------------------------------------------------------------------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					for i,v in pairs(mods) do
+						if v and table.getn(v) > 3 and v[1] and v[2] and v[3] and v[4] then
+							if beat >=v[1] then
+								if (v[4] == 'len' and beat <=v[1]+v[2]) or (v[4] == 'end' and beat <=v[2]) then
+									if table.getn(v) == 5 then
+										mod_do(v[3],v[5]);
+									else
+										mod_do(v[3]);
+									end
+								end
+							end
+						else
+							v[1] = 0;
+							v[2] = 0;
+							v[3] = '';
+							v[4] = 'error';
+							SCREENMAN:SystemMessage('Bad mod in beat-based table (line '..i..')');
+						end
+					end
+				end
+				
+				-----------------------------------------------------------------------------------------------------
+				-- WinDEU's time-based len/end version of the #swag custom mod reader #teamproofofconcept (c) 2015 --
+				-----------------------------------------------------------------------------------------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					for i,v in pairs(mods2) do
+						if v and table.getn(v) > 3 and v[1] and v[2] and v[3] and v[4] then
+							if mod_time >=v[1] then
+								if (v[4] == 'len' and mod_time <=v[1]+v[2]) or (v[4] == 'end' and mod_time <=v[2]) then
+									if table.getn(v) == 5 then
+										mod_do(v[3],v[5]);
+									else
+										mod_do(v[3]);
+									end
+								end
+							end
+						else
+							v[1] = 0;
+							v[2] = 0;
+							v[3] = 'error';
+							v[4] = 'error';
+							SCREENMAN:SystemMessage('Bad mod in time-based table (line '..i..')');
+						end
+					end
+				end
+				
+				--------------------------------------------------------------------------------------
+				-- i dont know who this reader is but he looks like he is made out of EASE HAHAHAHA --
+				-- original code by exschwasion, bastardized by taro for cmod support and less 'if' --
+				--------------------------------------------------------------------------------------
+				for i,v in pairs(mods_ease) do
+					if v and table.getn(v) > 6 and v[1] and v[2] and v[3] and v[4] and v[5] and v[6] and v[7] then
+						if beat >=v[1] then
+							if (v[6] == 'len' and beat <=v[1]+v[2]) or (v[6] == 'end' and beat <=v[2]) then
+								
+								local duration = v[2];
+								if v[6] == 'end' then duration = v[2] - v[1] end
+								local curtime = beat - v[1]
+								local diff = v[4] - v[3]
+								local startstrength = v[3]
+								local curve = v[7]
+								local mod = v[5]
+								
+								local strength = curve(curtime, startstrength, diff, duration, v[10], v[11]) --extra parameters for back and elastic eases :eyes:
+								
+								local modstr = v[5] == 'xmod' and strength..'x' or (v[5] == 'cmod' and 'C'..strength or strength..' '..v[5])
+								mod_do('*10000 '..modstr,v[8]);
+								
+							elseif (v[9] and ((v[6] == 'len' and beat <=v[1]+v[2]+v[9]) or (v[6] == 'end' and beat <=v[9]))) then
+							
+								local strength = v[4]
+								
+								local modstr = v[5] == 'xmod' and strength..'x' or (v[5] == 'cmod' and 'C'..strength or strength..' '..v[5])
+								mod_do('*10000 '..modstr,v[8]);
+								
+							end
+						end
+					else
+						SCREENMAN:SystemMessage('Bad mod in beat-based ease table (line '..i..')');
+					end
+				end
+				
+				--------------------
+				-- Perframe stuff --
+				--------------------
+				
+				--if (beat > 288 and beat < 289) or (beat > 296 and beat < 297) or (beat > 304 and beat < 305) or (beat > 312 and beat < 313) then
+				--	local sawtooth = beat-(math.floor(beat*16)/16)-(1/32)
+				--	local power = math.ceil(beat)-beat
+				--	mod_do('*100000 '..(30000*power*sawtooth)..' drunk');
+				--end
+				
+				
+				--light version of the below effect for Elsewhere
+				if (beat > 35.5 and beat < 59.5) then
+					local power = math.cos(beat * 3.1415) / 15
+					bgsprite:diffusebottomedge(math.abs(power), 0, 0, 1)
+				end
+				
+				--alright im doing more with this effect its day 2
+				if (beat > 59.75 and beat < 60.25) then
+					local power = (60.25 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				
+				if (beat > 60.5 and beat < 61) then
+					local power = (61 - beat) / 2
+					bgsprite:diffuserightedge(power, 0, 0, 1)
+				end
+				if (beat > 61 and beat < 61.5) then
+					local power = (61.5 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				if (beat > 61.5 and beat < 62) then
+					local power = (62 - beat) / 2
+					bgsprite:diffuserightedge(power, 0, 0, 1)
+				end
+				if (beat > 62 and beat < 62.5) then
+					local power = (62.5 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				if (beat > 62.5 and beat < 66.75) then
+					bgsprite:diffusebottomedge(0.1, 0, 0, 1)
+				end
+				if (beat > 66.75 and beat < 71.5) then
+					local power = (71.5 - beat) / 10
+					bgsprite:diffusetopedge(power, 0, 0, 1)
+				end
+				if (beat > 71.5 and beat < 104.5) or (beat > 179.5 and beat < 208.5) then
+					local power = math.cos(beat * 3.1415) / 10
+					bgsprite:diffusebottomedge(math.abs(power), 0, 0, 1)
+				end
+				
+				-- cool effect - use in chorus
+				if beat > 111.5 and beat < 167.5 then
+					local power = math.cos((beat - 1) * 3.1415) / 5
+					if power > 0 then
+						bgsprite:diffuseleftedge(power, 0, 0, 1)
+					else
+						bgsprite:diffuserightedge(-power, 0, 0, 1)
+					end
+				end
+				
+				if (beat > 167.75 and beat < 168.25) then
+					local power = (168.25 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				
+				if (beat > 168.5 and beat < 169) then
+					local power = (169 - beat) / 2
+					bgsprite:diffuserightedge(power, 0, 0, 1)
+				end
+				if (beat > 169 and beat < 169.5) then
+					local power = (169.5 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				if (beat > 169.5 and beat < 170) then
+					local power = (170 - beat) / 2
+					bgsprite:diffuserightedge(power, 0, 0, 1)
+				end
+				if (beat > 170 and beat < 170.5) then
+					local power = (170.5 - beat) / 2
+					bgsprite:diffuseleftedge(power, 0, 0, 1)
+				end
+				if (beat > 170.5 and beat < 174.75) then
+					bgsprite:diffusebottomedge(0.1, 0, 0, 1)
+				end
+				if (beat > 174.75 and beat < 179.5) then
+					local power = (179.5 - beat) / 10
+					bgsprite:diffusetopedge(power, 0, 0, 1)
+				end
+				if (beat > 71.5 and beat < 104.5) or (beat > 179.5 and beat < 208.5) then
+					local power = math.cos(beat * 3.1415) / 10
+					bgsprite:diffusebottomedge(math.abs(power), 0, 0, 1)
+				end
+				
+				if beat > 211.5 and beat < 283.5 then
+					local power = math.cos((beat) * 3.1415) / 4
+					if power > 0 then
+						bgsprite:diffuseleftedge(power, 0, 0, 1)
+					else
+						bgsprite:diffuserightedge(-power, 0, 0, 1)
+					end
+				end
+				if (beat > 284 and beat < 292) then
+					local power = (292 - beat) / 16
+					bgsprite:diffusebottomedge(power, 0, 0, 1)
+				end
+				
+				
+				---------------------------------------
+				-- ACTION RPGS AINT GOT SHIT ON THIS --
+				---------------------------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					while curaction<=table.getn(mod_actions) and GAMESTATE:GetSongBeat()>=mod_actions[curaction][1] do
+						if mod_actions[curaction][3] or GAMESTATE:GetSongBeat() < mod_actions[curaction][1]+2 then
+							if type(mod_actions[curaction][2]) == 'function' then
+								mod_actions[curaction][2]()
+							elseif type(mod_actions[curaction][2]) == 'string' then
+								MESSAGEMAN:Broadcast(mod_actions[curaction][2]);
+							end
+						end
+						curaction = curaction+1;
+					end
+				end
+				
+			end
+			
+			self:sleep(0.02);
+			self:queuecommand('Update');
+
+---------------------------------------------------------------------------------------
+----------------------END DON'T TOUCH IT KIDDO-----------------------------------------
+---------------------------------------------------------------------------------------
+			
+		end"
+		
+	/>
+	
+	<!--Handling messages here is still fun and profitable-->
+	<CODE Type="Quad" OnCommand="hidden,1"
+	InitCommand="%function(self) rb_aux = self end"
+	/>
+	
+	<!--This is for the time based mod reader-->
+	<BitmapText
+		Font="Common Normal"
+		Text="test"
+		OnCommand="x,SCREEN_CENTER_X;y,SCREEN_CENTER_Y;effectclock,music;playcommand,SetTime;hidden,1"
+		SetTimeCommand="%function(self) self:settext(self:GetSecsIntoEffect()); mod_time = mod_globaloffset+tonumber(self:GetText()); self:sleep(0.02); self:queuecommand('SetTime'); end"
+	/>
+	
+	--uhhhh how do sprites work? guess ill :heck: around and find out
+	<Layer
+        Type="Sprite"
+        Texture="white"
+		OnCommand="hidden,1"
+        InitCommand="%function(self) bgsprite = self end"
+    />
+	
+	--hardly know how proxys work too but OH WELL
+	<Layer
+		Type = "ActorProxy"
+		OnCommand="queuecommand,Ready"
+		ReadyCommand="%function(self)
+			P1ap = self; -- plap
+			self:hidden(1)
+			if P1 then
+				self:SetTarget(Plr(1));
+			end
+		end"
+	/>
+	<Layer
+		Type = "ActorProxy"
+		OnCommand="queuecommand,Ready"
+		ReadyCommand="%function(self)
+			P2ap = self;
+			self:hidden(1)
+			if P2 then
+				self:SetTarget(Plr(2));
+			end
+		end"
+	/>
+	--if p1 or p2 dont exist then uhhhhh???? guess ill die
+</children>
+</ActorFrame>

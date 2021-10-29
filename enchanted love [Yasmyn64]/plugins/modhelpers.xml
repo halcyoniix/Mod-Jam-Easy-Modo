@@ -1,0 +1,225 @@
+<Plugin OnCommand = "%xero(function(self)
+	local string_gmatch = string.gfind or string.gmatch
+	function mod_insert(beat, len, modstring, t, pn)
+		if t == 'end' then len = len - beat end
+		for str in string_gmatch(modstring, '[^,]+') do
+			local str = string.gsub(str, '%%', '')
+			local activation_rate = 1
+			local percent = 100
+			local modname = nil
+			for part in string_gmatch(str, '[^ ]+') do
+				if string.find(part, '*') then
+					activation_rate = tonumber(string.sub(part, 2)) or activation_rate
+				elseif not string.find(part, '[^%d]') then
+					percent = tonumber(part) or (part == 'no' and 0) or percent
+				elseif string.find(part, '^%d+x$') then
+					local _, x = string.match(part, '^(%d+)x$')
+					modname = 'xmod'
+					percent = tonumber(x)
+				elseif string.find(part, '^c%d+$') then
+					local _, c = string.match(part, '^c(%d+)$')
+					modname = 'cmod'
+					percent = tonumber(c)
+				else
+					modname = part
+				end
+			end
+			if modname then
+				if activation_rate < 0 or activation_rate > 9998 then
+					set {beat, percent, modname, plr = pn}
+				elseif activation_rate == 0 then
+					-- do nothing
+				else -- activation_rate > 0
+					error('modstring \'' .. str .. '\' needs a *-1 activation rate to work with the Mirin Template backend.')
+				end
+			end
+		end
+	end
+
+	function mod2_insert() error 'mod2_insert is unsupported' end
+	function mod_ease(beat, len, str1, str2, mod, t, eas, pn, sus, opt1, opt2)
+		if t == 'end' then len = len - beat end
+		set {beat, str1, mod, plr = pn}
+		ease {beat, len, eas, str2, mod, plr = pn}
+		-- intentionally ignore sus, opt1, opt2
+	end
+
+	function mod_perframe(start_beat, end_beat, f)
+		func {start_beat, end_beat, f, mode = 'end'}
+	end
+
+	function mod_message(beat, msg, p)
+		func {
+			beat,
+			function(actual_beat)
+				if actual_beat < beat + 1
+					or p == true
+					or (type(p) == 'number' and actual_beat < p + beat)
+						then
+					if type(msg) == 'string' then
+						SCREENMAN:SystemMessage(msg)
+					else
+						msg()
+					end
+				end
+			end
+		}
+	end
+	
+--------------------------------nitgfan's plugins-------------------------
+	
+	--mix ease
+	function mixEase(e1, e2, point)
+		if not point then point = 0.5 end
+
+		return function(a)
+			if a < point then
+				return e1(a / point) * point
+			else
+				return e2((a - point) / (1 - point)) * (1 - point) + point
+			end
+		end
+	end
+	
+	--smooth ease
+	function ease_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		ease {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod,pn}
+	end
+	
+	--smooth add
+	function add_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		add {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod,pn}
+	end
+	
+	--mod bounce
+	function mod_bounce(beat,length,start,apex,mod,outEase,inEase,pn)
+		mod_ease(beat, (length/2), start, apex, tostring(mod), 'len', xero['out'..outEase],pn)
+		mod_ease(beat+(length/2), (length/2), apex, start, tostring(mod), 'len', xero['in'..inEase],pn)
+	end
+	
+	--mod kick
+	function mod_kick(beat,length,start,apex,mod,inEase,outEase,pn)
+		local off = length/2
+		mod_ease(beat - off, (length/2), start, apex, tostring(mod), 'len', xero['in'..inEase],pn)
+		mod_ease((beat+(length/2)) - off, (length/2), apex, start, tostring(mod), 'len', xero['out'..outEase],pn)
+	end
+	
+	--wiggles
+	function wiggle(beat, length, step, ease_func, percent, mod, plr)
+		if length > step then
+			local val = -1
+			for i = beat, beat + length - step, step do
+				if i == beat then
+					add {i, step, ease_func, percent, mod, plr = plr}
+				elseif i > beat + length - 2 * step then
+					add {i, step, ease_func, percent * val, mod, plr = plr}
+				else
+					add {i, step, ease_func, percent * 2 * val, mod, plr = plr}
+					val = -val
+				end
+			end
+		end
+	end
+	
+	--drivendrop
+	function drivendrop(beat, length, step, speedmod, plr)
+		for i = beat, beat + length - step, step do
+			add
+			{i, step, linear, speedmod * step * 100, 'centered2', plr = plr}
+			{i + step, 0, instant, -speedmod * step * 100, 'centered2', plr = plr}
+		end
+	end
+	
+	--sugarkiller
+	function sugarkiller(beat, length, step, minstealth, maxstealth, plr)
+		if not minstealth then minstealth = 50 end;
+		if not maxstealth then maxstealth = 85 end;
+		if not step then step = 1 end;
+		if not length then length = 1 end;
+		for i = 0, math.max(length-1,0) do
+			ease
+			{beat+(i*0.5), .25/step, instant, 100, 'invert', 0, 'flip', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.25/step, .25/step, instant, 100, 'flip', 0, 'invert', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.50/step, .25/step, instant, 100, 'flip', -100, 'invert', maxstealth, 'stealth', plr = plr}
+			if i == math.max(length-1,0) then
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', 0, 'stealth', plr = plr}
+			else
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', minstealth, 'stealth', plr = plr}
+			end
+		end
+	end
+	
+	
+	--beat mods
+	function BeatX(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beat', plr = pn}
+		set {beat+.5, 0, 'beat', plr = pn}
+	end
+	
+	function BeatY(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beaty', plr = pn}
+		set {beat+.5, 0, 'beaty', plr = pn}
+	end
+	
+	
+	function BeatZ(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beatz', plr = pn}
+		set {beat+.5, 0, 'beatz', plr = pn}
+	end
+	
+	--blacksphere
+	definemod {
+    'blacksphere',
+    function(blacksphere)
+        local invert = 50 - 50 * math.cos(blacksphere * math.pi / 180)
+        local alternate = 25 * math.sin(blacksphere * math.pi / 180)
+        local reverse = -12.5 * math.sin(blacksphere * math.pi / 180)
+        return invert, alternate, reverse
+    end,
+    'invert', 'alternate', 'reverse',
+	}
+	
+	--counterrotation mod (thanks mang)
+	definemod{'rotationx2','rotationy2','rotationz2',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+	
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+	}
+	
+	function ease2 (beat,length,eas,amount,mod,pn)	
+		ease{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function add2 (beat,length,eas,amount,mod,pn)	
+		add{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	
+end)" />

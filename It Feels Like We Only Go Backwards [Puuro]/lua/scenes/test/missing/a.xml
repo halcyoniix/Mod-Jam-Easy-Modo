@@ -1,0 +1,10 @@
+<Layer Type="ActorFrame" ><children>
+
+		<Layer File="missing.png" OnCommand="%function(self) 
+			self:customtexturerect(0,0,5,5)
+			self:texcoordvelocity(0,2)
+			self:zoom(5)
+		end" />
+
+
+</children></Layer>

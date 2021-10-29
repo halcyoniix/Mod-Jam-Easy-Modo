@@ -1,0 +1,71 @@
+<Layer Type="ActorFrame" ><children>
+
+	<Layer File="sin3.png" Name="sine[1]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.6,0)
+			self:zoomy(2)
+			self:zoomx(3.5)
+			self:y(200)
+			self:croptop(.2)
+			self:cropbottom(.2)
+			--self:rainbow()
+	end" />
+
+	<Layer File="sin3.png" Name="sine[2]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.6,0)
+			self:zoomy(2)
+			self:zoomx(3.5)
+			self:y(100)
+			self:croptop(.2)
+			self:cropbottom(.2)
+
+	end" />
+
+	<Layer File="sin1.png" Name="sine[3]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.3,0)
+			self:zoomy(2)
+			self:zoomx(4)
+			self:y(0)
+			self:croptop(.2)
+			self:cropbottom(.2)
+
+	end" />
+	
+	<Layer File="sin3.png" Name="sine[4]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.4,0)
+			self:zoomy(3)
+			self:zoomx(7)
+			self:y(-50-100)
+			self:croptop(.2)
+			self:cropbottom(.2)
+
+	end" />
+
+	
+	<Layer File="sin1.png" Name="sine[5]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.4,0)
+			self:zoomy(2)
+			self:zoomx(4)
+			self:cropbottom(.2)
+			self:croptop(.2)
+			self:y(-100-100)
+			
+	end" />
+	
+	<Layer File="sin2.png" Name="sine[6]" OnCommand="%function(self) 
+			self:customtexturerect(.5,.5,2.5,2.5)
+			self:texcoordvelocity(.5,0)
+			self:zoomy(3)
+			self:zoomx(4)
+			self:y(-200-100)
+			self:croptop(.2)
+			self:cropbottom(.2)
+
+	end" />
+	
+
+</children></Layer>

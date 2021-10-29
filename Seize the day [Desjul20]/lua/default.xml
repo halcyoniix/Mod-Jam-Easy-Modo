@@ -1,0 +1,5228 @@
+<ActorFrame
+InitCommand="%function(self)
+
+	nitg_version = FUCK_EXE and tonumber(GAMESTATE:GetVersionDate()) >= 20210420 --NotITG version number to check for, v3 by default
+	
+	if not nitg_version then
+		SCREENMAN:SystemMessage('Outdated version of NotITG detected, mods will not work');
+	end
+	
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	
+	m_bl = 60/145 --use this to define length of a beat for use in the rest of the song
+	sw = SCREEN_WIDTH
+	sh = SCREEN_HEIGHT --shortcuts
+	
+	function Plr(pn)
+		return _G['P'..pn]
+	end
+	
+	function mod_do(str,pn)
+		if pn then
+			GAMESTATE:ApplyGameCommand('mod,'..str,pn)
+		else
+			GAMESTATE:ApplyGameCommand('mod,'..str)
+		end
+	end
+end"
+><children><ActorFrame Condition="nitg_version"
+OnCommand="%function(self)
+	nvidia = false
+	alphamult = 1
+	if string.find(string.lower(PREFSMAN:GetPreference('LastSeenVideoDriver')), 'nvidia') or string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then
+		Trace('NVidia graphics driver detected.')
+		Trace('AFT multiplier set to 0.9')
+		nvidia = true
+		alphamult = 0.9
+	end
+	if not string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), 'opengl')
+	or string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), 'd3d')
+	and string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), 'opengl') 
+	and string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), 'd3d') < 
+	string.find(string.lower(PREFSMAN:GetPreference('VideoRenderers')), 'opengl') then
+		SCREENMAN:SystemMessage('D3D Video Renderer detected. Expect textures to fail.');
+	end
+end"
+><children>
+
+
+	
+
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+		self:hidden(1)
+			--This fixes a weird bug that warn the game there's a variable undefined, even though it's already defined. Do not remove or it might not work
+			mod_actions = {}
+		end"
+		OnCommand="sleep,1000"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			P1_Y  = self; -- The 'aux' variable will target this Actor.
+			self:aux(SCREEN_CENTER_Y); -- The 'default value' of the aux value will be 0.
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			Triangle_Y  = self; -- The 'aux' variable will target this Actor.
+			self:aux(0); -- The 'default value' of the aux value will be 0.
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			P2_Y = self; -- The 'aux' variable will target this Actor.
+			self:aux(640); -- The 'default value' of the aux value will be 0.
+		end"
+	/>
+	
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			Yellow1 = self; -- The 'aux' variable will target this Actor.
+			self:aux(0); -- The 'default value' of the aux value will be 0.
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			Yellow2 = self; -- The 'aux' variable will target this Actor.
+			self:aux(560); -- The 'default value' of the aux value will be 0.
+			
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			Magenta1 = self; -- The 'aux' variable will target this Actor.
+			self:aux(80); -- The 'default value' of the aux value will be 0.
+			
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			Magenta2 = self; -- The 'aux' variable will target this Actor.
+			self:aux(480); -- The 'default value' of the aux value will be 0.
+			
+		end"
+	/>
+	
+	<Layer
+		Type="Quad"
+		InitCommand="%function(self)
+			self:hidden(1);
+			LineWidth = self; -- The 'aux' variable will target this Actor.
+			self:aux(10); -- The 'default value' of the aux value will be 0.
+			
+		end"
+	/>
+	
+	<Layer File="../Beginning" />
+	<Layer File="../Light_Mod_Data" />
+	<Layer File="../Tiny_NoteData" />
+	<Layer File="modhelpers" />
+	<Layer File="easing" />
+	<Layer File="spellcards" />
+	
+	
+	
+	
+	
+	
+	<Layer
+		Type="ActorFrame"
+		ScreenReadyCommand="%function(self)
+					--I found ScreenReadyCommand to get the overlays removed before the song
+					local ThingsToGrab = {'BPMDisplay','LifeFrame','ScoreFrame','Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+					local ThingsToHide = {'BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+					for pn=1,2 do
+						_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+						if _G['P'..pn] then
+							table.insert(mod_plr, _G['P'..pn])
+							_G['jud'..pn]=_G['P'..pn]:GetChild('Judgment');
+							_G['com'..pn]=_G['P'..pn]:GetChild('Combo');
+							_G['jud'..pn]:hidden(1)
+							_G['com'..pn]:hidden(1)
+						end
+						table.insert(ThingsToGrab,'LifeP'..pn); table.insert(ThingsToGrab,'ScoreP'..pn);
+						table.insert(ThingsToHide,'LifeP'..pn); table.insert(ThingsToHide,'ScoreP'..pn);
+					end	
+					for i,v in ipairs(ThingsToGrab) do _G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil end	
+					for i,v in ipairs(ThingsToHide) do if _G[v] then _G[v]:hidden(1) end end
+				checked = true;
+				for pn=1,2 do
+						local a = Plr(pn)
+						if a then
+							a:GetChild('Judgment'):hidden(1)
+							a:GetChild('Combo'):hidden(1)
+							a:SetFarDist(10000)
+							a:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+							Plr(2):SetHiddenRegions({{10,15.750},{27,30}, {33,33.5}})
+							Plr(1):SetHiddenRegions({{32,32.5}})
+						end
+					end
+							
+					for pn=1,2 do
+						local d = 0.25; if pn == 2 then d = 0.75 end
+						local b = _G['jud'..pn..'p']
+						if b then
+							b:hidden(0);
+							b:basezoomx(0.75);
+							b:basezoomy(0.75);
+							b:x(SCREEN_WIDTH*d)
+							b:y(SCREEN_HEIGHT*0.5)
+						end
+						local c = _G['com'..pn..'p']
+						if c then
+							c:hidden(0);
+							c:basezoomx(0.75);
+							c:basezoomy(0.75);
+							c:x(SCREEN_WIDTH*d)
+							c:y(SCREEN_HEIGHT*0.5)
+						end
+					end
+					
+		end"
+		InitCommand="%function(self)
+		
+			checked = false;
+		
+			---------------------------------------------------------
+			---------DOCUMENTATION-----------------------------------
+			---------------------------------------------------------
+			
+			--function perframe( beat, endBeat )
+				--return true if the current beat is between 'beat' and 'endBeat'
+			
+			--function mod_shader(beat,key,which)
+				--turn on shader key at specified beat (up to 10 keys available, defined by 'which' = 0-9
+				
+			--function mod_insert(beat,len,mod,len_or_end,pn)
+				--insert mod into beat mods table
+			--function mod_insert2(time,len,mod,len_or_end,pn)
+				--insert mod into time mods table
+			--function mod_ease(beat, len, start_strength, end_strength, mod, len_or_end, ease_type, pn, sustain, opt1, opt2)
+				--insert mod into ease mods table
+			--function mod_perframe(start, end, function(beat, deltatime))
+				--insert function into perframe reader
+				
+			--function mod_message(beat,msg,persistent)
+				--insert something into the actions table.
+				--msg can also be a function. If string, a message gets broadcast at that beat
+				--if 'persistent' is true, message will run even if editor starts at a beat past it
+				
+			--function mod_blacklist(t,n)
+				--check if number n occurs in table t
+				--useful for doing 'every beat EXCEPT the contents of t'
+				
+			--function simple_m0d(beat,strength,mult,mod)
+			--function simple_m0d2(beat,strength,mult,mod,pn)
+			--function simple_m0d3(beat,strength,duration,bpm,mod,pn)
+				--activate mods at specific beat but also deactivate them
+				
+			--function mod_wiggle(beat,num,div,amt,speed,mod,pn,first)
+				--alternates a mod back and forth before resetting to 0
+				
+			--function mod_spring(beat,strength,num,mod,pn)
+				--like mod_wiggle, but springier
+			
+			--function mod_springt(time,strength,dur,mod,pn)
+				--time-based per-frame alternating mod that decreases based on how much time is left.
+					--think doorstopper
+			
+			--function mod_springt2(time,strength,dur,mod,pn)
+				--time-based per-frame alternating mod
+			
+			--function mod_spring_adjustable(beat,strength,num,period,mod,pn, first)
+				--it's not very good
+			
+			--function mod_beat(beat,strength,pn)
+				--turns on beat for the beat specified, at the desired strength	
+			
+			--function switcheroo_add(beat,which,speed,len,pn)
+				--adds a column swap at the desired beat
+			--[[	switcheroos = {normal = {0,0}, ldur = {0,0}, reset = {0,0},
+					flip = {100,0}, rudl = {100,0}, invert = {0,100}, dlru = {0,100},
+					ludr = {25,-75}, rdul = {75,75}, drlu = {25,125}, ulrd = {75,-125}, urld = {100,-100}}
+			]]
+			
+			--function mod_sugarkiller(beat,duration,speed,minstealth,maxstealth,pn)
+				--portable version of the effect from sugarkill X
+			
+			--function mod_bounce(beat,length,start,apex,mod,ease_type,pn)
+			--function func_bounce(beat,length,start,apex,function,ease_type)
+				--eases out from start to apex, then eases back in from apex to start
+				--ease_type should be a string, i.e. 'Quad', 'Cubic', 'Circ'
+			
+			
+			
+			--function modulo(a, b)
+				--returns the remainder when a is divided by b, works properly with negatives unlike math.mod
+			
+			--function randomXD(t)
+				--returns a pseudo-random number between 0 and 1 seeded based on the given argument
+				--returns 0.5 if t is 0 (useful sometimes!)
+				
+			---------------------------------------------------------
+			--------END DOCUMENTATION--------------------------------
+			---------------------------------------------------------
+			
+			local linear, inQuad, outQuad, inOutQuad, outInQuad, inCubic, outCubic, inOutCubic, outInCubic, inQuart, outQuart, inOutQuart, outInQuart, inQuint, outQuint, inOutQuint, outInQuint, inSine, outSine, inOutSine, outInSine, inExpo, outExpo, inOutExpo, outInExpo, inCirc, outCirc, inOutCirc, outInCirc, inElastic, outElastic, inOutElastic, outInElastic, inBack, outBack, inOutBack, outInBack, inBounce, outBounce, inOutBounce, outInBounce = ease.linear, ease.inQuad, ease.outQuad, ease.inOutQuad, ease.outInQuad, ease.inCubic, ease.outCubic, ease.inOutCubic, ease.outInCubic, ease.inQuart, ease.outQuart, ease.inOutQuart, ease.outInQuart, ease.inQuint, ease.outQuint, ease.inOutQuint, ease.outInQuint, ease.inSine, ease.outSine, ease.inOutSine, ease.outInSine, ease.inExpo, ease.outExpo, ease.inOutExpo, ease.outInExpo, ease.inCirc, ease.outCirc, ease.inOutCirc, ease.outInCirc, ease.inElastic, ease.outElastic, ease.inOutElastic, ease.outInElastic, ease.inBack, ease.outBack, ease.inOutBack, ease.outInBack, ease.inBounce, ease.outBounce, ease.inOutBounce, ease.outInBounce
+			
+			init_modsp1 = '';
+			init_modsp2 = '';
+			
+			mod_plr = {};
+			
+			mod_firstSeenBeat = GAMESTATE:GetSongBeat(); --necessary to prevent long freezes
+			
+			mod_lasttime = 0
+			
+			local m = mod_insert
+			local m2 = mod_message
+			local me = mod_ease
+			
+			
+			local l = 'len'
+			local e = 'end'
+			
+---------------------------------------------------------------------------------------
+----------------------Begin tables 'n stuff--------------------------------------------
+---------------------------------------------------------------------------------------
+
+			--beat based mods
+			--{beat_start, beat_end, mods, len_or_end, player_number}
+			mods = {
+				{0,9999,'*-1 2.5x, *-1 overhead, *-1 approachtype, *-1 dizzyholds, *-1 stealthpastreceptors, *-1 modtimer','end'},
+			}
+			
+			--beat-based ease mods
+			--{beat_start, beat_end, mod_start, mod_end, mod/function, len_or_end, ease_type, player_number, sustainbeats, optional_param1, optional_param2}
+			--valid ease types are:
+				--linear
+				--inQuad    outQuad    inOutQuad    outInQuad
+				--inCubic   outCubic   inOutCubic   outInCubic
+				--inQuart   outQuart   inOutQuart   outInQuart
+				--inQuint   outQuint   inOutQuint   outInQuint
+				--inSine    outSine    inOutSine    outInSine
+				--inExpo    outExpo    inOutExpo    outInExpo
+				--inCirc    outCirc    inOutCirc    outInCirc
+				--inElastic outElastic inOutElastic outInElastic    --can take 2 optional parameters - amplitude & period
+				--inBack    outBack    inOutBack    outInBack       --can take 1 optional parameter  - spring amount
+				--inBounce  outBounce  inOutBounce  outInBounce
+				
+				
+			mods_ease = {
+				-- EXAMPLE TWEEN: from beat 0 to 4, make rotationz go from 360 to 0 with the inOutBack tween
+				--{0, 4, 360, 0, 'rotationz', 'len', inOutBack},
+				
+				-- EXAMPLE TWEEN: from beat 4 to 8, rotate topscreen from 360 to 0 with the outBack tween
+				--{4, 4, 360, 0, function(a) SCREENMAN:GetTopScreen():rotationz(a) end, 'len', outBack},
+				{31,0.25,200,0,'tiny0','len',outBack,1},
+				{31.25,0.25,200,0,'tiny1','len',outBack,1},
+				{31.5,0.25,200,0,'tiny2','len',outBack,1},
+				{31.75,0.25,200,0,'tiny3','len',outBack,1},
+				
+				{31,0.75,0,math.rad(360)*100,'confusionzoffset0','len',outBack},
+				{31.25,0.75,0,math.rad(360)*100,'confusionzoffset1','len',outBack},
+				{31.5,0.75,0,math.rad(360)*100,'confusionzoffset2','len',outBack},
+				{31.75,0.75,0,math.rad(360)*100,'confusionzoffset3','len',outBack},
+				
+				--{31,0.75,-100,0,'longholds','len',outQuart,2},
+				--{31.5,0.75,-100,0,'longholds','len',outQuart,1},
+				
+				{32,0.5,0,180,'rotationy','len',linear},
+				{32,0.5,0,math.rad(-180)*100,'confusionyoffset','len',linear},
+				
+				{33,0.5,math.rad(-180)*100,math.rad(-360)*100,'confusionyoffset','len',linear},
+				{33,0.5,180,360,'rotationy','len',linear},
+				
+				
+				
+				
+				
+				{40,0.5,0,-180,'rotationy','len',linear},
+				{40,0.5,0,math.rad(180)*100,'confusionyoffset','len',linear},
+				
+				{41,0.5,math.rad(180)*100,math.rad(360)*100,'confusionyoffset','len',linear},
+				{41,0.5,-180,-360,'rotationy','len',linear},
+			}
+			
+			
+			me(0,2,100,0,'dark','len',linear)
+
+			
+			
+			m(32.5,0.5,'*-1 180 rotationy, *-1 '..(math.rad(-180)*100)..' confusionyoffset','len')
+			m(33.5,0.5,'*-1 0 rotationy, *-1 0 confusionyoffset','len')
+			m(31.75,0.25,'*-1 no confusionzoffset0','len')
+			m(32,0.25,'*-1 no confusionzoffset1','len')
+			m(32.25,0.25,'*-1 no confusionzoffset2','len')
+			m(32.5,0.25,'*-1 no confusionzoffset3','len')
+			
+			
+			
+			m(32,1,'*-1 no halgun, *-1 no HideNoteFlash','len')
+			
+			m(32,0.25,'*40 -150 tipsy')
+			m(32.25,0.75,'*3 no tipsy')
+			m(33,0.25,'*40 150 tipsy')
+			m(33.25,0.75,'*3 no tipsy')
+			
+			m(40,0.25,'*40 -150 tipsy')
+			m(40.25,0.75,'*3 no tipsy')
+			m(41,0.25,'*40 150 tipsy')
+			m(41.25,0.75,'*3 no tipsy')
+			
+			for i=0,3 do
+			
+				me(32,0.25,0,-150,'tiny'..(i),'len',outQuad)
+				me(32.25,0.75,-150,0,'tiny'..(i),'len',outQuad)
+				me(33,0.25,0,-150,'tiny'..(i),'len',outQuad)
+				me(33.25,0.75,-150,0,'tiny'..(i),'len',outQuad)
+				
+				me(40,0.25,0,-150,'tiny'..(i),'len',outQuad)
+				me(40.25,0.75,-150,0,'tiny'..(i),'len',outQuad)
+				me(41,0.25,0,-150,'tiny'..(i),'len',outQuad)
+				me(41.25,0.75,-150,0,'tiny'..(i),'len',outQuad)
+			end
+			
+			
+			
+			
+			m(40.5,0.5,'*-1 180 rotationy, *-1 '..(math.rad(180)*100)..' confusionyoffset','len')
+			m(41.5,0.5,'*-1 0 rotationy, *-1 0 confusionyoffset','len')
+			
+			
+			--time based mods
+			mod_time = 0;
+			--{time_start, time_end, mods, len_or_end, player_number}
+			mods2 = {
+			}
+			
+			-- you can now write perframe stuff without having to scroll down!
+			-- {beat_start,beat_end,function(beat,deltatime)}
+			mod_perframes = {
+				--{18,24,function(beat,deltatime)
+					-- do stuff every frame from beat 18-24
+					-- do stuff every frame from beat 18-24
+					-- print(beat,deltatime)
+				--end},
+				{32,32.25,function(beat,deltatime)
+					Bg1:SetVertexColor(1, 0, Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(2, 0, Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{32.25,33,function(beat,deltatime)
+					Bg1:SetVertexColor(1,0, Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(2,0, Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				
+				{33,33.25,function(beat,deltatime)
+					Bg1:SetVertexColor(0,0, 0, 0, 0) 
+					Bg1:SetVertexColor(0, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(3, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{33.25,34,function(beat,deltatime)
+					Bg1:SetVertexColor(0, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(3, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{34,34.25,function(beat,deltatime)
+					Bg1:SetVertexColor(0,0, 0, 0, 1) 
+					Bg1:SetVertexColor(0,0, 0, 0, 2) 
+				end},
+				
+				
+				{35.5,37.5,function(beat,deltatime)
+					Bg1:SetVertexColor(0, 0,0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(1, 0.25*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(2, 0.75*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(3, 0.5*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+				end},
+				
+				{37.5,40,function(beat,deltatime)
+					Bg1:SetVertexColor(2, 0,0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(3, 0.25*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(0, 0.75*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+					Bg1:SetVertexColor(1, 0.5*TotalColor:getaux(),0.5*TotalColor:getaux(),1*TotalColor:getaux(),1)
+				end},
+				
+				{43.5,45.5,function(beat,deltatime)
+					Bg1:SetVertexColor(0, math.abs(math.sin((math.pi * 50 * 0.5)+1))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(1, math.abs(math.sin((math.pi * 50 * 0.5)))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(2, math.abs(math.sin(math.pi * 50 * 0.5))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(3, math.abs(math.sin((math.pi * 50 * 0.5)+1))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+				end},
+				
+				{45.5,48,function(beat,deltatime)
+					Bg1:SetVertexColor(0, math.abs(math.sin((math.pi * 48 * 0.5)+1))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(1, math.abs(math.sin((math.pi * 48 * 0.5 )))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(2, math.abs(math.sin(math.pi * 48 * 0.5))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+					Bg1:SetVertexColor(3, math.abs(math.sin((math.pi * 48 * 0.5)+1))*0.7*TotalColor:getaux(), 0.5*TotalColor:getaux(), 1*TotalColor:getaux(), 1)
+				end},
+				
+				
+				{40,40.25,function(beat,deltatime)
+					Bg1:SetVertexColor(3, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(0, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{40.25,41,function(beat,deltatime)
+					Bg1:SetVertexColor(0, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(3, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{41,41.25,function(beat,deltatime)
+					Bg1:SetVertexColor(0,0, 0, 0, 1) 
+					Bg1:SetVertexColor(3,0, 0, 0, 1) 
+					Bg1:SetVertexColor(2, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1, 2)
+					Bg1:SetVertexColor(1, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1, 1)
+				end},
+				{41.25,42,function(beat,deltatime)
+					Bg1:SetVertexColor(1, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+					Bg1:SetVertexColor(2, Red_Bg1:getaux(), Green_Bg1:getaux(), Blue_Bg1:getaux(), 1)
+				end},
+				{42,42.25,function(beat,deltatime)
+					Bg1:SetVertexColor(2,0, 0, 0, 1) 
+					Bg1:SetVertexColor(1,0, 0, 0, 1)
+				end},
+				
+				{120,121,function(beat,deltatime)
+					Try:x(Plr(2):GetX()-412)
+					your:x(Plr(2):GetX()-450)
+					best:x(Plr(2):GetX()-450)
+				end},
+			}
+			
+			--this is both a message broadcaster and a function runner
+			--if you put {beat,'String'}, then 'String' is broadcast as a message on that beat
+			--if you put {beat,function() somecode end}, then function() is run at that beat
+			--see example on beat 0
+			
+			m(10,18,'*-1 hidemines','end',1)
+			m(10,16,'*-1 90 Twirl0','end',2)
+			m(16,18,'*-1 no Twirl0','end',2)
+			
+			m(0,30,'100 drunk, 100 wave ','end')
+			
+			me(16,14,100,200,'beat','len',linear)
+			
+			me(35.5,0.75,0,180,'rotationz','len',outQuad)
+			me(35.5,0.75,0,math.rad(-180)*100,'confusionzoffset','len',outQuad)
+			
+			me(43.5,0.75,0,-180,'rotationz','len',outQuad)
+			me(43.5,0.75,0,math.rad(180)*100,'confusionzoffset','len',outQuad)
+			
+			m(44.25,2.75,'*-1 no rotationz, *-1 no confusionzoffset, *-1 reverse, *-1 -100 invert, *-1 flip','len')
+			
+			me(45.5,1,0,180,'rotationx','len',outQuad)
+			me(45.5,1,0,math.rad(-180)*100,'confusionxoffset','len',outQuad)
+			me(47,1,-100,0,'invert','len',outQuad)
+			me(47,1,100,0,'flip','len',outQuad)
+			me(47,1,0,math.rad(720*2)*100,'confusionzoffset','len',outQuad)
+			m(45.5,0.5,'*-1 180 rotationx, *-1 '..(math.rad(-180)*100)..' confusionxoffset','len')
+			m(46.5,6,'*-1 no rotationx, *-1 no confusionxoffset, *-1 no reverse','len')
+			m(48,2,'*-1 no confusionzoffset','len')
+			
+			me(42,0.5,100,0,'invert','len',outCubic)
+			me(42,0.5,0,100,'flip','len',outCubic)
+			me(42.5,0.5,100,100,'flip','len',outCubic)
+			me(42.5,0.5,0,-100,'invert','len',outCubic)
+			me(43,0.5,-100,100,'invert','len',outCubic)
+			me(43,0.5,100,0,'flip','len',outCubic)
+			
+			me(34,0.5,0,100,'flip','len',outCubic)
+			me(34.5,0.5,100,100,'flip','len',outCubic)
+			me(34.5,0.5,0,-100,'invert','len',outCubic)
+			me(35,0.5,-100,0,'invert','len',outCubic)
+			me(35,0.5,100,0,'flip','len',outCubic)
+			
+			m(36.25,2.75,'*-1 no rotationz, *-1 no confusionzoffset, *-1 reverse, *-1 flip','len')
+			me(37.5,1,0,180,'rotationx','len',outQuad)
+			me(37.5,1,0,math.rad(-180)*100,'confusionxoffset','len',outQuad)
+			me(39,1,100,0,'flip','len',outQuad)
+			me(39,1,0,100,'invert','len',outQuad)
+			m(38.5,0.5,'*-1 180 rotationx, *-1 '..(math.rad(-180)*100)..' confusionxoffset','len')
+			m(39,1,'*-1 no rotationx, *-1 no confusionxoffset, *-1 no reverse','len')
+			m(40,2,'*-1 invert','len')
+			m(43.5,0.75,'*-1 invert','len')
+			
+			
+			
+			me(16,14,0,5000,'parabolaz','len',linear,1)
+			me(16,12,0,(5000/14)*12,'parabolaz','len',linear,2)
+			me(16,14,100,0,'zoom','len',linear,1)
+			me(16,12,100,(100/14)*2,'zoom','len',linear,2)
+			m(30,1,'*-1 0 zoom','len')
+			--m(30,1,'*-1 -100 longholds','len',1)
+			--m(28,3,'*-1 -100 longholds','len',2)
+			
+			me(120,3.5,0,562.5,'CubicX','len',linear,1)
+			me(120,3.5,0,-562.5,'CubicX','len',linear,2)
+			
+			me(120,3.5,0,3750,'parabolaz','len',linear)
+			me(120,3.5,100,0,'zoom','len',linear)
+			me(120,3.5,0,-100,'tiny0','len',linear)
+			me(120,3.5,0,-100,'tiny1','len',linear)
+			me(120,3.5,0,-100,'tiny2','len',linear)
+			me(120,3.5,0,-100,'tiny3','len',linear)
+			
+			m(123.5,2.5,'*-1 25 zoom, *-1 no parabolaz, *-1 no CubicX, *-1 no tiny0, *-1 no tiny1, *-1 no tiny2, *-1 no tiny3','len')
+			--m(30,1,'*-1 -100 longholds','len',1)
+			--m(28,3,'*-1 -100 longholds','len',2)
+			
+			me(16,14,0,750,'CubicX','len',linear,1)
+			me(16,14,0,-750,'CubicX','len',linear,4)
+			
+			me(16,12,0,(-750/14)*12,'CubicX','len',linear,2)
+			
+			me(126,1,25,100,'zoom','len',inCubic)
+			
+	
+			
+			me(16,14,0,5000,'parabolaz','len',linear,4)
+			me(16,14,100,0,'zoom','len',linear,4)
+			
+			m(30,1,'*-1 100 zoom, *-1 no parabolaz, *-1 no beat, *-1 no drunk, *-1 no wave, *-1 halgun, *-1 HideNoteFlash, *-1 200 tiny0, *-1 200 tiny1, *-1 200 tiny2, *-1 200 tiny3, *-1 no CubicX','len',1)
+			--m(30,3.25,'*-1 reverse','len',1)
+			m(31,0.25,'*-1 200 tiny1, *-1 200 tiny2, *-1 200 tiny3','len',1)
+			m(31.25,0.25,'*-1 200 tiny2, *-1 200 tiny3','len',1)
+			m(31.5,0.25,'*-1 200 tiny3','len',1)
+			m(31,0.25,'*8 arrowpath0','len',1)
+			
+			m(31.25,0.25,'*8 arrowpath1','len',1)
+			m(31.5,0.25,'*8 arrowpath2','len',1)
+			m(31.75,0.25,'*8 arrowpath3','len',1)
+			me(16,13,0,-100,'tiny0','len',linear)
+			me(16,13,0,-100,'tiny1','len',linear)
+			me(16,13,0,-100,'tiny2','len',linear)
+			me(16,13,0,-100,'tiny3','len',linear)
+			
+			
+		
+			
+			
+			
+			
+			m(28,32.25,'*-1 100 zoom, *-1 no parabolaz, *-1 no beat, *-1 no drunk, *-1 no wave, *-1 halgun, *-1 HideNoteFlash, *-1 no CubicX','end',2)
+			m(28,32.25,'*-1 dark','end',2)
+			
+			m2(32,function()
+				Bg1:SetVertexColor(0,0, 0, 0, 1) 
+				Bg1:SetVertexColor(3,0, 0, 0, 1) 
+				Bg1:SetVertexColor(2,0, 0, 0, 1) 
+				Bg1:SetVertexColor(1,0, 0, 0, 1) 
+			end,true)
+			
+			
+			curaction = 1;
+			--{beat,thing,persists}
+			mod_actions = {
+				{0,'GetProxy',true},
+				{16,'Purpleish',true},
+				{0,function()
+					P3 = SCREENMAN:GetTopScreen():GetChild('PlayerP3')
+					P4 = SCREENMAN:GetTopScreen():GetChild('PlayerP4')
+					P4:hidden(0)
+					P4:SetHiddenRegions({{0,17}})
+					P4:GetChild('Judgment'):hidden(1)
+					P4:GetChild('Combo'):hidden(1)
+					P4:SetInputPlayer(1)
+					
+					P3:SetHiddenRegions({{0,136.5}})
+					P3:GetChild('Judgment'):hidden(1)
+					P3:GetChild('Combo'):hidden(1)
+					P3:SetInputPlayer(0)
+				end,true},
+				
+				{31,'Black',true},
+				
+				{32,function()
+					Green_Bg1:linear(60/140*0.25)
+					Blue_Bg1:linear(60/140*0.25)
+					Green_Bg1:aux(0.5)
+					Blue_Bg1:aux(1)
+				end,true},
+				{32.25,function()
+					Green_Bg1:linear(60/140*0.75)
+					Blue_Bg1:linear(60/140*0.75)
+					Green_Bg1:aux(0)
+					Blue_Bg1:aux(0)
+				end,true},
+				
+				{33,function()
+					Green_Bg1:linear(60/140*0.25)
+					Blue_Bg1:linear(60/140*0.25)
+					Red_Bg1:linear(60/140*0.25)
+					Green_Bg1:aux(0.5)
+					Blue_Bg1:aux(1)
+					Red_Bg1:aux(0.45)
+				end,true},
+				{33.25,function()
+					Green_Bg1:linear(60/140*0.75)
+					Blue_Bg1:linear(60/140*0.75)
+					Red_Bg1:linear(60/140*0.75)
+					Green_Bg1:aux(0)
+					Blue_Bg1:aux(0)
+					Red_Bg1:aux(0)
+				end,true},
+				
+				
+				{41,function()
+					Green_Bg1:linear(60/140*0.25)
+					Blue_Bg1:linear(60/140*0.25)
+					Green_Bg1:aux(0.5)
+					Blue_Bg1:aux(1)
+				end,true},
+				{41.25,function()
+					Green_Bg1:linear(60/140*0.75)
+					Blue_Bg1:linear(60/140*0.75)
+					Green_Bg1:aux(0)
+					Blue_Bg1:aux(0)
+				end,true},
+				
+				{40,function()
+					Green_Bg1:linear(60/140*0.25)
+					Blue_Bg1:linear(60/140*0.25)
+					Red_Bg1:linear(60/140*0.25)
+					Green_Bg1:aux(0.5)
+					Blue_Bg1:aux(1)
+					Red_Bg1:aux(0.45)
+				end,true},
+				{40.25,function()
+					Green_Bg1:linear(60/140*0.75)
+					Blue_Bg1:linear(60/140*0.75)
+					Red_Bg1:linear(60/140*0.75)
+					Green_Bg1:aux(0)
+					Blue_Bg1:aux(0)
+					Red_Bg1:aux(0)
+				end,true},
+				
+				{35.5,function()
+					TotalColor:decelerate(60/140*0.5)
+					TotalColor:aux(1)
+				end,true},
+				
+				{36,function()
+					TotalColor:decelerate(60/140*1.5)
+					TotalColor:aux(0)
+				end,true},
+				
+				{37.5,function()
+					TotalColor:decelerate(60/140*0.75)
+					TotalColor:aux(1)
+				end,true},
+				
+				{38.25,function()
+					TotalColor:decelerate(60/140*1.75)
+					TotalColor:aux(0)
+				end,true},
+				
+				
+				
+				
+				{43.5,function()
+					TotalColor:decelerate(60/140*0.5)
+					TotalColor:aux(1)
+				end,true},
+				
+				{44,function()
+					TotalColor:decelerate(60/140*1.5)
+					TotalColor:aux(0)
+				end,true},
+				
+				{45.5,function()
+					TotalColor:decelerate(60/140*0.75)
+					TotalColor:aux(1)
+				end,true},
+				
+				
+				
+				
+				
+				{30,function()
+					P4:hidden(1)
+				end,true},
+				
+				
+				
+				
+			}
+			
+			for i=2,table.getn(Beginning) do
+				local b2 = Beginning[i]
+				local check = 0
+				--adds the white and normal message commands for more music queues
+				table.insert(mod_actions, {b2[1],'White',true})
+				table.insert(mod_actions,{b2[1]+0.25,'Normal',true})
+				if math.mod(i, 2) == 0 then
+					m(b2[1],0.125,'*40 -75 tipsy','len')
+					m(b2[1]+0.125,0.5,'no tipsy','len')
+				else
+					m(b2[1],0.125,'*40 75 tipsy','len')
+					m(b2[1]+0.125,0.5,'no tipsy','len')
+				end
+				if b2[1] < 29.500 then
+					if math.mod(i, 6) == 0 then
+						me(b2[1]+0.5,0.5,0,100,'flip','len',outQuad)
+						me(b2[1]+1,0.5,100,0,'flip','len',outQuad)
+						me(b2[1]+1.5,0.5,0,100,'invert','len',outQuad)
+						me(b2[1]+2,0.5,100,0,'invert','len',outQuad)
+					elseif math.mod(i, 3) == 0 then
+						check = check + 1
+						if math.mod(check, 2) == 1 then
+							me(b2[1]+0.5,0.5,0,100,'invert','len',outQuad)
+							me(b2[1]+1,0.5,100,0,'invert','len',outQuad)
+							me(b2[1]+1.5,0.5,0,100,'flip','len',outQuad)
+							me(b2[1]+2,0.5,100,0,'flip','len',outQuad)
+						end
+					end
+				end
+			end
+			
+			me(59.5,0.0625,0,75,'tipsy','len',outSine)
+			me(59.5625,(0.0625)*3,75,0,'tipsy','len',outSine)
+			me(59.75,0.0625,0,-75,'tipsy','len',outSine)
+			me(59.8125,(0.0625)*3,-75,0,'tipsy','len',outSine)
+			
+			me(65,0.25,0,math.rad(180)*100,'confusionzoffset0','len',linear)
+			me(65.25,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset0','len',outBack)
+			
+			me(65.25,0.25,0,math.rad(180)*100,'confusionzoffset1','len',linear)
+			me(65.5,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset1','len',outBack)
+			
+			me(65.5,0.25,0,math.rad(180)*100,'confusionzoffset3','len',linear)
+			me(65.75,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset3','len',outBack)
+			
+			me(65.75,0.25,0,math.rad(180)*100,'confusionzoffset3','len',linear)
+			me(66,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset3','len',outBack)
+			
+			m(65.5,0.25,'*-1 no confusionzoffset0','len')
+			m(65.75,0.25,'*-1 no confusionzoffset1','len')
+			m(66,0.25,'*-1 no confusionzoffset2','len')
+			m(66.25,0.25,'*-1 no confusionzoffset3','len')
+			
+			me(65,0.25,0,100,'arrowpath0','len',outQuad)
+			me(65.25,0.25,100,0,'arrowpath0','len',linear)
+			
+			me(65.25,0.25,0,100,'arrowpath1','len',outQuad)
+			me(65.5,0.25,100,0,'arrowpath1','len',linear)
+			
+			me(65.5,0.25,0,100,'arrowpath2','len',outQuad)
+			me(65.75,0.25,100,0,'arrowpath2','len',linear)
+			
+			me(65.75,0.25,0,100,'arrowpath3','len',outQuad)
+			me(66,0.25,100,0,'arrowpath3','len',linear)
+			
+			me(66,0.75,0,100,'movex0','len',inSine)
+			me(66,0.75,0,-100,'movex1','len',inSine)
+			
+			me(66,0.75,0,100,'movex2','len',inSine)
+			me(66,0.75,0,-100,'movex3','len',inSine)
+			
+			me(66,0.375,0,50,'movey0','len',outSine)
+			me(66.375,0.375,50,0,'movey0','len',inSine)
+			
+			me(66,0.375,0,-50,'movey1','len',outSine)
+			me(66.375,0.375,-50,0,'movey1','len',inSine)
+			
+			me(66,0.375,0,50,'movey2','len',outSine)
+			me(66.375,0.375,50,0,'movey2','len',inSine)
+			
+			me(66,0.375,0,-50,'movey3','len',outSine)
+			me(66.375,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(66.75,0.75,100,0,'movex0','len',outSine)
+			me(66.75,0.75,-100,0,'movex1','len',outSine)
+			
+			me(66.75,0.75,100,0,'movex2','len',outSine)
+			me(66.75,0.75,-100,0,'movex3','len',outSine)
+			
+			me(66.75,0.375,0,-50,'movey0','len',outSine)
+			me(67.125,0.375,-50,0,'movey0','len',inSine)
+			
+			me(66.75,0.375,0,50,'movey1','len',outSine)
+			me(67.125,0.375,50,0,'movey1','len',inSine)
+			
+			me(66.75,0.375,0,-50,'movey2','len',outSine)
+			me(67.125,0.375,-50,0,'movey2','len',inSine)
+			
+			me(66.75,0.375,0,50,'movey3','len',outSine)
+			me(67.125,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(67.5,0.75,0,100,'movex0','len',inSine)
+			me(67.5,0.75,0,-100,'movex1','len',inSine)
+			
+			me(67.5,0.75,0,100,'movex2','len',inSine)
+			me(67.5,0.75,0,-100,'movex3','len',inSine)
+			
+			me(67.5,0.375,0,50,'movey0','len',outSine)
+			me(67.875,0.375,50,0,'movey0','len',inSine)
+			
+			me(67.5,0.375,0,-50,'movey1','len',outSine)
+			me(67.875,0.375,-50,0,'movey1','len',inSine)
+			
+			me(67.5,0.375,0,50,'movey2','len',outSine)
+			me(67.875,0.375,50,0,'movey2','len',inSine)
+			
+			me(67.5,0.375,0,-50,'movey3','len',outSine)
+			me(67.875,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			
+			me(70,0.75,0,100,'movex0','len',inSine)
+			me(70,0.75,0,-100,'movex1','len',inSine)
+			
+			me(70,0.75,0,100,'movex2','len',inSine)
+			me(70,0.75,0,-100,'movex3','len',inSine)
+			
+			me(70,0.375,0,-50,'movey0','len',outSine)
+			me(70.375,0.375,-50,0,'movey0','len',inSine)
+			
+			me(70,0.375,0,50,'movey1','len',outSine)
+			me(70.375,0.375,50,0,'movey1','len',inSine)
+			
+			me(70,0.375,0,-50,'movey2','len',outSine)
+			me(70.375,0.375,-50,0,'movey2','len',inSine)
+			
+			me(70,0.375,0,50,'movey3','len',outSine)
+			me(70.375,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			me(70.75,0.75,100,0,'movex0','len',outSine)
+			me(70.75,0.75,-100,0,'movex1','len',outSine)
+			
+			me(70.75,0.75,100,0,'movex2','len',outSine)
+			me(70.75,0.75,-100,0,'movex3','len',outSine)
+			
+			me(70.75,0.375,0,50,'movey0','len',outSine)
+			me(71.125,0.375,50,0,'movey0','len',inSine)
+			
+			me(70.75,0.375,0,-50,'movey1','len',outSine)
+			me(71.125,0.375,-50,0,'movey1','len',inSine)
+			
+			me(70.75,0.375,0,50,'movey2','len',outSine)
+			me(71.125,0.375,50,0,'movey2','len',inSine)
+			
+			me(70.75,0.375,0,-50,'movey3','len',outSine)
+			me(71.125,0.375,-50,0,'movey3','len',inSine)
+			
+			me(81,1,0,math.rad(720)*100,'confusionzoffset','len',outQuart)
+			me(81,0.25,0,50,'stealth','len',outQuad)
+			me(81.25,0.75,50,0,'stealth','len',outQuad)
+			m(82,1,'*-1 no confusionzoffset','len')
+			
+			me(71.5,0.75,0,100,'movex0','len',inSine)
+			me(71.5,0.75,0,-100,'movex1','len',inSine)
+			
+			me(71.5,0.75,0,100,'movex2','len',inSine)
+			me(71.5,0.75,0,-100,'movex3','len',inSine)
+			
+			me(71.5,0.375,0,-50,'movey0','len',outSine)
+			me(71.875,0.375,-50,0,'movey0','len',inSine)
+			
+			me(71.5,0.375,0,50,'movey1','len',outSine)
+			me(71.875,0.375,50,0,'movey1','len',inSine)
+			
+			me(71.5,0.375,0,-50,'movey2','len',outSine)
+			me(71.875,0.375,-50,0,'movey2','len',inSine)
+			
+			me(71.5,0.375,0,50,'movey3','len',outSine)
+			me(71.875,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			me(82,0.75,0,100,'movex0','len',inSine)
+			me(82,0.75,0,-100,'movex1','len',inSine)
+			
+			me(82,0.75,0,100,'movex2','len',inSine)
+			me(82,0.75,0,-100,'movex3','len',inSine)
+		
+			me(82,0.375,0,50,'movey0','len',outSine)
+			me(82.375,0.375,50,0,'movey0','len',inSine)
+			
+			me(82,0.375,0,-50,'movey1','len',outSine)
+			me(82.375,0.375,-50,0,'movey1','len',inSine)
+			
+			me(82,0.375,0,50,'movey2','len',outSine)
+			me(82.375,0.375,50,0,'movey2','len',inSine)
+			
+			me(82,0.375,0,-50,'movey3','len',outSine)
+			me(82.375,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(82.75,0.75,100,0,'movex0','len',outSine)
+			me(82.75,0.75,-100,0,'movex1','len',outSine)
+			
+			me(82.75,0.75,100,0,'movex2','len',outSine)
+			me(82.75,0.75,-100,0,'movex3','len',outSine)
+			
+			me(82.75,0.375,0,-50,'movey0','len',outSine)
+			me(83.125,0.375,-50,0,'movey0','len',inSine)
+			
+			me(82.75,0.375,0,50,'movey1','len',outSine)
+			me(83.125,0.375,50,0,'movey1','len',inSine)
+			
+			me(82.75,0.375,0,-50,'movey2','len',outSine)
+			me(83.125,0.375,-50,0,'movey2','len',inSine)
+			
+			me(82.75,0.375,0,50,'movey3','len',outSine)
+			me(83.125,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(83.5,0.75,0,100,'movex0','len',inSine)
+			me(83.5,0.75,0,-100,'movex1','len',inSine)
+			
+			me(83.5,0.75,0,100,'movex2','len',inSine)
+			me(83.5,0.75,0,-100,'movex3','len',inSine)
+			
+			me(83.5,0.375,0,50,'movey0','len',outSine)
+			me(83.875,0.375,50,0,'movey0','len',inSine)
+			
+			me(83.5,0.375,0,-50,'movey1','len',outSine)
+			me(83.875,0.375,-50,0,'movey1','len',inSine)
+			
+			me(83.5,0.375,0,50,'movey2','len',outSine)
+			me(83.875,0.375,50,0,'movey2','len',inSine)
+			
+			me(83.5,0.375,0,-50,'movey3','len',outSine)
+			me(83.875,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			me(86,0.75,0,100,'movex0','len',inSine)
+			me(86,0.75,0,-100,'movex1','len',inSine)
+			
+			me(86,0.75,0,100,'movex2','len',inSine)
+			me(86,0.75,0,-100,'movex3','len',inSine)
+			
+			me(86,0.375,0,-50,'movey0','len',outSine)
+			me(86.375,0.375,-50,0,'movey0','len',inSine)
+			
+			me(86,0.375,0,50,'movey1','len',outSine)
+			me(86.375,0.375,50,0,'movey1','len',inSine)
+			
+			me(86,0.375,0,-50,'movey2','len',outSine)
+			me(86.375,0.375,-50,0,'movey2','len',inSine)
+			
+			me(86,0.375,0,50,'movey3','len',outSine)
+			me(86.375,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			me(86.75,0.75,100,0,'movex0','len',outSine)
+			me(86.75,0.75,-100,0,'movex1','len',outSine)
+			
+			me(86.75,0.75,100,0,'movex2','len',outSine)
+			me(86.75,0.75,-100,0,'movex3','len',outSine)
+			
+			me(86.75,0.375,0,50,'movey0','len',outSine)
+			me(87.125,0.375,50,0,'movey0','len',inSine)
+			
+			me(86.75,0.375,0,-50,'movey1','len',outSine)
+			me(87.125,0.375,-50,0,'movey1','len',inSine)
+			
+			me(86.75,0.375,0,50,'movey2','len',outSine)
+			me(87.125,0.375,50,0,'movey2','len',inSine)
+			
+			me(86.75,0.375,0,-50,'movey3','len',outSine)
+			me(87.125,0.375,-50,0,'movey3','len',inSine)
+			
+			me(81,1,0,math.rad(720)*100,'confusionzoffset','len',outQuart)
+			me(81,0.25,0,50,'stealth','len',outQuad)
+			me(81.25,0.75,50,0,'stealth','len',outQuad)
+			m(82,1,'*-1 no confusionzoffset','len')
+			
+			
+			
+			
+			
+			m(84.25,0.75,'*-1 100 movex0, *-1 -100 movex1, *-1 100 movex2, *-1 -100 movex3','len')
+			me(84.5,0.5,100,0,'movex0, *-1 100 movex2, *-1 -100 movex3','len',outQuad)
+			me(84.5,0.5,-100,0,'movex1','len',outCubic)
+			me(85,0.5,100,0,'movex2','len',outCubic)
+			me(85,0.5,-100,0,'movex3','len',outCubic)
+			me(85.5,0.25,0,250,'movex3','len',outCubic)
+			me(85.5,0.25,0,250,'movex2','len',outCubic)
+			me(85.75,0.25,0,250,'movex1, *-1 250 movex3, *-1 250 movex2','len',outCubic)
+			me(85.75,0.25,0,250,'movex0','len',outCubic)
+			m(86,1,'*-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			
+			m(68.25,0.75,'*-1 invert, *-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			m(72.25,2.25,'*-1 invert, *-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			
+			me(69,0.75,0,math.rad(720)*100,'confusionzoffset','len',outBack)
+			me(69,0.75,100,0,'invert','len',outQuint)
+			
+			
+			m(69.75,1,'*-1 no confusionzoffset, *-1 no invert','len')
+			
+			me(69+32,0.75,0,math.rad(720)*100,'confusionzoffset','len',outBack)
+			me(69+32,0.75,100,0,'invert','len',outQuint)
+			
+			
+			m(69.75+32,1,'*-1 no confusionzoffset, *-1 no invert','len')
+			
+			--me(84.5,0.5,0,math.rad(360)*100,'confusionzoffset','len',outQuint)
+			
+			--m(84.5,1,'*-1 no confusionzoffset','len')
+			
+			me(87.5,0.25,0,-150,'tipsy','len',outCubic)
+			me(87.75,0.75,-150,0,'tipsy','len',outCubic)
+			
+			me(88.5,0.5,0,100,'reverse0','len',outCubic)
+			me(88.5,0.5,0,100,'reverse1','len',outCubic)
+			me(89,0.5,0,100,'reverse2, *-1 reverse0','len',outCubic)
+			me(89,0.5,0,100,'reverse3, *-1 reverse1','len',outCubic)
+			
+			m(89.5,3,'*-1 reverse0, *-1 reverse1, *-1 reverse2, *-1 reverse3','len')
+			
+			me(90,0.5,0,100,'invert','len',outCubic)
+			m(90.5,0.5,'*-1 invert','len')
+			me(91,0.5,100,0,'invert','len',outCubic)
+			me(94,0.5,0,100,'flip','len',outCubic)
+			m(94,2,'*-1 flip','len')
+			me(91.5,0.25,0,150,'tipsy','len',outCubic)
+			me(91.75,0.75,150,0,'tipsy','len',outCubic)
+			
+			me(92.5,0.5,100,0,'reverse2, *-1 reverse0, *-1 reverse1','len',outCubic)
+			me(92.5,0.5,100,0,'reverse3','len',outCubic)
+			me(93,0.5,100,0,'reverse0','len',outCubic)
+			me(93,0.5,100,0,'reverse1','len',outCubic)
+			
+			
+			
+			me(65+32,0.25,0,math.rad(180)*100,'confusionzoffset0','len',linear)
+			me(65.25+32,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset0','len',outBack)
+			
+			me(65.25+32,0.25,0,math.rad(180)*100,'confusionzoffset1','len',linear)
+			me(65.5+32,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset1','len',outBack)
+			
+			me(65.5+32,0.25,0,math.rad(180)*100,'confusionzoffset3','len',linear)
+			me(65.75+32,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset3','len',outBack)
+			
+			me(65.75+32,0.25,0,math.rad(180)*100,'confusionzoffset3','len',linear)
+			me(66+32,0.25,math.rad(180)*100,math.rad(360)*100,'confusionzoffset3','len',outBack)
+			
+			m(65.5+32,0.25,'*-1 no confusionzoffset0','len')
+			m(65.75+32,0.25,'*-1 no confusionzoffset1','len')
+			m(66+32,0.25,'*-1 no confusionzoffset2','len')
+			m(66.25+32,0.25,'*-1 no confusionzoffset3','len')
+			
+			me(65+32,0.25,0,100,'arrowpath0','len',outQuad)
+			me(65.25+32,0.25,100,0,'arrowpath0','len',linear)
+			
+			me(65.25+32,0.25,0,100,'arrowpath1','len',outQuad)
+			me(65.5+32,0.25,100,0,'arrowpath1','len',linear)
+			
+			me(65.5+32,0.25,0,100,'arrowpath2','len',outQuad)
+			me(65.75+32,0.25,100,0,'arrowpath2','len',linear)
+			
+			me(65.75+32,0.25,0,100,'arrowpath3','len',outQuad)
+			me(66+32,0.25,100,0,'arrowpath3','len',linear)
+			
+			me(66+32,0.75,0,100,'movex0','len',inSine)
+			me(66+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(66+32,0.75,0,100,'movex2','len',inSine)
+			me(66+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(66+32,0.375,0,50,'movey0','len',outSine)
+			me(66+32.375,0.375,50,0,'movey0','len',inSine)
+			
+			me(66+32,0.375,0,-50,'movey1','len',outSine)
+			me(66.375+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(66+32,0.375,0,50,'movey2','len',outSine)
+			me(66.375+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(66+32,0.375,0,-50,'movey3','len',outSine)
+			me(66.375+32,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(66.75+32,0.75,100,0,'movex0','len',outSine)
+			me(66.75+32,0.75,-100,0,'movex1','len',outSine)
+			
+			me(66.75+32,0.75,100,0,'movex2','len',outSine)
+			me(66.75+32,0.75,-100,0,'movex3','len',outSine)
+			
+			me(66.75+32,0.375,0,-50,'movey0','len',outSine)
+			me(67.125+32,0.375,-50,0,'movey0','len',inSine)
+			
+			me(66.75+32,0.375,0,50,'movey1','len',outSine)
+			me(67.125+32,0.375,50,0,'movey1','len',inSine)
+			
+			me(66.75+32,0.375,0,-50,'movey2','len',outSine)
+			me(67.125+32,0.375,-50,0,'movey2','len',inSine)
+			
+			me(66.75+32,0.375,0,50,'movey3','len',outSine)
+			me(67.125+32,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(67.5+32,0.75,0,100,'movex0','len',inSine)
+			me(67.5+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(67.5+32,0.75,0,100,'movex2','len',inSine)
+			me(67.5+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(67.5+32,0.375,0,50,'movey0','len',outSine)
+			me(67.875+32,0.375,50,0,'movey0','len',inSine)
+			
+			me(67.5+32,0.375,0,-50,'movey1','len',outSine)
+			me(67.875+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(67.5+32,0.375,0,50,'movey2','len',outSine)
+			me(67.875+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(67.5+32,0.375,0,-50,'movey3','len',outSine)
+			me(67.875+32,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			
+			me(70+32,0.75,0,100,'movex0','len',inSine)
+			me(70+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(70+32,0.75,0,100,'movex2','len',inSine)
+			me(70+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(70+32,0.375,0,-50,'movey0','len',outSine)
+			me(70.375+32,0.375,-50,0,'movey0','len',inSine)
+			
+			me(70+32,0.375,0,50,'movey1','len',outSine)
+			me(70.375+32,0.375,50,0,'movey1','len',inSine)
+			
+			me(70+32,0.375,0,-50,'movey2','len',outSine)
+			me(70.375+32,0.375,-50,0,'movey2','len',inSine)
+			
+			me(70+32,0.375,0,50,'movey3','len',outSine)
+			me(70.375+32,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			me(70.75+32,0.75,100,0,'movex0','len',outSine)
+			me(70.75+32,0.75,-100,0,'movex1','len',outSine)
+			
+			me(70.75+32,0.75,100,0,'movex2','len',outSine)
+			me(70.75+32,0.75,-100,0,'movex3','len',outSine)
+			
+			me(70.75+32,0.375,0,50,'movey0','len',outSine)
+			me(71.125+32,0.375,50,0,'movey0','len',inSine)
+			
+			me(70.75+32,0.375,0,-50,'movey1','len',outSine)
+			me(71.125+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(70.75+32,0.375,0,50,'movey2','len',outSine)
+			me(71.125+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(70.75+32,0.375,0,-50,'movey3','len',outSine)
+			me(71.125+32,0.375,-50,0,'movey3','len',inSine)
+			
+			me(81+32,1,0,math.rad(720)*100,'confusionzoffset','len',outQuart)
+			me(81+32,0.25,0,50,'stealth','len',outQuad)
+			me(81.25+32,0.75,50,0,'stealth','len',outQuad)
+			m(82+32,1,'*-1 no confusionzoffset','len')
+			
+			me(71.5+32,0.75,0,100,'movex0','len',inSine)
+			me(71.5+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(71.5+32,0.75,0,100,'movex2','len',inSine)
+			me(71.5+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(71.5+32,0.375,0,-50,'movey0','len',outSine)
+			me(71.875+32,0.375,-50,0,'movey0','len',inSine)
+			
+			me(71.5+32,0.375,0,50,'movey1','len',outSine)
+			me(71.875+32,0.375,50,0,'movey1','len',inSine)
+			
+			me(71.5+32,0.375,0,-50,'movey2','len',outSine)
+			me(71.875+32,0.375,-50,0,'movey2','len',inSine)
+			
+			me(71.5+32,0.375,0,50,'movey3','len',outSine)
+			me(71.875+32,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			me(82+32,0.75,0,100,'movex0','len',inSine)
+			me(82+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(82+32,0.75,0,100,'movex2','len',inSine)
+			me(82+32,0.75,0,-100,'movex3','len',inSine)
+		
+			me(82+32,0.375,0,50,'movey0','len',outSine)
+			me(82.375+32,0.375,50,0,'movey0','len',inSine)
+			
+			me(82+32,0.375,0,-50,'movey1','len',outSine)
+			me(82.375+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(82+32,0.375,0,50,'movey2','len',outSine)
+			me(82.375+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(82+32,0.375,0,-50,'movey3','len',outSine)
+			me(82.375+32,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(82.75+32,0.75,100,0,'movex0','len',outSine)
+			me(82.75+32,0.75,-100,0,'movex1','len',outSine)
+			
+			me(82.75+32,0.75,100,0,'movex2','len',outSine)
+			me(82.75+32,0.75,-100,0,'movex3','len',outSine)
+			
+			me(82.75+32,0.375,0,-50,'movey0','len',outSine)
+			me(83.125+32,0.375,-50,0,'movey0','len',inSine)
+			
+			me(82.75+32,0.375,0,50,'movey1','len',outSine)
+			me(83.125+32,0.375,50,0,'movey1','len',inSine)
+			
+			me(82.75+32,0.375,0,-50,'movey2','len',outSine)
+			me(83.125+32,0.375,-50,0,'movey2','len',inSine)
+			
+			me(82.75+32,0.375,0,50,'movey3','len',outSine)
+			me(83.125+32,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			me(83.5+32,0.75,0,100,'movex0','len',inSine)
+			me(83.5+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(83.5+32,0.75,0,100,'movex2','len',inSine)
+			me(83.5+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(83.5+32,0.375,0,50,'movey0','len',outSine)
+			me(83.875+32,0.375,50,0,'movey0','len',inSine)
+			
+			me(83.5+32,0.375,0,-50,'movey1','len',outSine)
+			me(83.875+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(83.5+32,0.375,0,50,'movey2','len',outSine)
+			me(83.875+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(83.5+32,0.375,0,-50,'movey3','len',outSine)
+			me(83.875+32,0.375,-50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			
+			me(86+32,0.75,0,100,'movex0','len',inSine)
+			me(86+32,0.75,0,-100,'movex1','len',inSine)
+			
+			me(86+32,0.75,0,100,'movex2','len',inSine)
+			me(86+32,0.75,0,-100,'movex3','len',inSine)
+			
+			me(86+32,0.375,0,-50,'movey0','len',outSine)
+			me(86.375+32,0.375,-50,0,'movey0','len',inSine)
+			
+			me(86+32,0.375,0,50,'movey1','len',outSine)
+			me(86.375+32,0.375,50,0,'movey1','len',inSine)
+			
+			me(86+32,0.375,0,-50,'movey2','len',outSine)
+			me(86.375+32,0.375,-50,0,'movey2','len',inSine)
+			
+			me(86+32,0.375,0,50,'movey3','len',outSine)
+			me(86.375+32,0.375,50,0,'movey3','len',inSine)
+			
+			
+			
+			
+			
+			me(86.75+32,0.75,100,0,'movex0','len',outSine)
+			me(86.75+32,0.75,-100,0,'movex1','len',outSine)
+			
+			me(86.75+32,0.75,100,0,'movex2','len',outSine)
+			me(86.75+32,0.75,-100,0,'movex3','len',outSine)
+			
+			me(86.75+32,0.375,0,50,'movey0','len',outSine)
+			me(87.125+32,0.375,50,0,'movey0','len',inSine)
+			
+			me(86.75+32,0.375,0,-50,'movey1','len',outSine)
+			me(87.125+32,0.375,-50,0,'movey1','len',inSine)
+			
+			me(86.75+32,0.375,0,50,'movey2','len',outSine)
+			me(87.125+32,0.375,50,0,'movey2','len',inSine)
+			
+			me(86.75+32,0.375,0,-50,'movey3','len',outSine)
+			me(87.125+32,0.375,-50,0,'movey3','len',inSine)
+			
+			me(81+32,1,0,math.rad(720)*100,'confusionzoffset','len',outQuart)
+			me(81+32,0.25,0,50,'stealth','len',outQuad)
+			me(81.25+32,0.75,50,0,'stealth','len',outQuad)
+			m(82+32,1,'*-1 no confusionzoffset','len')
+			
+			
+			
+			
+			
+			m(84.25+32,0.75,'*-1 100 movex0, *-1 -100 movex1, *-1 100 movex2, *-1 -100 movex3','len')
+			me(84.5+32,0.5,100,0,'movex0, *-1 100 movex2, *-1 -100 movex3','len',outQuad)
+			me(84.5+32,0.5,-100,0,'movex1','len',outCubic)
+			me(85+32,0.5,100,0,'movex2','len',outCubic)
+			me(85+32,0.5,-100,0,'movex3','len',outCubic)
+			me(85.5+32,0.25,0,250,'movex3','len',outCubic)
+			me(85.5+32,0.25,0,250,'movex2','len',outCubic)
+			me(85.75+32,0.25,0,250,'movex1, *-1 250 movex3, *-1 250 movex2','len',outCubic)
+			me(85.75+32,0.25,0,250,'movex0','len',outCubic)
+			m(86+32,1,'*-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			
+			m(68.25+32,0.75,'*-1 invert, *-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			m(72.25+32,2.25,'*-1 invert, *-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3','len')
+			
+			
+			
+			me(74.5+32,0.5,100,0,'invert','len',outQuint)
+			me(74.5,0.5,100,0,'invert','len',outQuint)
+
+			
+			--[[for i=96,111 do
+				if math.mod(i, 2) == 0 then
+					me(i,0.25,0,-50,'tipsy','len',outCubic)
+					me(i+0.25,0.75,-50,0,'tipsy','len',outCubic)
+				else
+					me(i,0.25,0,50,'tipsy','len',outCubic)
+					me(i+0.25,0.75,50,0,'tipsy','len',outCubic)
+				end
+			end]]--
+			
+			m(96,123.5,'*-1 100 beat','end')
+			m(123.5,1,'*-1 no beat','len')
+			
+			
+			m2(56,function()
+				
+				fisheye:accelerate((60/140)*4)
+				fisheye:aux(math.pi*75)
+				Black:hidden(0)
+				Black:accelerate((60/140)*3.75)
+				Black:diffusealpha(1)
+				Black2:accelerate((60/140)*3.75)
+				Black2:diffusealpha(1)
+			end,true)
+			
+			m2(60,function()
+				Plr(1):y(SCREEN_CENTER_Y)
+				Black:linear(60/140*0.5)
+				Black:diffusealpha(0)
+				Bg1:SetVertexColor(0, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(1, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(2, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(3, 0, 0.5, 1, 1)
+				fisheye:GetShader():uniform1f('amount', 0)
+			end,true) 
+			
+			m(61,2,'*-1 invert','len',2)
+			
+			m(61.75,2.75,'*-1 flip','len',1)
+			
+			m(63,2,'*-1 flip, *-1 -100 invert','len',2)
+			
+			me(64,1,100,0,'flip','len',outQuart)
+			me(64,1,-100,0,'invert','len',outQuart)
+			
+			m(141,2,'*-1 invert','len',2)
+			
+			m(141.75,2.75,'*-1 flip','len',1)
+			
+			m(143,2,'*-1 no invert','len',2)
+			m(143.5,2,'*-1 no flip','len',1)
+			
+			
+			
+			
+			
+			me(64+32,1,100,0,'flip','len',outQuart)
+			
+			
+			m2(64,function()
+				JustFG:x(84)
+				JustFG:y(-74)
+				JustFG:hidden(0)
+				JustFG:linear(60/140*0.5)
+				JustFG:x(528)
+				Black2:linear(60/140*0.5)
+				Black2:cropleft(1)
+				day:decelerate(60/140*0.5)
+				day:zoom(0)
+				Plr(1):x(SCREEN_CENTER_X)
+			end,true)
+			
+			m2(65,function()
+				J_letter:linear(60/140*0.5)
+				J_letter:zoom(0)
+				J_letter:diffusealpha(0)
+				J_letter:rotationz(135)
+				Plr(2):y(SCREEN_CENTER_Y)
+			end,true)
+			m2(65.25,function()
+				u_letter:linear(60/140*0.5)
+				u_letter:zoom(0)
+				u_letter:diffusealpha(0)
+				u_letter:rotationz(135)
+			end,true)
+			m2(65.5,function()
+				s_letter:linear(60/140*0.5)
+				s_letter:zoom(0)
+				s_letter:diffusealpha(0)
+				s_letter:rotationz(135)
+			end,true)
+			m2(65.75,function()
+				t_letter:linear(60/140*0.5)
+				t_letter:zoom(0)
+				t_letter:diffusealpha(0)
+				t_letter:rotationz(135)
+				comma:linear(60/140*0.5)
+				comma:zoom(0)
+				comma:diffusealpha(0)
+				comma:rotationz(135)
+			end,true)
+			
+			m2(66,function()
+				Plr(1):y(SCREEN_CENTER_Y)
+				Try:decelerate(60/140*0.5)
+				Try:x(92)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(480)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(480)
+			end,true)
+			
+			m2(66.75,function()
+				your:decelerate(60/140*0.5)
+				your:x(130)
+			end,true)
+			
+			m2(67.5,function()
+				best:decelerate(60/140*0.5)
+				best:x(130)
+			end,true)
+			
+			m2(70,function()
+				Try:x(740)
+				your:x(740)
+				best:x(740)
+				Try:decelerate(60/140*0.5)
+				Try:x(548)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(160)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(160)
+			end,true)
+			
+			m2(70.75,function()
+				your:decelerate(60/140*0.5)
+				your:x(520)
+			end,true)
+			
+			m2(71.5,function()
+				best:decelerate(60/140*0.5)
+				best:x(520)
+			end,true)
+			
+			m2(69,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(-92)
+				your:decelerate(60/140*0.5)
+				your:x(-92)
+				best:decelerate(60/140*0.5)
+				best:x(-92)
+			end,true)
+			
+			m2(73.5,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(740)
+				your:decelerate(60/140*0.5)
+				your:x(740)
+				best:decelerate(60/140*0.5)
+				best:x(740)
+				Lets:decelerate(60/140*0.5)
+				Lets:y(80)
+				Plr(2):sleep(60/140*0.25)
+				Plr(2):decelerate(60/140*0.25)
+				Plr(2):y(320)
+				Plr(1):sleep(60/140*0.25)
+				Plr(1):decelerate(60/140*0.25)
+				Plr(1):y(320)
+			end,true)
+			
+			m2(74,function()
+				sing:decelerate(60/140*0.5)
+				sing:y(80)
+			end,true)
+			
+			m2(74.5,function()
+				out:decelerate(60/140*0.5)
+				out:y(80)
+			end,true)
+			
+			m2(75.5,function()
+				Lets:decelerate(60/140*0.5)
+				Lets:y(-100)
+				sing:decelerate(60/140*0.5)
+				sing:y(-100)
+				out:decelerate(60/140*0.5)
+				out:y(-100)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):y(SCREEN_CENTER_Y)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):y(SCREEN_CENTER_Y)
+				Wow_1:spring(60/140*0.75)
+				Wow_1:zoom(1)
+			end,true)
+			
+			m2(76.5,function()
+				oh_1:spring(60/140*0.75)
+				oh_1:zoom(1)
+				Wow_1:decelerate(60/140*0.5)
+				Wow_1:zoom(0)
+			end,true)
+			
+			m2(77,function()
+				oh_2:spring(60/140*0.75)
+				oh_2:zoom(1)
+				oh_1:decelerate(60/140*0.5)
+				oh_1:zoom(0)
+			end,true)
+			
+			m2(78,function()
+				Wow_2:spring(60/140*0.75)
+				Wow_2:zoom(1)
+				oh_2:decelerate(60/140)
+				oh_2:zoom(0)
+			end,true)
+			
+			m2(79,function()
+				oh_3:spring(60/140*0.5)
+				oh_3:zoom(1)
+				Wow_2:decelerate(60/140)
+				Wow_2:zoom(0)
+				
+				--adds a nice effect
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+				
+				--Before we reset Just, let's move it off screen first
+				
+				JustFG:x(724) --Think of an ActorFrame as a group. If you move a thing individually and then move the group. The group won't stay together. This is why the x value is 84
+				
+				
+				--time to use Just, again. Here is where we reset Just,
+				J_letter:zoom(1)
+				J_letter:diffusealpha(1)
+				J_letter:rotationz(0)
+				u_letter:zoom(1)
+				u_letter:diffusealpha(1)
+				u_letter:rotationz(0)
+				s_letter:zoom(1)
+				s_letter:diffusealpha(1)
+				s_letter:rotationz(0)
+				t_letter:zoom(1)
+				t_letter:diffusealpha(1)
+				t_letter:rotationz(0)
+				comma:zoom(1)
+				comma:diffusealpha(1)
+				comma:rotationz(0)
+			end,true)
+			
+			--Spin!!!!!
+
+			m(191.5,204.5,'*-1 200 bumpyxoffset, *-1 700 bumpyxperiod, *-1 700 bumpyperiod','end')
+			m(208,256,'*-1 -200 bumpyxoffset, *-1 -700 bumpyxperiod, *-1 -700 bumpyperiod','end')
+			me(191.5,1.5,0,200,'bumpy','len',inOutCubic)
+			me(191.5,1.5,0,400,'bumpy','len',inOutCubic,1)
+			me(191.5,1.5,0,400,'bumpyx','len',inOutCubic,1)
+			me(191.5,1.5,0,-400,'bumpy','len',inOutCubic,2)
+			me(191.5,1.5,0,-400,'bumpyx','len',inOutCubic,2)
+
+			me(203.5,1.5,200,0,'bumpy','len',inOutCubic)
+			me(203.5,1.5,400,0,'bumpy','len',inOutCubic,1)
+			me(203.5,1.5,400,0,'bumpyx','len',inOutCubic,1)
+			me(203.5,1.5,-400,0,'bumpy','len',inOutCubic,2)
+			me(203.5,1.5,-400,0,'bumpyx','len',inOutCubic,2)
+			
+			me(207.5,1.5,0,200,'bumpy','len',inOutCubic)
+			me(207.5,1.5,0,-400,'bumpy','len',inOutCubic,1)
+			me(207.5,1.5,0,-400,'bumpyx','len',inOutCubic,1)
+			me(207.5,1.5,0,400,'bumpy','len',inOutCubic,2)
+			me(207.5,1.5,0,400,'bumpyx','len',inOutCubic,2)
+
+			me(223.5,1.5,200,0,'bumpy','len',inOutCubic)
+			me(223.5,1.5,-400,0,'bumpy','len',inOutCubic,1)
+			me(223.5,1.5,-400,0,'bumpyx','len',inOutCubic,1)
+			me(223.5,1.5,400,0,'bumpy','len',inOutCubic,2)
+			me(223.5,1.5,400,0,'bumpyx','len',inOutCubic,2)
+			
+			
+			m(209,1,'*1 200 bumpy','len')
+			m(209,1,'*1 -400 bumpy, *-1 -400 bumpyx','len',1)
+			m(209,1,'*1 400 bumpy, *-1 400 bumpyx','len',2)
+			
+			m(193,1,'*1 200 bumpy','len')
+			m(193,1,'*1 400 bumpy, *-1 400 bumpyx','len',1)
+			m(193,1,'*1 -400 bumpy, *-1 -400 bumpyx','len',2)
+			for i=194,203.5,2 do
+				m(i,2,'*1 200 bumpy','len')
+				m(i,2,'*1 400 bumpy, *-1 400 bumpyx','len',1)
+				m(i,2,'*1 -400 bumpy, *-1 -400 bumpyx','len',2)
+			end
+			
+			for i=210,223.5,2 do
+				m(i,2,'*1 200 bumpy','len')
+				m(i,2,'*1 -400 bumpy, *-1 -400 bumpyx','len',1)
+				m(i,2,'*1 400 bumpy, *-1 400 bumpyx','len',2)
+			end
+			
+			m(192,224,'*'..(60/140*4)..' 10000 centered2, *'..(60/140*4)..' -10000 movey, *-1 arrowpath','end')
+			m(224,240,'*-1 no centered2, *-1 no movey, *4 arrowpath, *-1 1000 ArrowPathDrawSizeBack','len')
+			me(224,0.5,0,100,'centered','len',outQuad)
+			m(224.5,256,'*-1 centered','end')
+			m(224,256,'*-1 split, *-1 reverse','len')
+			m(240,256,'*'..(60/140*4)..' 10000 centered2, *'..(60/140*4)..' -10000 movey2, *'..(60/140*4)..' -10000 movey3,*'..(60/140*4)..' 10000 movey0,*'..(60/140*4)..' 10000 movey1, *-1 1000 ArrowPathDrawSize','len')
+			me(192,0.5,0,95,'stealth','len',outQuad,2)
+			m(192.5,204,'*-1 95 stealth','end',2)
+			me(204,0.5,95,0,'stealth','len',outQuad,2)
+			me(240,16.5,0,100,'stealth','len',linear)
+			me(240,16,0,100,'dark','len',linear)
+			me(240,16,100,0,'arrowpath','len',linear)
+			m(256,16,'*-1 dark, *-1 stealth, *-1 no arrowpath','len')
+			me(208,0.5,0,95,'stealth','len',outQuad,2)
+			m(208.5,224,'*-1 95 stealth','end',2)
+			me(224,0.5,95,0,'stealth','len',outQuad,2)
+			
+			
+			m2(80,function()
+				oh_3:decelerate(60/140*0.5)
+				oh_3:x(740)
+				oh_3:sleep(0)
+				oh_3:x(560)
+				oh_3:zoom(0)
+				JustFG:linear(60/140*0.5)
+				JustFG:x(72)
+			end,true)
+			
+			m2(81,function()
+				J_letter:decelerate(60/140*0.5)
+				J_letter:addy(-40)
+				J_letter:diffusealpha(0)
+				u_letter:decelerate(60/140*0.5)
+				u_letter:addy(40)
+				u_letter:diffusealpha(0)
+				s_letter:decelerate(60/140*0.5)
+				s_letter:addy(-40)
+				s_letter:diffusealpha(0)
+				t_letter:decelerate(60/140*0.5)
+				t_letter:addy(40)
+				t_letter:diffusealpha(0)
+				
+				comma:decelerate(60/140*0.5)
+				comma:addy(-40)
+				comma:diffusealpha(0)
+			end,true)
+			
+			m2(82,function()
+				Try:x(740)
+				your:x(740)
+				best:x(740)
+				Try:decelerate(60/140*0.5)
+				Try:x(548)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(160)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(160)
+			end,true)
+			
+			m2(82.75,function()
+				your:decelerate(60/140*0.5)
+				your:x(520)
+			end,true)
+			
+			m2(83.5,function()
+				best:decelerate(60/140*0.5)
+				best:x(520)
+			end,true)
+			
+			m2(84.5,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(740)
+				your:decelerate(60/140*0.5)
+				your:x(740)
+				best:decelerate(60/140*0.5)
+				best:x(740)
+			end,true)
+			
+			m2(86,function()
+				Try:x(-92)
+				your:x(-92)
+				best:x(-92)
+				Try:decelerate(60/140*0.5)
+				Try:x(92)
+				Plr(1):x(SCREEN_CENTER_X)
+				Plr(2):x(SCREEN_CENTER_X)
+				
+				Plr(1):decelerate(60/140*0.5)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(1):x(480)
+				Plr(2):x(480)
+			end,true)
+			
+			m2(86.75,function()
+				your:decelerate(60/140*0.5)
+				your:x(130)
+			end,true)
+			
+			m2(87.5,function()
+				best:decelerate(60/140*0.5)
+				best:x(130)
+			end,true)
+			
+			m2(91.5,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(-92)
+			end,true)
+			
+			m2(92.5,function()
+				your:decelerate(60/140*0.5)
+				your:x(-92)
+			end,true)
+			
+			m2(93,function()
+				best:decelerate(60/140*0.5)
+				best:x(-92)
+			end,true)
+			
+			m2(94,function()
+			
+				
+				
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(1)
+				
+			end,true)
+			
+			
+			--Repeat!!
+			
+			m2(64+32,function()
+				J_letter:addy(40)
+				J_letter:diffusealpha(1)
+				u_letter:addy(-40)
+				u_letter:diffusealpha(1)
+				s_letter:addy(40)
+				s_letter:diffusealpha(1)
+				t_letter:addy(-40)
+				t_letter:diffusealpha(1)
+				comma:addy(40)
+				comma:diffusealpha(1)
+				
+				JustFG:x(84)
+				JustFG:y(-74)
+				JustFG:hidden(0)
+				JustFG:linear(60/140*0.5)
+				JustFG:x(528)
+				Black2:linear(60/140*0.5)
+				Black2:cropleft(1)
+				day:decelerate(60/140*0.5)
+				day:zoom(0)
+			end,true)
+			
+			m2(65+32,function()
+				J_letter:linear(60/140*0.5)
+				J_letter:zoom(0)
+				J_letter:diffusealpha(0)
+				J_letter:rotationz(135)
+				Plr(2):y(SCREEN_CENTER_Y)
+			end,true)
+			m2(65.25+32,function()
+				u_letter:linear(60/140*0.5)
+				u_letter:zoom(0)
+				u_letter:diffusealpha(0)
+				u_letter:rotationz(135)
+			end,true)
+			m2(65.5+32,function()
+				s_letter:linear(60/140*0.5)
+				s_letter:zoom(0)
+				s_letter:diffusealpha(0)
+				s_letter:rotationz(135)
+			end,true)
+			m2(65.75+32,function()
+				t_letter:linear(60/140*0.5)
+				t_letter:zoom(0)
+				t_letter:diffusealpha(0)
+				t_letter:rotationz(135)
+				comma:linear(60/140*0.5)
+				comma:zoom(0)
+				comma:diffusealpha(0)
+				comma:rotationz(135)
+			end,true)
+			
+			m2(66+32,function()
+				Plr(1):y(SCREEN_CENTER_Y)
+				Try:decelerate(60/140*0.5)
+				Try:x(92)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(480)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(480)
+			end,true)
+			
+			m2(66.75+32,function()
+				your:decelerate(60/140*0.5)
+				your:x(130)
+			end,true)
+			
+			m2(67.5+32,function()
+				best:decelerate(60/140*0.5)
+				best:x(130)
+			end,true)
+			
+			m2(70+32,function()
+				Try:x(740)
+				your:x(740)
+				best:x(740)
+				Try:decelerate(60/140*0.5)
+				Try:x(548)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(160)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(160)
+			end,true)
+			
+			m2(70.75+32,function()
+				your:decelerate(60/140*0.5)
+				your:x(520)
+			end,true)
+			
+			m2(71.5+32,function()
+				best:decelerate(60/140*0.5)
+				best:x(520)
+			end,true)
+			
+			m2(69+32,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(-92)
+				your:decelerate(60/140*0.5)
+				your:x(-92)
+				best:decelerate(60/140*0.5)
+				best:x(-92)
+			end,true)
+			
+			m2(73.5+32,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(740)
+				your:decelerate(60/140*0.5)
+				your:x(740)
+				best:decelerate(60/140*0.5)
+				best:x(740)
+				Lets:decelerate(60/140*0.5)
+				Lets:y(80)
+				Plr(2):sleep(60/140*0.25)
+				Plr(2):decelerate(60/140*0.25)
+				Plr(2):y(320)
+				Plr(1):sleep(60/140*0.25)
+				Plr(1):decelerate(60/140*0.25)
+				Plr(1):y(320)
+			end,true)
+			
+			m2(74+32,function()
+				sing:decelerate(60/140*0.5)
+				sing:y(80)
+			end,true)
+			
+			m2(74.5+32,function()
+				out:decelerate(60/140*0.5)
+				out:y(80)
+			end,true)
+			
+			m2(75.5+32,function()
+				Lets:decelerate(60/140*0.5)
+				Lets:y(-100)
+				sing:decelerate(60/140*0.5)
+				sing:y(-100)
+				out:decelerate(60/140*0.5)
+				out:y(-100)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):y(SCREEN_CENTER_Y)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):y(SCREEN_CENTER_Y)
+				Wow_1:spring(60/140*0.75)
+				Wow_1:zoom(1)
+			end,true)
+			
+			m2(76.5+32,function()
+				oh_1:spring(60/140*0.75)
+				oh_1:zoom(1)
+				Wow_1:decelerate(60/140*0.5)
+				Wow_1:zoom(0)
+			end,true)
+			
+			m2(77+32,function()
+				oh_2:spring(60/140*0.75)
+				oh_2:zoom(1)
+				oh_1:decelerate(60/140*0.5)
+				oh_1:zoom(0)
+			end,true)
+			
+			m2(78+32,function()
+				Wow_2:spring(60/140*0.75)
+				Wow_2:zoom(1)
+				oh_2:decelerate(60/140)
+				oh_2:zoom(0)
+			end,true)
+			
+			m2(79+32,function()
+				oh_3:spring(60/140*0.5)
+				oh_3:zoom(1)
+				Wow_2:decelerate(60/140)
+				Wow_2:zoom(0)
+				
+				--adds a nice effect
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+				
+				--Before we reset Just, let's move it off screen first
+				
+				JustFG:x(724) --Think of an ActorFrame as a group. If you move a thing individually and then move the group. The group won't stay together. This is why the x value is 84
+				
+				
+				--time to use Just, again. Here is where we reset Just,
+				J_letter:zoom(1)
+				J_letter:diffusealpha(1)
+				J_letter:rotationz(0)
+				u_letter:zoom(1)
+				u_letter:diffusealpha(1)
+				u_letter:rotationz(0)
+				s_letter:zoom(1)
+				s_letter:diffusealpha(1)
+				s_letter:rotationz(0)
+				t_letter:zoom(1)
+				t_letter:diffusealpha(1)
+				t_letter:rotationz(0)
+				comma:zoom(1)
+				comma:diffusealpha(1)
+				comma:rotationz(0)
+			end,true)
+			
+			
+			
+			
+			m2(80+32,function()
+				oh_3:decelerate(60/140*0.5)
+				oh_3:x(740)
+				JustFG:linear(60/140*0.5)
+				JustFG:x(72)
+			end,true)
+			
+			m2(81+32,function()
+				J_letter:decelerate(60/140*0.5)
+				J_letter:addy(-40)
+				J_letter:diffusealpha(0)
+				u_letter:decelerate(60/140*0.5)
+				u_letter:addy(40)
+				u_letter:diffusealpha(0)
+				s_letter:decelerate(60/140*0.5)
+				s_letter:addy(-40)
+				s_letter:diffusealpha(0)
+				t_letter:decelerate(60/140*0.5)
+				t_letter:addy(40)
+				t_letter:diffusealpha(0)
+				
+				comma:decelerate(60/140*0.5)
+				comma:addy(-40)
+				comma:diffusealpha(0)
+			end,true)
+			
+			m2(82+32,function()
+				Try:x(740)
+				your:x(740)
+				best:x(740)
+				Try:decelerate(60/140*0.5)
+				Try:x(548)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(2):x(160)
+				Plr(1):decelerate(60/140*0.5)
+				Plr(1):x(160)
+			end,true)
+			
+			m2(82.75+32,function()
+				your:decelerate(60/140*0.5)
+				your:x(520)
+			end,true)
+			
+			m2(83.5+32,function()
+				best:decelerate(60/140*0.5)
+				best:x(520)
+			end,true)
+			
+			m2(84.5+32,function()
+				Try:decelerate(60/140*0.5)
+				Try:x(740)
+				your:decelerate(60/140*0.5)
+				your:x(740)
+				best:decelerate(60/140*0.5)
+				best:x(740)
+			end,true)
+			
+			m2(86+32,function()
+				Try:x(-92)
+				your:x(-92)
+				best:x(-92)
+				Try:decelerate(60/140*0.5)
+				Try:x(92)
+				Plr(1):x(SCREEN_CENTER_X)
+				Plr(2):x(SCREEN_CENTER_X)
+				
+				Plr(1):decelerate(60/140*0.5)
+				Plr(2):decelerate(60/140*0.5)
+				Plr(1):x(480)
+				Plr(2):x(480)
+			end,true)
+			
+			m2(86.75+32,function()
+				your:decelerate(60/140*0.5)
+				your:x(130)
+			end,true)
+			
+			m2(87.5+32,function()
+				best:decelerate(60/140*0.5)
+				best:x(130)
+			end,true)
+			
+			m2(123.5,function()
+				Bg1:SetVertexColor(0, 0, 0, 0, 1)
+				Bg1:SetVertexColor(1, 0, 0, 0, 1)
+				Bg1:SetVertexColor(2, 0, 0, 0, 1)
+				Bg1:SetVertexColor(3, 0, 0, 0, 1)
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+				
+				Strip1Group:diffuse(0,0.5,1,1)
+				Strip2Group:diffuse(0,0.5,1,1)
+			end,true)
+			
+			--[[m2(132,function()
+				Strip2:cropbottom(0)
+				Strip1:croptop(0)
+				Strip4:cropbottom(0)
+				Strip3:croptop(0)
+				Strip6:cropbottom(0)
+				Strip5:croptop(0)
+				Strip8:cropbottom(0)
+				Strip7:croptop(0)
+				Strip10:cropbottom(0)
+				Strip9:croptop(0)
+				
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+			
+			
+				Strip1Group:diffuse(0.99,0.8,0,1)
+				Strip2Group:diffuse(0.99,0.8,0,1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(133,function()
+				Bg1:SetVertexColor(0, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(1, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(2, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(3, 0.99, 0, 0.424, 1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:cropbottom(1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:croptop(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:cropbottom(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:croptop(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:cropbottom(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:croptop(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:cropbottom(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:croptop(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:cropbottom(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:croptop(1)
+			end,true)
+			
+			
+			
+			m2(128,function()
+				
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(129,function()
+				Bg1:SetVertexColor(0, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(1, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(2, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(3, 0.5, 0, 1, 1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:cropbottom(1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:croptop(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:cropbottom(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:croptop(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:cropbottom(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:croptop(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:cropbottom(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:croptop(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:cropbottom(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:croptop(1)
+			end,true)
+			
+			
+			
+			
+			m2(136,function()
+				Strip2:cropbottom(0)
+				Strip1:croptop(0)
+				Strip4:cropbottom(0)
+				Strip3:croptop(0)
+				Strip6:cropbottom(0)
+				Strip5:croptop(0)
+				Strip8:cropbottom(0)
+				Strip7:croptop(0)
+				Strip10:cropbottom(0)
+				Strip9:croptop(0)
+				
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+			
+			
+				Strip1Group:diffuse(0.85,1,0,1)
+				Strip2Group:diffuse(0.85,1,0,1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(137,function()
+				Bg1:SetVertexColor(0, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(1, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(2, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(3, 0, 0.5, 1, 1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:cropbottom(1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:croptop(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:cropbottom(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:croptop(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:cropbottom(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:croptop(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:cropbottom(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:croptop(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:cropbottom(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:croptop(1)
+			end,true)
+			
+			
+			
+			
+			
+			
+			
+			
+			m2(143,function()
+			
+				Strip1Group:diffuse(0.7,0.5,1,1)
+				Strip2Group:diffuse(0.7,0.5,1,1)
+			end,true)
+			
+			m2(132+16,function()
+				Strip2:cropbottom(0)
+				Strip1:croptop(0)
+				Strip4:cropbottom(0)
+				Strip3:croptop(0)
+				Strip6:cropbottom(0)
+				Strip5:croptop(0)
+				Strip8:cropbottom(0)
+				Strip7:croptop(0)
+				Strip10:cropbottom(0)
+				Strip9:croptop(0)
+				
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+			
+			
+				Strip1Group:diffuse(0.99,0.8,0,1)
+				Strip2Group:diffuse(0.99,0.8,0,1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(133+16,function()
+				Bg1:SetVertexColor(0, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(1, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(2, 0.99, 0, 0.424, 1)
+				Bg1:SetVertexColor(3, 0.99, 0, 0.424, 1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:cropbottom(1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:croptop(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:cropbottom(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:croptop(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:cropbottom(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:croptop(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:cropbottom(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:croptop(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:cropbottom(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:croptop(1)
+			end,true)
+			
+			
+			
+			m2(128+16,function()
+				Strip2:cropbottom(0)
+				Strip1:croptop(0)
+				Strip4:cropbottom(0)
+				Strip3:croptop(0)
+				Strip6:cropbottom(0)
+				Strip5:croptop(0)
+				Strip8:cropbottom(0)
+				Strip7:croptop(0)
+				Strip10:cropbottom(0)
+				Strip9:croptop(0)
+				
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+				
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(129+16,function()
+				Bg1:SetVertexColor(0, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(1, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(2, 0.5, 0, 1, 1)
+				Bg1:SetVertexColor(3, 0.5, 0, 1, 1)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:cropbottom(1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:croptop(1)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:cropbottom(1)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:croptop(1)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:cropbottom(1)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:croptop(1)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:cropbottom(1)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:croptop(1)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:cropbottom(1)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:croptop(1)
+			end,true)
+			
+			
+			
+			
+			m2(136+16,function()
+				Strip2:cropbottom(0)
+				Strip1:croptop(0)
+				Strip4:cropbottom(0)
+				Strip3:croptop(0)
+				Strip6:cropbottom(0)
+				Strip5:croptop(0)
+				Strip8:cropbottom(0)
+				Strip7:croptop(0)
+				Strip10:cropbottom(0)
+				Strip9:croptop(0)
+				
+				
+				Strip1:cropbottom(1)
+				Strip2:croptop(1)
+				Strip3:cropbottom(1)
+				Strip4:croptop(1)
+				Strip5:cropbottom(1)
+				Strip6:croptop(1)
+				Strip7:cropbottom(1)
+				Strip8:croptop(1)
+				Strip9:cropbottom(1)
+				Strip10:croptop(1)
+			
+			
+				Strip1Group:diffuse(0.85,1,0,1)
+				Strip2Group:diffuse(0.85,1,0,1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)
+			
+			m2(137+16,function()
+				Bg1:SetVertexColor(0, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(1, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(2, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(3, 0, 0.5, 1, 1)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+				Strip1:decelerate(60/140*0.75)
+				Strip1:cropbottom(0)
+				Strip2:decelerate(60/140*0.75)
+				Strip2:croptop(0)
+				Strip3:decelerate(60/140*0.75)
+				Strip3:cropbottom(0)
+				Strip4:decelerate(60/140*0.75)
+				Strip4:croptop(0)
+				Strip5:decelerate(60/140*0.75)
+				Strip5:cropbottom(0)
+				Strip6:decelerate(60/140*0.75)
+				Strip6:croptop(0)
+				Strip7:decelerate(60/140*0.75)
+				Strip7:cropbottom(0)
+				Strip8:decelerate(60/140*0.75)
+				Strip8:croptop(0)
+				Strip9:decelerate(60/140*0.75)
+				Strip9:cropbottom(0)
+				Strip10:decelerate(60/140*0.75)
+				Strip10:croptop(0)
+			end,true)]]--
+			
+			m2(128, function()
+				Yellow1:decelerate(60/140*0.5)
+				Yellow1:aux(640)
+				Yellow2:decelerate(60/140*0.5)
+				Yellow2:aux(-80)
+				P4:hidden(0)
+				P4:SetHiddenRegions({{128,131.9}})
+				P4:xy(144,840)
+				P4:zoom(0.6)
+				Magenta1:decelerate(60/140*0.5)
+				Magenta1:aux(480)
+				Magenta2:decelerate(60/140*0.5)
+				Magenta2:aux(0)
+			end,true)
+			
+			m2(128,function()
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*0.65, SCREEN_CENTER_Y*0.65)
+				--Plr(1):zoom(0.875)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X*1.6, SCREEN_CENTER_Y*1.6)
+				--Plr(2):zoom(0.875)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.5)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(129,function()
+			
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*1.65, SCREEN_CENTER_Y*0.65)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X*0.6, SCREEN_CENTER_Y*1.6)
+				
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:zoom(0)
+				Triangle1:decelerate(60/140*0.5)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(130,function()
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*3, SCREEN_CENTER_Y*3)
+				
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+				--Plr(2):zoom(1)
+
+				
+				YellowTriangle:decelerate(60/140*0.375)
+				YellowTriangle:xy(SCREEN_CENTER_X+640,SCREEN_CENTER_Y-480)
+			end,true)
+			
+			m2(130.75,function()
+				StripHorizontal:decelerate(60/140*0.5)
+				StripHorizontal:cropright(0)
+				Plr(1):SetHiddenRegions({{128,131.9}})
+				Plr(1):xy(496,840)
+				Plr(1):zoom(0.6)
+			end,true)
+			m(131.5,136,'*-1 100 DrawSize','end')
+			m2(131.5,function()
+				--P4:decelerate(60/140*0.5)
+				--P4:y(SCREEN_CENTER_Y)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):zoom(0.6)
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):y(SCREEN_CENTER_Y)
+				StripHorizontal:decelerate(60/140*0.5)
+				StripHorizontal:cropleft(1)
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:croptop(0)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:croptop(0)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:croptop(0)
+			end,true)
+			
+			m2(132,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:cropleft(0.125)
+				StripVertical11:cropright(0.65)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:cropleft(0.4125)
+				StripVertical12:cropright(0.4125)
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:cropleft(0.675)
+				StripVertical13:cropright(0.125)
+			end,true)
+			
+			m2(132.175,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0.2)
+				StripVertical11:cropright(0.75)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.475)
+				StripVertical12:cropright(0.475)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.75)
+				StripVertical13:cropright(0.2)
+			end,true)
+			
+			m2(133,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:cropleft(0.125)
+				StripVertical11:cropright(0.65)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:cropleft(0.4125)
+				StripVertical12:cropright(0.4125)
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:cropleft(0.675)
+				StripVertical13:cropright(0.125)
+			end,true)
+			
+			m2(133.175,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0.2)
+				StripVertical11:cropright(0.75)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.475)
+				StripVertical12:cropright(0.475)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.75)
+				StripVertical13:cropright(0.2)
+			end,true)
+			
+			m2(134,function()
+				--P4:decelerate(60/140*0.5)
+				--P4:x(SCREEN_CENTER_X)
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:croptop(1)
+				
+			end,true)
+			
+			m2(134.75,function()
+				P4:hidden(1)
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):x(SCREEN_CENTER_X)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:croptop(1)
+			end,true)
+			
+			m2(135.5,function()
+				
+				--Plr(2):linear(60/140*0.25)
+				--Plr(2):zoom(1)
+				--Plr(1):linear(60/140*0.25)
+				--Plr(1):zoom(1)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:croptop(1)
+			end,true)
+			
+			m2(136,function()
+				BlueStripVertical:decelerate(60/140*0.5)
+				BlueStripVertical:cropbottom(0)
+				P4:hidden(0)
+				P3:hidden(0)
+				P3:zoom(1)
+				P4:zoom(1)
+			end,true)
+			
+			m2(137,function()
+				BlueStripHorizontal:decelerate(60/140*0.5)
+				BlueStripHorizontal:cropright(0)
+				day:zoom(1)
+				Yellow1:aux(0)
+				Yellow2:aux(560)
+				Magenta1:aux(80)
+				Magenta2:aux(480)
+				day:x(10000)
+			end,true)
+			
+			m2(140.35,function()
+				P3:hidden(1)
+				P4:hidden(1)
+			end,true)
+			
+			
+			
+			m(131,1,'*-1 clearall, *-1 2.5x, *-1 overhead, *-1 approachtype, *-1 dizzyholds, *-1 stealthpastreceptors, *-1 modtimer','len',4)
+			me(130.5,0.75,0,100,'flip','len',inOutExpo)
+			m(131,0.25,'*-1 flip','len')
+			me(131.25,0.75,100,0,'flip','len',inOutExpo)
+			
+			me(130.5+16,0.75,0,100,'flip','len',inOutExpo)
+			m(131+16,0.25,'*-1 flip','len')
+			me(131.25+16,0.75,100,0,'flip','len',inOutExpo)
+
+			
+			
+			me(76.5,0.5,0,100,'invert','len',outQuint)
+			me(77,0.5,100,0,'invert','len',outQuint)
+			me(78,0.75,0,100,'flip','len',outQuart)
+			m(78.75,0.25,'*-1 flip','len')
+			me(79,0.75,100,0,'flip','len',outQuart)
+			me(79,0.75,0,100,'invert','len',outQuint)
+			m(79.75,0.25,'*-1 invert','len')
+			me(80,1,100,0,'invert','len',outQuart)
+			
+			me(132,0.25,0,-200,'tiny','len',outCubic)
+			me(132.25,0.75,-200,0,'tiny','len',outQuart)
+
+			me(133,0.25,0,-200,'tiny','len',outCubic)
+			me(133.25,0.75,-200,0,'tiny','len',outQuart)
+			
+			
+			me(76.5+32,0.5,0,100,'invert','len',outQuint)
+			me(77+32,0.5,100,0,'invert','len',outQuint)
+			me(78+32,0.75,0,100,'flip','len',outQuart)
+			m(78.75+32,0.25,'*-1 flip','len')
+			me(79+32,0.75,100,0,'flip','len',outQuart)
+			me(79+32,0.75,0,100,'invert','len',outQuint)
+			m(79.75+32,0.25,'*-1 invert','len')
+			me(80+32,1,100,0,'invert','len',outQuart)
+			me(80+32,1,100,0,'invert','len',outQuart)
+			
+			me(137,1,0,100,'flip','len',outQuart)
+			
+			me(138,0.75,100,0,'flip','len',outQuart,3)
+			m(138,0.75,'*-1 flip','len',4)
+			m(138,0.75,'*-1 flip','len',1)
+			m(138,0.75,'*-1 flip','len',2)
+			me(138.75,0.75,100,0,'flip','len',outQuart,4)
+			me(138.75,0.75,100,0,'flip','len',outQuart,1)
+			m(138.75,0.75,'*-1 flip','len',2)
+			me(139.5,0.5,100,0,'flip','len',outQuart,2)
+			
+			
+			--Repeat again!!
+			
+			m2(126+16,function()
+				
+				BlueSquareBottomLeft:stretchto(0,0,0,0)
+				BlueSquareBottomRight:stretchto(0,0,0,0)
+				BlueSquareTopLeft:stretchto(0,0,0,0)
+				BlueSquareTopRight:stretchto(0,0,0,0)
+				Bg1:SetVertexColor(0, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(1, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(2, 0, 0.5, 1, 1)
+				Bg1:SetVertexColor(3, 0, 0.5, 1, 1)
+				YellowTriangle:xy(0,0)
+				YellowTriangle:rotationz(0)
+				YellowTriangle:SetVertexPosition(0,0,0,0)
+				YellowTriangle:SetVertexPosition(1,0,0,0)
+				YellowTriangle:SetVertexPosition(3,0,480,0)
+				YellowTriangle:SetVertexPosition(2,0,480,0)
+				MagentaTriangle:SetVertexPosition(0,640,480,0)
+				MagentaTriangle:SetVertexPosition(1,640,480,0)
+				MagentaTriangle:SetVertexPosition(3,640,480,0)
+				MagentaTriangle:SetVertexPosition(2,80,480,0)
+				BlueStripHorizontal:cropright(1)
+				BlueStripVertical:cropbottom(1)
+				Triangle1:hidden(0)
+				Triangle1:zoom(0)
+				Triangle2:hidden(0)
+				Triangle2:zoom(0)
+				Yellow1:aux(0)
+				Yellow2:aux(560)
+				Magenta1:aux(80)
+				Magenta2:aux(480)
+				StripHorizontal:cropright(1)
+				StripHorizontal:cropleft(0)
+				
+			end,true)
+			
+			m2(128+16, function()
+				Triangle1:hidden(0)
+				Triangle2:hidden(0)
+				Yellow1:decelerate(60/140*0.5)
+				Yellow1:aux(640)
+				Yellow2:decelerate(60/140*0.5)
+				Yellow2:aux(-80)
+				Magenta1:decelerate(60/140*0.5)
+				Magenta1:aux(480)
+				Magenta2:decelerate(60/140*0.5)
+				Magenta2:aux(0)
+				P4:hidden(0)
+				P4:SetHiddenRegions({{128,131.9}})
+				P4:xy(144,840)
+				P4:zoom(0.6)
+				
+			end,true)
+			
+			m2(128+16,function()
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*0.65, SCREEN_CENTER_Y*0.65)
+				--Plr(1):zoom(0.875)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X*1.6, SCREEN_CENTER_Y*1.6)
+				--Plr(2):zoom(0.875)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.5)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				day:decelerate(60/140*0.5)
+				day:zoom(0)
+			end,true)
+			
+			m2(129+16,function()
+			
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*1.65, SCREEN_CENTER_Y*0.65)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X*0.6, SCREEN_CENTER_Y*1.6)
+				
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:zoom(0)
+				Triangle1:decelerate(60/140*0.5)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(130+16,function()
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):xy(SCREEN_CENTER_X*3, SCREEN_CENTER_Y*3)
+				
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):xy(SCREEN_CENTER_X, SCREEN_CENTER_Y)
+				--Plr(2):zoom(1)
+
+				
+				YellowTriangle:decelerate(60/140*0.375)
+				YellowTriangle:xy(SCREEN_CENTER_X+640,SCREEN_CENTER_Y-480)
+			end,true)
+			
+			m2(130.75+16,function()
+				StripHorizontal:decelerate(60/140*0.5)
+				StripHorizontal:cropright(0)
+				Plr(1):SetHiddenRegions({{128,131.9}})
+				Plr(1):xy(496,840)
+				Plr(1):zoom(0.6)
+			end,true)
+			
+			m2(161.75+16,function()
+				P4:hidden(0)
+				P4:SetHiddenRegions({{128,131.9}})
+				P4:xy(144,840)
+				P4:zoom(0.6)
+				Plr(1):xy(496,840)
+				Plr(1):zoom(0.6)
+			end,true)
+			
+			m2(161.75,function()
+				P4:hidden(0)
+				P4:SetHiddenRegions({{128,131.9}})
+				P4:xy(144,840)
+				P4:zoom(0.6)
+				Plr(1):xy(496,840)
+				Plr(1):zoom(0.6)
+			end,true)
+			m(147.5,152,'*-1 100 DrawSize','end')
+			m2(131.5+16,function()
+				--P4:decelerate(60/140*0.5)
+				--P4:y(SCREEN_CENTER_Y)
+				--Plr(2):decelerate(60/140*0.5)
+				--Plr(2):zoom(0.6)
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):y(SCREEN_CENTER_Y)
+				StripHorizontal:decelerate(60/140*0.5)
+				StripHorizontal:cropleft(1)
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:croptop(0)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:croptop(0)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:croptop(0)
+			end,true)
+			
+			m2(132+16,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:cropleft(0.125)
+				StripVertical11:cropright(0.65)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:cropleft(0.4125)
+				StripVertical12:cropright(0.4125)
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:cropleft(0.675)
+				StripVertical13:cropright(0.125)
+			end,true)
+			
+			m2(132.175+16,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0.2)
+				StripVertical11:cropright(0.75)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.475)
+				StripVertical12:cropright(0.475)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.75)
+				StripVertical13:cropright(0.2)
+			end,true)
+			
+			m2(133+16,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:cropleft(0.125)
+				StripVertical11:cropright(0.65)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:cropleft(0.4125)
+				StripVertical12:cropright(0.4125)
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:cropleft(0.675)
+				StripVertical13:cropright(0.125)
+			end,true)
+			
+			m2(133.175+16,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0.2)
+				StripVertical11:cropright(0.75)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.475)
+				StripVertical12:cropright(0.475)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.75)
+				StripVertical13:cropright(0.2)
+			end,true)
+			
+			m2(134+16,function()
+				--P4:decelerate(60/140*0.5)
+				--P4:x(SCREEN_CENTER_X)
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:croptop(1)
+				
+			end,true)
+			
+			m2(134.75+16,function()
+				P4:hidden(1)
+				--Plr(1):decelerate(60/140*0.5)
+				--Plr(1):x(SCREEN_CENTER_X)
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:croptop(1)
+			end,true)
+			
+			m2(135.5+16,function()
+				
+				--Plr(2):linear(60/140*0.25)
+				--Plr(2):zoom(1)
+				--Plr(1):linear(60/140*0.25)
+				--Plr(1):zoom(1)
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:croptop(1)
+			end,true)
+			
+			m2(136+16,function()
+				BlueStripVertical:decelerate(60/140*0.5)
+				BlueStripVertical:cropbottom(0)
+				P4:hidden(0)
+				P3:hidden(0)
+				P3:zoom(1)
+				P4:zoom(1)
+			end,true)
+			
+			m2(137+16,function()
+				BlueStripHorizontal:decelerate(60/140*0.5)
+				BlueStripHorizontal:cropright(0)
+				day:zoom(1)
+				day:x(10000)
+			end,true)
+			
+			m2(140.35+16,function()
+				P3:hidden(1)
+				P4:hidden(1)
+			end,true)
+			
+			m2(160,function()
+				LimeGreenQuad:decelerate(60/140*0.5)
+				LimeGreenQuad:cropright(0)
+				Triangle1:hidden(0)
+				Triangle2:hidden(0)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140*0.5)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle3:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle3:zoom(0)
+				Triangle3:decelerate(60/140*0.25)
+				Triangle3:zoom(0.25)
+				Triangle3:xy(SCREEN_CENTER_X*0.75,SCREEN_CENTER_Y*0.75)
+				
+				Triangle1:zoom(0)
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.25)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(160.75,function()
+				Triangle1:hidden(0)
+				Triangle2:hidden(0)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140*0.5)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle3Fill:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle3Fill:zoom(0)
+				Triangle3Fill:decelerate(60/140*0.25)
+				Triangle3Fill:zoom(0.25)
+				Triangle3Fill:xy(SCREEN_CENTER_X*0.75,SCREEN_CENTER_Y*0.75)
+				
+				Triangle1:zoom(0)
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.25)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(161.5,function()
+				--[[Triangle3Fill:decelerate(60/140*0.5)
+				Triangle3Fill:zoom(4)
+				Triangle3Fill:xy(SCREEN_CENTER_X*-3,SCREEN_CENTER_Y*-3)
+				Triangle3:decelerate(60/140*0.5)
+				Triangle3:zoom(4)
+				Triangle3:xy(SCREEN_CENTER_X*-3,SCREEN_CENTER_Y*-3)]]--
+			end,true)
+			
+			m2(162,function()
+				--Sometimes the triangle circle animation doesn't complete fully on low frames 
+				--This makes the circle animation look simular to the real animation but on low frames
+				--This also saves layers and save frames because I notice this file is really graphic heavy (with no png)
+				BottomLine:hidden(1)
+				TopLeftLine:hidden(1)
+				TopRightLine:hidden(1)
+				Triangle3:hidden(1)
+				Triangle3Fill:hidden(1)
+				CircleLeft:hidden(1)
+				CircleTop:hidden(1)
+				CircleRight:hidden(1)
+				LimeGreenQuad:hidden(1)
+				GoldQuad:croptop(0)
+			end,true)
+			
+			--Repeat!!!!! Again
+			
+			m2(160+16,function()
+				LimeGreenQuad:decelerate(60/140*0.5)
+				LimeGreenQuad:cropright(0)
+				Triangle1:hidden(0)
+				Triangle2:hidden(0)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140*0.5)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle3:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle3:zoom(0)
+				Triangle3:decelerate(60/140*0.25)
+				Triangle3:zoom(0.25)
+				Triangle3:xy(SCREEN_CENTER_X*0.75,SCREEN_CENTER_Y*0.75)
+				
+				Triangle1:zoom(0)
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.25)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				day:decelerate(60/140*0.5)
+				day:zoom(0)
+			end,true)
+			
+			m2(160.75+16,function()
+				Triangle1:hidden(0)
+				Triangle2:hidden(0)
+				Triangle2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle2:zoom(0)
+				Triangle2:decelerate(60/140*0.5)
+				Triangle2:zoom(0.5)
+				Triangle2:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+				
+				Triangle3Fill:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle3Fill:zoom(0)
+				Triangle3Fill:decelerate(60/140*0.25)
+				Triangle3Fill:zoom(0.25)
+				Triangle3Fill:xy(SCREEN_CENTER_X*0.75,SCREEN_CENTER_Y*0.75)
+				
+				Triangle1:zoom(0)
+				Triangle1:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Triangle1:decelerate(60/140*0.25)
+				Triangle1:zoom(0.5)
+				Triangle1:xy(SCREEN_CENTER_X/2,SCREEN_CENTER_Y/2)
+			end,true)
+			
+			m2(161.5+16,function()
+				--[[Triangle3Fill:decelerate(60/140*0.5)
+				Triangle3Fill:zoom(4)
+				Triangle3Fill:xy(SCREEN_CENTER_X*-3,SCREEN_CENTER_Y*-3)
+				Triangle3:decelerate(60/140*0.5)
+				Triangle3:zoom(4)
+				Triangle3:xy(SCREEN_CENTER_X*-3,SCREEN_CENTER_Y*-3)]]--
+			end,true)
+			
+			m2(162+16,function()
+				--Sometimes the triangle circle animation doesn't complete fully on low frames 
+				--This makes the circle animation look simular to the real animation but on low frames
+				--This also saves layers and save frames because I notice this file is really graphic heavy (with no png)
+				BottomLine:hidden(1)
+				TopLeftLine:hidden(1)
+				TopRightLine:hidden(1)
+				Triangle3:hidden(1)
+				Triangle3Fill:hidden(1)
+				CircleLeft:hidden(1)
+				CircleTop:hidden(1)
+				CircleRight:hidden(1)
+				LimeGreenQuad:hidden(1)
+				GoldQuad:croptop(0)
+			end,true)
+			
+			m2(157,function()
+				Wow_3:xy(-92,SCREEN_CENTER_Y-144)
+				oh_5:xy(-92,SCREEN_CENTER_Y+144)
+				oh_4:xy(-92,SCREEN_CENTER_Y)
+				Wow_3:decelerate(60/140*0.5)
+				Wow_3:x(130)
+				
+			end,true)
+			
+			m2(158,function()
+				oh_4:decelerate(60/140*0.5)
+				oh_4:x(80)
+			end,true)
+			m2(159,function()
+				oh_5:decelerate(60/140*0.5)
+				oh_5:x(80)
+			end,true)
+			m2(160,function()
+				oh_5:decelerate(60/140*0.5)
+				oh_5:x(-100)
+				oh_4:decelerate(60/140*0.5)
+				oh_4:x(-100)
+				Wow_3:decelerate(60/140*0.5)
+				Wow_3:x(-100)
+			end,true)
+			
+			m2(162.25,function()
+				StripVertical11:diffuse(0.99, 0, 0.424,1)
+				StripVertical12:diffuse(0.99, 0, 0.424,1)
+				StripVertical13:diffuse(0.99, 0, 0.424,1)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:croptop(0)
+			end,true)
+			
+			m2(162.5,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:croptop(0)
+			end,true)
+			
+			m2(163,function()
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:croptop(0)
+			end,true)
+			m2(163.5,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0)
+				
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.25)
+				
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.5)
+				
+				StripVertical14:decelerate(60/140*0.5)
+				StripVertical14:cropleft(0.5)
+			end,true)
+			
+			m2(164,function()
+				Plr(1):hidden(0)
+				P4:hidden(1)
+				DiamondBlue:decelerate(60/140*0.5)
+				DiamondBlue:zoom(640*1.235)
+			end,true)
+			
+			m2(164.75,function()
+				SquarePurple:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				SquarePurple:decelerate(60/140*0.25)
+				SquarePurple:zoom(0.125)
+				SquarePurple:xy(SCREEN_CENTER_X*0.875,SCREEN_CENTER_X*0.625)
+			end,true)
+			
+			m2(165,function()
+				SquarePurpleFill:decelerate(60/140*0.25)
+				SquarePurpleFill:zoom(640*0.125)
+			end,true)
+			
+			m2(165,function()
+				SquarePurpleFill:decelerate(60/140*0.25)
+				SquarePurpleFill:zoom(640*0.126)
+			end,true)
+			
+			m2(165.25,function()
+				P3:hidden(0)
+				P4:hidden(0)
+				P3:zoom(0.6)
+				P4:zoom(0.6)
+			end,true)
+			
+			m2(165.5,function()
+				SquarePurple:hidden(1)
+				SquarePurpleFill:decelerate(60/140*0.375)
+				SquarePurpleFill:rotationz(90+45)
+			end,true)
+			
+			m2(166.25,function()
+				StripVerticalTop:decelerate(60/140*0.25)
+				StripVerticalTop:cropbottom(0)
+				
+				StripVerticalBottom:decelerate(60/140*0.25)
+				StripVerticalBottom:croptop(0)
+			end,true)
+			
+			m2(166.5,function()
+				StripHorizontalRight:decelerate(60/140*0.25)
+				StripHorizontalRight:cropleft(0)
+				
+				StripHorizontalLeft:decelerate(60/140*0.25)
+				StripHorizontalLeft:cropright(0)
+			end,true)
+			
+			m2(168,function()
+				P3:hidden(1)
+				P4:hidden(1)
+				Plr(1):xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Plr(2):xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+			end,true)
+			
+			m2(168,function()
+				CircleTopLeft:decelerate(60/140*0.25)
+				CircleTopLeft:y(25)
+			end,true)
+			
+			m2(168.75,function()
+				CircleBottomRight:decelerate(60/140*0.25)
+				CircleBottomRight:y(455)
+			end,true)
+			
+			m2(169,function()
+				CircleBottomLeft:decelerate(60/140*0.25)
+				CircleBottomLeft:y(455)
+			end,true)
+			
+			m2(169.5,function()
+				CircleTopRight:decelerate(60/140*0.25)
+				CircleTopRight:y(25)
+			end,true)
+			
+			m2(170.25,function()
+				StripSquareLeft:decelerate(60/140*0.25)
+				StripSquareLeft:cropbottom(0)
+			end,true)
+			
+			m2(170.5,function()
+				StripSquareBottom:decelerate(60/140*0.5)
+				StripSquareBottom:cropright(0)
+			end,true)
+			m2(171,function()
+				StripSquareRight:decelerate(60/140*0.5)
+				StripSquareRight:croptop(0)
+			end,true)
+			
+			m2(171.5,function()
+				StripSquareTop:decelerate(60/140*0.5)
+				StripSquareTop:cropleft(0)
+			end,true)
+			
+			
+			m2(172,function()
+				LimeGreenQuad2:decelerate(60/140*0.5)
+				LimeGreenQuad2:cropleft(0)
+			end,true)
+			
+			
+			--Repeat!! Again
+			
+			m2(173,function()
+				for i=0,359 do
+					CircleLeft:SetVertexPosition(i,0,0,0)
+					CircleRight:SetVertexPosition(i,0,0,0)
+					CircleTop:SetVertexPosition(i,0,0,0)
+				end
+				LimeGreenQuad2:cropleft(1)
+				StripSquareTop:cropleft(1)
+				StripSquareLeft:cropbottom(1)
+				StripSquareRight:croptop(1)
+				StripSquareBottom:cropright(1)
+				CircleTopLeft:y(-25)
+				CircleTopRight:y(-25)
+				CircleBottomLeft:y(505)
+				CircleBottomRight:y(505)
+				DiamondBlue:zoom(0)
+				SquarePurple:zoom(0)
+				SquarePurple:hidden(0)
+				SquarePurple:zoom(0)
+				SquarePurple:rotationz(0)
+				SquarePurpleFill:rotationz(0)
+				SquarePurpleFill:zoom(0)
+				SquarePurpleFill:zoom(0)
+				GoldQuad:croptop(1)
+				LimeGreenQuad:hidden(0)
+				PurpleSquareBottomRight:stretchto(0,0,0,0)
+				PurpleSquareBottomLeft:stretchto(0,0,0,0)
+				PurpleSquareTopRight:stretchto(0,0,0,0)
+				PurpleSquareTopLeft:stretchto(0,0,0,0)
+				StripVerticalBottom:cropbottom(0.5)
+				StripVerticalBottom:croptop(0.5)
+				StripVerticalTop:cropbottom(0.5)
+				StripVerticalTop:croptop(0.5)
+				StripHorizontalRight:cropleft(0.5)
+				StripHorizontalRight:cropright(0.5)
+				StripHorizontalLeft:cropleft(0.5)
+				StripHorizontalLeft:cropright(0.5)
+				StripVertical11:croptop(1)
+				StripVertical12:croptop(1)
+				StripVertical13:croptop(1)
+				TopLeftLine:SetVertexPosition(0,316.5,276.5,0)
+				TopLeftLine:SetVertexPosition(1,326.5,266.5,0)
+				TopLeftLine:SetVertexPosition(2,316.5,276.5,0)
+				TopLeftLine:SetVertexPosition(3,326.5,266.5,0)
+				BottomLine:SetVertexPosition(0,315,240,0)
+				BottomLine:SetVertexPosition(1,325,240,0)
+				BottomLine:SetVertexPosition(2,315,240,0)
+				BottomLine:SetVertexPosition(3,325,240,0)
+				TopRightLine:SetVertexPosition(0,336.5,276.5,0)
+				TopRightLine:SetVertexPosition(1,326.5,266.5,0)
+				TopRightLine:SetVertexPosition(2,336.5,276.5,0)
+				TopRightLine:SetVertexPosition(3,326.5,266.5,0)
+				TopRightLine:hidden(0)
+				TopLeftLine:hidden(0)
+				BottomLine:hidden(0)
+				Triangle3:hidden(0)
+				Triangle3:zoom(0)
+				Triangle3Fill:zoom(0)
+				Triangle3Fill:hidden(0)
+				StripVertical11:cropleft(0.2)
+				StripVertical12:cropleft(0.475)
+				StripVertical13:cropleft(0.75)
+				StripVertical14:cropleft(0.75)
+				CircleRight:hidden(0)
+				CircleLeft:hidden(0)
+				CircleTop:hidden(0)
+				StripVertical11:cropright(0.75)
+				StripVertical12:cropright(0.475)
+				StripVertical13:cropright(0.2)
+				StripVertical14:cropright(0.2)
+				LimeGreenQuad2:diffuse(0,0.5,1,1)
+			end,true)
+			
+			m2(162.25+16,function()
+				StripVertical11:diffuse(0.99, 0, 0.424,1)
+				StripVertical12:diffuse(0.99, 0, 0.424,1)
+				StripVertical13:diffuse(0.99, 0, 0.424,1)
+				StripVertical12:decelerate(60/140*0.25)
+				StripVertical12:croptop(0)
+			end,true)
+			
+			m2(162.5+16,function()
+				StripVertical11:decelerate(60/140*0.25)
+				StripVertical11:croptop(0)
+			end,true)
+			
+			m2(163+16,function()
+				StripVertical13:decelerate(60/140*0.25)
+				StripVertical13:croptop(0)
+			end,true)
+			m2(163.5+16,function()
+				StripVertical11:decelerate(60/140*0.5)
+				StripVertical11:cropleft(0)
+				
+				StripVertical12:decelerate(60/140*0.5)
+				StripVertical12:cropleft(0.25)
+				
+				StripVertical13:decelerate(60/140*0.5)
+				StripVertical13:cropleft(0.5)
+				
+				StripVertical14:decelerate(60/140*0.5)
+				StripVertical14:cropleft(0.5)
+			end,true)
+			
+			m2(164+16,function()
+				Plr(1):hidden(0)
+				P4:hidden(1)
+				DiamondBlue:decelerate(60/140*0.5)
+				DiamondBlue:zoom(640*1.235)
+			end,true)
+			
+			m2(164.75+16,function()
+				SquarePurple:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				SquarePurple:decelerate(60/140*0.25)
+				SquarePurple:zoom(0.125)
+				SquarePurple:xy(SCREEN_CENTER_X*0.875,SCREEN_CENTER_X*0.625)
+			end,true)
+			
+			m2(165+16,function()
+				SquarePurpleFill:decelerate(60/140*0.25)
+				SquarePurpleFill:zoom(640*0.125)
+			end,true)
+			
+			m2(165+16,function()
+				SquarePurpleFill:decelerate(60/140*0.25)
+				SquarePurpleFill:zoom(640*0.126)
+			end,true)
+			
+			m2(165.25+16,function()
+				P3:hidden(0)
+				P4:hidden(0)
+				P3:zoom(0.6)
+				P4:zoom(0.6)
+			end,true)
+			
+			m2(165.5+16,function()
+				SquarePurple:hidden(1)
+				SquarePurpleFill:decelerate(60/140*0.375)
+				SquarePurpleFill:rotationz(90+45)
+			end,true)
+			
+			m2(166.25+16,function()
+				StripVerticalTop:decelerate(60/140*0.25)
+				StripVerticalTop:cropbottom(0)
+				
+				StripVerticalBottom:decelerate(60/140*0.25)
+				StripVerticalBottom:croptop(0)
+			end,true)
+			
+			m2(166.5+16,function()
+				StripHorizontalRight:decelerate(60/140*0.25)
+				StripHorizontalRight:cropleft(0)
+				
+				StripHorizontalLeft:decelerate(60/140*0.25)
+				StripHorizontalLeft:cropright(0)
+			end,true)
+			
+			m2(168+16,function()
+				P3:hidden(1)
+				P4:hidden(1)
+				Plr(1):xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				Plr(2):xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+			end,true)
+			
+			m2(168+16,function()
+				CircleTopLeft:decelerate(60/140*0.25)
+				CircleTopLeft:y(25)
+			end,true)
+			
+			m2(168.75+16,function()
+				CircleBottomRight:decelerate(60/140*0.25)
+				CircleBottomRight:y(455)
+			end,true)
+			
+			m2(169+16,function()
+				CircleBottomLeft:decelerate(60/140*0.25)
+				CircleBottomLeft:y(455)
+			end,true)
+			
+			m2(169.5+16,function()
+				CircleTopRight:decelerate(60/140*0.25)
+				CircleTopRight:y(25)
+			end,true)
+			
+			m2(170.25+16,function()
+				StripSquareLeft:decelerate(60/140*0.25)
+				StripSquareLeft:cropbottom(0)
+			end,true)
+			
+			m2(170.5+16,function()
+				StripSquareBottom:decelerate(60/140*0.5)
+				StripSquareBottom:cropright(0)
+			end,true)
+			m2(171+16,function()
+				StripSquareRight:decelerate(60/140*0.5)
+				StripSquareRight:croptop(0)
+			end,true)
+			
+			m2(171.5+16,function()
+				StripSquareTop:decelerate(60/140*0.5)
+				StripSquareTop:cropleft(0)
+			end,true)
+			
+			
+			m2(172+16,function()
+				LimeGreenQuad2:decelerate(60/140*0.5)
+				LimeGreenQuad2:cropleft(0)
+			end,true)
+			
+			m2(220,function()
+				Plr(1):zoom(1)
+			end,true)
+			
+			m2(189,function()
+				best:hidden(1)
+				Try:hidden(1)
+				the:hidden(1)
+				Seize:hidden(1)
+				try_2:xy(-92,SCREEN_CENTER_Y)
+				your:xy(-92,SCREEN_CENTER_Y+144)
+				best_2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				best_2:zoom(0)
+				So:decelerate(60/140*0.5)
+				So:x(92)
+			end,true)
+			
+			m2(190,function()
+				try_2:decelerate(60/140*0.5)
+				try_2:x(92)
+			end,true)
+			m2(191,function()
+				your:decelerate(60/140*0.5)
+				your:x(122)
+			end,true)
+			
+			m2(192,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:zoom(1)
+				try_2:decelerate(60/140*0.5)
+				try_2:x(-92)
+				
+				your:decelerate(60/140*0.5)
+				your:x(-92)
+				
+				So:decelerate(60/140*0.5)
+				So:x(-92)
+			end,true)
+			
+			m2(198,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:x(SCREEN_CENTER_X-88)
+				wow_4:decelerate(60/140*0.5)
+				wow_4:zoom(1)
+			end,true)
+			
+			m2(200,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:x(SCREEN_CENTER_X-134)
+				wow_4:decelerate(60/140*0.5)
+				wow_4:x(SCREEN_CENTER_X+33)
+				oh_6:decelerate(60/140*0.5)
+				oh_6:zoom(1)
+			end,true)
+			
+			m2(204,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:zoom(0)
+				wow_4:decelerate(60/140*0.5)
+				wow_4:zoom(0)
+				oh_6:decelerate(60/140*0.5)
+				oh_6:zoom(0)
+			end,true)
+			
+			
+			
+			
+			
+			
+			
+			m2(189+16,function()
+				best:hidden(1)
+				Try:hidden(1)
+				try_2:xy(640+92,SCREEN_CENTER_Y)
+				your:xy(640+92,SCREEN_CENTER_Y+144)
+				best_2:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+				best_2:zoom(0)
+				So:x(640+92)
+				So:decelerate(60/140*0.5)
+				So:x(640-92)
+			end,true)
+			
+			m2(190+16,function()
+				try_2:decelerate(60/140*0.5)
+				try_2:x(640-92)
+			end,true)
+			m2(191+16,function()
+				your:decelerate(60/140*0.5)
+				your:x(640-122)
+			end,true)
+			
+			m2(192+16,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:zoom(1)
+				try_2:decelerate(60/140*0.5)
+				try_2:x(640+100)
+				
+				your:decelerate(60/140*0.5)
+				your:x(640+100)
+				
+				So:decelerate(60/140*0.5)
+				So:x(640+100)
+			end,true)
+			
+			m2(198+16,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:x(640-(SCREEN_CENTER_X-88))
+				wow_4:x(640-(SCREEN_CENTER_X+78))
+				wow_4:decelerate(60/140*0.5)
+				wow_4:zoom(1)
+				
+			end,true)
+			
+			m2(200+16,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:x(640-(SCREEN_CENTER_X-134))
+				wow_4:decelerate(60/140*0.5)
+				wow_4:x(640-(SCREEN_CENTER_X+33))
+				oh_6:x(640-(SCREEN_CENTER_X+168))
+				oh_6:decelerate(60/140*0.5)
+				oh_6:zoom(1)
+			end,true)
+			
+			m2(204+16,function()
+				best_2:decelerate(60/140*0.5)
+				best_2:zoom(0)
+				wow_4:decelerate(60/140*0.5)
+				wow_4:zoom(0)
+				oh_6:decelerate(60/140*0.5)
+				oh_6:zoom(0)
+			end,true)
+			
+			m2(220,function()
+				BlackBG:linear(60/140*4)
+				BlackBG:diffusealpha(1)
+			end,true)
+			
+			m2(240,function()
+				flash:linear(60/140*16)
+				flash:diffusealpha(1)
+			end,true)
+			
+			m2(256,function()
+				flash:decelerate(60/140)
+				flash:diffusealpha(0)
+			end,true)
+			
+			m(256,1,'*-1 hide','len')
+			
+			me(156.75,0.75,0,100,'invert','len',inOutCubic)
+			m(157.5,0.5,'*-1 invert','len')
+			me(157.75,0.75,0,100,'flip','len',inOutCubic)
+			me(157.75,0.75,100,0,'invert','len',inOutCubic)
+			m(158.5,0.5,'*-1 flip','len')
+			me(158.75,0.75,100,0,'flip','len',inOutCubic)
+			
+			--[[m(192,12,'*-1 beat','len')
+			m(204,4,'*-1 no beat','len')
+			
+			m(204,16,'*-1 beat','len')
+			m(224,4,'*-1 no beat','len')]]--
+			
+			m(131+16,1,'*-1 clearall, *-1 2.5x, *-1 overhead, *-1 approachtype, *-1 dizzyholds, *-1 stealthpastreceptors, *-1 modtimer','len',4)
+			me(130.5+16,0.75,0,100,'flip','len',inOutExpo)
+			m(131+16,0.25,'*-1 flip','len')
+			
+			me(132+16,0.25,0,-200,'tiny','len',outCubic)
+			me(132.25+16,0.75,-200,0,'tiny','len',outQuart)
+
+			me(133+16,0.25,0,-200,'tiny','len',outCubic)
+			me(133.25+16,0.75,-200,0,'tiny','len',outQuart)
+			
+			me(137+16,1,0,100,'flip','len',outQuart)
+			
+			me(138+16,0.75,100,0,'flip','len',outQuart,3)
+			m(138+16,0.75,'*-1 flip','len',4)
+			m(138+16,0.75,'*-1 flip','len',1)
+			m(138+16,0.75,'*-1 flip','len',2)
+			me(138.75+16,0.75,100,0,'flip','len',outQuart,4)
+			me(138.75+16,0.75,100,0,'flip','len',outQuart,1)
+			m(138.75+16,0.75,'*-1 flip','len',2)
+			me(139.5+16,0.5,100,0,'flip','len',outQuart,2)
+			
+			me(160,0.5,0,100,'flip','len',outQuart)
+			
+			m(160.5,0.75,'*-1 flip','len')
+			
+			
+			
+			me(160.75,0.25,0,100,'reverse0','len',outQuad)
+			me(160.75,0.25,0,100,'reverse1','len',outQuad)
+			me(161,0.25,0,100,'reverse2, *-1 reverse0, *-1 reverse1','len',outQuad)
+			me(161,0.25,0,100,'reverse3','len',outQuad)
+			m(161.25,0.25,'*-1 no flip, *-1 -180 rotationz, *-1 '..(math.rad(180)*100)..' confusionzoffset, *-1 no reverse0, *-1 no reverse1, *-1 no reverse2, *-1 no reverse3','len')
+			me(161.5,0.55,-180,0,'rotationz','len',outSine)
+			me(161.5,0.55,math.rad(180)*100,0,'confusionzoffset','len',outSine)
+			
+			me(166.25,0.25,0,100,'flip','len',linear)
+			m(166.5,0.5,'*-1 flip','len')
+			me(167,0.5,100,0,'flip','len',outCubic)
+			me(167,0.5,0,100,'invert','len',outCubic)
+			me(164.75,0.125,0,100,'tipsy','len',outSine)
+			me(164.875,0.375,100,0,'tipsy','len',outSine)
+			
+			me(166.5,0.125,0,-100,'tipsy','len',outSine)
+			me(166.675,0.375,-100,0,'tipsy','len',outSine)
+			
+			
+			me(167.5,0.5,100,0,'invert','len',outCubic)
+			me(165,0.25,0,-15,'drawsize','len',outSine)
+			m(165.25,167.5,'*-1 -15 drawsize','end')
+			
+			me(168,0.1875,0,150,'tipsy','len',outSine)
+			me(168.1875,0.5625,150,0,'tipsy','len',outSine)
+			
+			me(168.75,0.25,0,100,'invert','len',outQuad)
+			me(169,0.25,100,0,'invert','len',outQuad)
+			me(169,0.25,0,100,'flip','len',outQuad)
+			m(169,1.25,'*-1 flip','len')
+			
+			me(169.5,0.1875,0,-150,'tipsy','len',outSine)
+			me(169.6875,0.5625,-150,0,'tipsy','len',outSine)
+			
+			me(170.25,0.25,100,60,'zoom','len',outCubic)
+			m(170.5,1.5,'*-1 60 zoom','len')
+			me(172,0.5,60,100,'zoom','len',outCubic)
+			
+			me(170.25,0.25,0,75,'invert','len',outCubic)
+			me(170.25,0.25,100,75,'flip','len',outCubic)
+			
+			me(170.5,0.5,75,-100,'invert','len',outCubic)
+			me(170.5,0.5,75,100,'flip','len',outCubic)
+			
+			me(171,0.5,-100,0,'invert, *-1 flip','len',outCubic)
+			me(171.5,0.5,100,0,'flip','len',outCubic)
+			
+			--Repeat!!! Again
+			
+			me(160+16,0.5,0,100,'flip','len',outQuart)
+			
+			m(160.5+16,0.75,'*-1 flip','len')
+			
+			
+			
+			me(160.75+16,0.25,0,100,'reverse0','len',outQuad)
+			me(160.75+16,0.25,0,100,'reverse1','len',outQuad)
+			me(161+16,0.25,0,100,'reverse2, *-1 reverse0, *-1 reverse1','len',outQuad)
+			me(161+16,0.25,0,100,'reverse3','len',outQuad)
+			m(161.25+16,0.25,'*-1 no flip, *-1 -180 rotationz, *-1 '..(math.rad(180)*100)..' confusionzoffset, *-1 no reverse0, *-1 no reverse1, *-1 no reverse2, *-1 no reverse3','len')
+			me(161.5+16,0.55,-180,0,'rotationz','len',outSine)
+			me(161.5+16,0.55,math.rad(180)*100,0,'confusionzoffset','len',outSine)
+			
+			me(166.25+16,0.25,0,100,'flip','len',linear)
+			m(166.5+16,0.5,'*-1 flip','len')
+			me(167+16,0.5,100,0,'flip','len',outCubic)
+			me(167+16,0.5,0,100,'invert','len',outCubic)
+			me(164.75+16,0.125,0,100,'tipsy','len',outSine)
+			me(164.875+16,0.375,100,0,'tipsy','len',outSine)
+			
+			me(166.5+16,0.125,0,-100,'tipsy','len',outSine)
+			me(166.675+16,0.375,-100,0,'tipsy','len',outSine)
+			
+			
+			me(167.5+16,0.5,100,0,'invert','len',outCubic)
+			me(165+16,0.25,0,-15,'drawsize','len',outSine)
+			m(165.25+16,167.5,'*-1 -15 drawsize','end')
+			
+			me(168+16,0.1875,0,150,'tipsy','len',outSine)
+			me(168.1875+16,0.5625,150,0,'tipsy','len',outSine)
+			
+			me(168.75+16,0.25,0,100,'invert','len',outQuad)
+			me(169+16,0.25,100,0,'invert','len',outQuad)
+			me(169+16,0.25,0,100,'flip','len',outQuad)
+			m(169+16,1.25,'*-1 flip','len')
+			
+			me(169.5+16,0.1875,0,-150,'tipsy','len',outSine)
+			me(169.6875+16,0.5625,-150,0,'tipsy','len',outSine)
+			
+			me(170.25+16,0.25,100,60,'zoom','len',outCubic)
+			m(170.5+16,1.5,'*-1 60 zoom','len')
+			me(172+16,0.5,60,100,'zoom','len',outCubic)
+			
+			me(170.25+16,0.25,0,75,'invert','len',outCubic)
+			me(170.25+16,0.25,100,75,'flip','len',outCubic)
+			
+			me(170.5+16,0.5,75,-100,'invert','len',outCubic)
+			me(170.5+16,0.5,75,100,'flip','len',outCubic)
+			
+			me(171+16,0.5,-100,0,'invert, *-1 flip','len',outCubic)
+			me(171.5+16,0.5,100,0,'flip','len',outCubic)
+			
+			me(188.75,0.75,0,100,'flip','len',inOutCubic)
+			m(189.5,0.25,'*-1 flip','len')
+			me(189.75,0.75,100,0,'flip','len',inOutCubic)
+			me(189.75,0.75,0,100,'invert','len',inOutCubic)
+			m(190.5,0.25,'*-1 invert','len')
+			me(190.75,0.75,100,0,'invert','len',inOutCubic)
+			
+			
+			me(204.75,0.75,0,100,'invert','len',inOutCubic)
+			m(205.5,0.25,'*-1 invert','len')
+			me(205.75,0.75,100,0,'invert','len',inOutCubic)
+			me(205.75,0.75,0,100,'flip','len',inOutCubic)
+			m(206.5,0.25,'*-1 flip','len')
+			me(206.75,0.75,100,0,'flip','len',inOutCubic)
+			
+			me(224,0.25,0,50,'flip','len',outCubic)
+			m(224.25,256,'*-1 50 flip','len')
+			me(240,16,0,800,'drunk','len',linear)
+			
+			for i=1,table.getn(Light_Mod_Data) do
+				local b2 = Light_Mod_Data[i]
+				
+				--adds the white and normal message commands for more music queues
+				
+				if b2[1] < 59.5 then
+					local l2 = Light_Mod_Data[i+1]
+					if math.mod(i, 2) == 0 then
+							
+							me(b2[1],(l2[1]/4)-b2[1]/4,0,-75,'tipsy','len',outSine)
+							me(b2[1]+((l2[1]/4)-b2[1]/4),((l2[1]/4)-b2[1]/4)*3,-75,0,'tipsy','len',outSine)
+					else
+							
+							me(b2[1],(l2[1]/4)-b2[1]/4,0,125,'tipsy','len',outSine)
+							me(b2[1]+((l2[1]/4)-b2[1]/4),((l2[1]/4)-b2[1]/4)*3,75,0,'tipsy','len',outSine)
+
+					end
+				end
+			end
+			
+			for i=1,table.getn(Tiny_NoteData) do
+				local b2 = Tiny_NoteData[i]
+				
+				--adds the white and normal message commands for more music queues
+				
+				if b2[1] < 256 then
+					local l2 = Tiny_NoteData[i+1]
+					
+					for i=0,3 do
+						me(b2[1],(l2[1]/4)-b2[1]/4,0,-75,'tiny'..(i),'len',outSine)
+						me(b2[1]+((l2[1]/4)-b2[1]/4),((l2[1]/4)-b2[1]/4)*3,-75,0,'tiny'..(i),'len',outSine)
+					end
+				end
+			end
+			
+			m(136,140,'*-1 -15 drawsize','end')
+			m(136+16,140+16,'*-1 -15 drawsize','end')
+			
+			
+---------------------------------------------------------------------------------------
+----------------------Sort the actions table-------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			function modtable_compare(a,b)
+				return a[1] < b[1]
+			end
+			
+			if table.getn(mod_actions) > 1 then
+				table.sort(mod_actions, modtable_compare)
+			end
+			
+			
+			--Things to do tomorrow (as in what ideas i have)
+		
+			--Repeat Seize the Day scroll part but it's mirrored
+			
+			--Repeat Bg Animation but mirrored (or not)
+			
+			--Finish file by July 17th
+			
+			--Make sure you mod all day tomorrow and mod all day the day after tomorrow
+			
+			--Good luck
+			
+			
+			------------------------------------------------------------------------------------------------
+			---------------------------------------------NOTE!!---------------------------------------------
+			------------------------------------------------------------------------------------------------
+			
+			--Mirror the 2nd BG at beat 144 if you have time!
+			
+			self:luaeffect('Update')
+		end"
+		
+		
+		
+		UpdateCommand="%function(self)
+			local beat = GAMESTATE:GetSongBeat()
+			
+			if beat>=0 and not checked then
+					local ThingsToGrab = {'BPMDisplay','LifeFrame','ScoreFrame','Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+					local ThingsToHide = {'BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+					for pn=1,2 do
+						_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+						if _G['P'..pn] then
+							table.insert(mod_plr, _G['P'..pn])
+							_G['jud'..pn]=_G['P'..pn]:GetChild('Judgment');
+							_G['com'..pn]=_G['P'..pn]:GetChild('Combo');
+							_G['jud'..pn]:hidden(1)
+							_G['com'..pn]:hidden(1)
+						end
+						table.insert(ThingsToGrab,'LifeP'..pn); table.insert(ThingsToGrab,'ScoreP'..pn);
+						table.insert(ThingsToHide,'LifeP'..pn); table.insert(ThingsToHide,'ScoreP'..pn);
+					end	
+					for i,v in ipairs(ThingsToGrab) do _G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil end	
+					for i,v in ipairs(ThingsToHide) do if _G[v] then _G[v]:hidden(1) end end
+				checked = true;
+			end
+			mod_curtime = GAMESTATE:GetSongTime()
+			local deltatime = mod_curtime - mod_lasttime
+			mod_lasttime = mod_curtime
+---------------------------------------------------------------------------------------
+----------------------Begin table handlers---------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			disable = false;
+			if disable ~= true and checked then
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					-----------------------
+					-- Player mod resets --
+					-----------------------
+					for i=1,2 do
+						GAMESTATE:ApplyModifiers('clearall',i)
+						if _G['init_modsp'..i] then 
+							GAMESTATE:ApplyModifiers(_G['init_modsp'..i],i)
+					  	end
+					end
+				
+					------------------------------------------------------------------------------
+					-- custom mod reader by TaroNuke edited by WinDEU and re-stolen by TaroNuke --
+					------------------------------------------------------------------------------
+					for i,v in pairs(mods) do
+						if v and table.getn(v) > 3 and v[1] and v[2] and v[3] and v[4] then
+							if beat >=v[1] then
+								if (v[4] == 'len' and beat <=v[1]+v[2]) or (v[4] == 'end' and beat <=v[2]) then
+									if table.getn(v) == 5 then
+										GAMESTATE:ApplyModifiers(v[3],v[5]);
+									else
+										GAMESTATE:ApplyModifiers(v[3]);
+									end
+								end
+							end
+						else
+							v[1] = 0;
+							v[2] = 0;
+							v[3] = '';
+							v[4] = 'error';
+							SCREENMAN:SystemMessage('Bad mod in beat-based table (line '..i..')');
+						end
+					end
+				
+					-----------------------------------------------------------------------------------------------------
+					-- WinDEU's time-based len/end version of the #swag custom mod reader #teamproofofconcept (c) 2015 --
+					-----------------------------------------------------------------------------------------------------
+					for i,v in pairs(mods2) do
+						if v and table.getn(v) > 3 and v[1] and v[2] and v[3] and v[4] then
+							if mod_time >=v[1] then
+								if (v[4] == 'len' and mod_time <=v[1]+v[2]) or (v[4] == 'end' and mod_time <=v[2]) then
+									if table.getn(v) == 5 then
+										GAMESTATE:ApplyModifiers(v[3],v[5]);
+									else
+										GAMESTATE:ApplyModifiers(v[3]);
+									end
+								end
+							end
+						else
+							v[1] = 0;
+							v[2] = 0;
+							v[3] = 'error';
+							v[4] = 'error';
+							SCREENMAN:SystemMessage('Bad mod in time-based table (line '..i..')');
+						end
+					end
+				
+					---------------------------------------
+					-- Ease table (includes func_ease) --
+					---------------------------------------
+					for i,v in pairs(mods_ease) do
+						if v and table.getn(v) > 6 and v[1] and v[2] and v[3] and v[4] and v[5] and v[6] and v[7] then
+							if beat >=v[1] then
+								if (v[6] == 'len' and beat <=v[1]+v[2]) or (v[6] == 'end' and beat <=v[2]) then
+									local strength = v[7](beat - v[1], v[3], v[4] - v[3], v[6] == 'end' and v[2] - v[1] or v[2], v[10], v[11])
+									if type(v[5]) == 'string' then
+										local modstr = v[5] == 'xmod' and strength..'x' or (v[5] == 'cmod' and 'C'..strength or strength..' '..v[5])
+										GAMESTATE:ApplyModifiers('*9999 '..modstr,v[8]);
+									elseif type(v[5]) == 'function' then
+										v[5](strength)
+									end
+								elseif (v[9] and ((v[6] == 'len' and beat <=v[1]+v[2]+v[9]) or (v[6] == 'end' and beat <=v[9]))) then
+									if type(v[5]) == 'string' then
+										local modstr = v[5] == 'xmod' and v[4]..'x' or (v[5] == 'cmod' and 'C'..v[4] or v[4]..' '..v[5])
+										GAMESTATE:ApplyModifiers('*9999 '..modstr,v[8]);
+									elseif type(v[5]) == 'function' then
+										v[5](v[4])
+									end
+								end
+							end
+						else
+							SCREENMAN:SystemMessage('Ease Error! (line '..i..' | beat: '.. v[1] .. ' | mod: '.. v[5] ..')');
+						end
+					end
+				
+					---------------------
+					-- Perframe reader --
+					---------------------
+					if table.getn(mod_perframes)>0 then
+						for i=1,table.getn(mod_perframes) do
+							local a = mod_perframes[i]
+							if beat > a[1] and beat < a[2] then
+								a[3](beat,deltatime);
+							end
+						end
+					end
+					if beat >= 48 and beat < 60 then
+						Bg1:SetVertexColor(0, math.abs(math.sin((math.pi * beat * 0.5)+1))*0.7, 0.5, 1, 1)
+						Bg1:SetVertexColor(1, math.abs(math.sin(math.pi * beat * 0.5))*0.7, 0.5, 1, 1)
+						Bg1:SetVertexColor(2, math.abs(math.sin(math.pi * beat * 0.5))*0.7, 0.5, 1, 1)
+						Bg1:SetVertexColor(3, math.abs(math.sin((math.pi * beat * 0.5)+1))*0.7, 0.5, 1, 1)
+						fisheye:GetShader():uniform1f('amount', fisheye:getaux())
+					end
+					
+						
+						if beat >= 60.6666666666 and beat <= 61.6666666666 then
+							Plr(1):x(ease.inOutQuart(beat-60.6666666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X-360,1))
+							Plr(2):y(SCREEN_CENTER_Y)
+							Plr(2):x(ease.inOutQuart(beat-60.6666666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+						end
+						
+						if beat >= 61.6666666666 and beat <= 62.6666666666 then
+							Plr(2):x(ease.inOutQuart(beat-61.6666666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(1):x(ease.inOutQuart(beat-61.6666666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+						end
+						
+						if beat >= 62.6666666666 and beat <= 63.6666666666 then
+							Plr(1):x(ease.inOutQuart(beat-62.6666666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(2):x(ease.inOutQuart(beat-62.6666666666,840,SCREEN_CENTER_X-840,1))
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+							day:x(Plr(2):GetX())
+							day:y(Plr(2):GetY())
+						end
+						
+						if beat >= 69 and beat <= 70 then
+							Plr(1):x(ease.outQuint(beat-69,480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.outQuint(beat-69,480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						if beat >= 74 and beat <= 74.5 then
+							Plr(1):x(ease.outQuint(beat-74,160,SCREEN_CENTER_X-160,0.5))
+							Plr(2):x(ease.outQuint(beat-74,160,SCREEN_CENTER_X-160,0.5))
+						end
+						
+						
+						if beat >= 75.5 and beat <= 76.5 then
+							Plr(1):x(ease.outQuint(beat-75.5,SCREEN_CENTER_X,480-SCREEN_CENTER_X,1))
+							Plr(2):x(ease.outQuint(beat-75.5,SCREEN_CENTER_X,480-SCREEN_CENTER_X,1))
+						end
+						
+						if beat >= 79 and beat <= 79.75 then
+							Plr(1):x(ease.outQuart(beat-79,160,SCREEN_CENTER_X-160,0.75))
+							Plr(2):x(ease.outQuart(beat-79,160,SCREEN_CENTER_X-160,0.75))
+						end
+						
+						if beat >= 78 and beat <= 78.75 then
+							Plr(1):x(ease.outQuart(beat-78,480,160-480,0.75))
+							Plr(2):x(ease.outQuart(beat-78,480,160-480,0.75))
+						end
+						
+						if beat >= 94 and beat <= 94.75 then
+							Plr(1):x(ease.outQuart(beat-94,480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.outQuart(beat-94,480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						
+						
+						
+						if beat >= 69+32 and beat <= 70+32 then
+							Plr(1):x(ease.outQuint(beat-(69+32),480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.outQuint(beat-(69+32),480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						if beat >= 74+32 and beat <= 74.5+32 then
+							Plr(1):x(ease.outQuint(beat-(74+32),160,SCREEN_CENTER_X-160,0.5))
+							Plr(2):x(ease.outQuint(beat-(74+32),160,SCREEN_CENTER_X-160,0.5))
+						end
+						
+						
+						if beat >= 75.5+32 and beat <= 76.5+32 then
+							Plr(1):x(ease.outQuint(beat-(75.5+32),SCREEN_CENTER_X,480-SCREEN_CENTER_X,1))
+							Plr(2):x(ease.outQuint(beat-(75.5+32),SCREEN_CENTER_X,480-SCREEN_CENTER_X,1))
+						end
+						
+						if beat >= 79+32 and beat <= 79.75+32 then
+							Plr(1):x(ease.outQuart(beat-(79+32),160,SCREEN_CENTER_X-160,0.75))
+							Plr(2):x(ease.outQuart(beat-(79+32),160,SCREEN_CENTER_X-160,0.75))
+						end
+						
+						if beat >= 78+32 and beat <= 78.75+32 then
+							Plr(1):x(ease.outQuart(beat-(78+32),480,160-480,0.75))
+							Plr(2):x(ease.outQuart(beat-(78+32),480,160-480,0.75))
+						end
+						
+						
+						if beat >= 120 and beat <= 120.75 then
+							Plr(1):x(ease.outQuint(beat-120,480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.outQuint(beat-120,480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						if beat >= 128 and beat <= 129 then
+							YellowTriangle:SetVertexPosition(0,0,0,0)
+							YellowTriangle:SetVertexPosition(1,560,0,0)
+							YellowTriangle:SetVertexPosition(3,-80,Yellow1:getaux(),0,0)
+							YellowTriangle:SetVertexPosition(2,Yellow2:getaux(),Yellow1:getaux(),0)
+							
+							MagentaTriangle:SetVertexPosition(0,640,Magenta2:getaux(),0)
+							MagentaTriangle:SetVertexPosition(1,Magenta1:getaux(),Magenta2:getaux(),0)
+							MagentaTriangle:SetVertexPosition(3,640,480,0)
+							MagentaTriangle:SetVertexPosition(2,-80,480,0)
+						end
+						
+						if beat >= 127.75 and beat <= 128.5 then
+							Plr(1):xy(ease.inOutCubic(beat-127.75,SCREEN_CENTER_X,SCREEN_CENTER_X*-0.35,0.75), ease.inOutQuint(beat-127.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y*-0.35,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-127.75,1,-0.125,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-127.75,SCREEN_CENTER_X,SCREEN_CENTER_X*0.6,0.75), ease.inOutQuint(beat-127.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y*0.6,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-127.75,1,-0.125,0.75))
+						end
+						
+						if beat >= 128.75 and beat <= 129.5 then
+						
+							--Plr(1):decelerate(60/140*0.5)
+							--Plr(1):xy(SCREEN_CENTER_X*0.65, SCREEN_CENTER_Y*0.65)
+							--Plr(1):zoom(0.875)
+							--Plr(2):decelerate(60/140*0.5)
+							--Plr(2):xy(SCREEN_CENTER_X*1.6, SCREEN_CENTER_Y*1.6)
+							--Plr(2):zoom(0.875)
+							
+							--Plr(1):decelerate(60/140*0.5)
+							--Plr(1):xy(SCREEN_CENTER_X*1.65, SCREEN_CENTER_Y*0.65)
+							--Plr(2):decelerate(60/140*0.5)
+							--Plr(2):xy(SCREEN_CENTER_X*0.6, SCREEN_CENTER_Y*1.6)
+							
+							Plr(1):xy(ease.inOutCubic(beat-128.75,SCREEN_CENTER_X*0.65,SCREEN_CENTER_X*0.95,0.75), SCREEN_CENTER_Y*0.65)
+							Plr(2):xy(ease.inOutCubic(beat-128.75,SCREEN_CENTER_X*1.6,SCREEN_CENTER_X*-1,0.75), SCREEN_CENTER_Y*1.6)
+						end
+						
+						if beat >= 129.75 and beat <= 130.5 then
+							Plr(1):xy(ease.inOutCubic(beat-129.75,SCREEN_CENTER_X*1.65,SCREEN_CENTER_X*1.35,0.75), ease.inOutCubic(beat-129.75,SCREEN_CENTER_Y*0.65,SCREEN_CENTER_Y*-2.35,0.75))
+							
+							Plr(2):xy(ease.inOutCubic(beat-129.75,SCREEN_CENTER_X*0.6,SCREEN_CENTER_X*0.4,0.75), ease.inOutCubic(beat-129.75,SCREEN_CENTER_Y*1.6,SCREEN_CENTER_Y*-0.6,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-129.75,0.875,0.125,0.75))
+							
+							
+						end
+						
+						if beat >= 129 and beat <= 129.5 then
+							YellowTriangle:SetVertexPosition(0,-500,-500,0)
+							YellowTriangle:SetVertexPosition(1,1060,-500,0)
+							YellowTriangle:SetVertexPosition(3,-300,860,0,0)
+							YellowTriangle:SetVertexPosition(2,-300,860,0)
+							YellowTriangle:rotationz(ease.outQuad(beat-129,0,90,0.5))
+							YellowTriangle:x(ease.outQuad(beat-129,0,640,0.5))
+							
+							MagentaTriangle:SetVertexPosition(0,640,0,0)
+							MagentaTriangle:SetVertexPosition(1,640,480,0)
+							MagentaTriangle:SetVertexPosition(2,0,480,0)
+							MagentaTriangle:SetVertexPosition(3,0,0,0)
+						end
+						
+						if beat >= 128.25 and beat < 128.74 then
+							Triangle1:hidden(0)
+							Triangle1:SetLineWidth(ease.inQuad(beat-128.25,10,-10,0.49))
+							Triangle2:hidden(0)
+							Triangle2:SetLineWidth(ease.inQuad(beat-128.25,10,-10,0.49))
+						end
+						
+						if beat >= 128.74 and beat <= 129 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 129 and beat <=129.5 then
+							Triangle1:hidden(0)
+							Triangle2:hidden(0)
+							Triangle1:SetLineWidth(10)
+							Triangle2:SetLineWidth(10)
+						end
+						
+						if beat >= 129.25 and beat < 129.74 then
+							
+							Triangle1:SetLineWidth(ease.inQuad(beat-129.25,10,-10,0.49))
+							
+							Triangle2:SetLineWidth(ease.inQuad(beat-129.25,10,-10,0.49))
+						end
+						
+						if beat >= 129.74 and beat <= 130 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 131.25 and beat <= 132 then
+							P4:y(ease.inOutCubic(beat-131.25,840,-600,0.75))
+							Plr(1):y(ease.inOutCubic(beat-131.25,840,-600,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-131.25,1,-0.4,0.75))
+						end
+						
+						if beat >= 133.75 and beat <= 134.5 then
+							P4:x(ease.inOutQuart(beat-133.75,144,176,0.75))
+						end
+						
+						if beat >= 134.5 and beat <= 135.25 then
+							Plr(1):x(ease.inOutQuart(beat-134.5,496,-176,0.75))
+						end
+						
+						if beat >= 135.25 and beat <= 136 then
+							Plr(1):zoom(ease.inOutExpo(beat-135.25,0.6,0.4,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-135.25,0.6,0.4,0.75))
+						end
+						
+						
+						
+						
+						if beat >= 137.75 and beat <= 138.5 then
+							BlueSquareTopLeft:stretchto(ease.inOutExpo(beat-137.75,155,-155,0.75),ease.inOutExpo(beat-137.75,115,-115,0.75),ease.inOutExpo(beat-137.75,155,155,0.75),ease.inOutExpo(beat-137.75,115,115,0.75))
+						end
+						
+						if beat >= 138.5 and beat <= 139.25 then
+							BlueSquareBottomLeft:stretchto(0,0,ease.inOutExpo(beat-138.5,0,310,0.75),ease.inOutExpo(beat-138.5,0,230,0.75))
+							BlueSquareBottomLeft:y(365)
+							BlueSquareTopRight:stretchto(ease.inOutExpo(beat-138.5,155,-155,0.75),ease.inOutExpo(beat-138.5,115,-115,0.75),ease.inOutExpo(beat-138.5,155,155,0.75),ease.inOutExpo(beat-138.5,115,115,0.75))
+							BlueSquareTopRight:x(485)
+						end
+						
+						if beat >= 139.25 and beat <= 140 then
+							BlueSquareBottomRight:stretchto(ease.inOutExpo(beat-139.25,155,-155,0.75),ease.inOutExpo(beat-139.25,115,-115,0.75),ease.inOutExpo(beat-139.25,155,155,0.75),ease.inOutExpo(beat-139.25,115,115,0.75))
+							BlueSquareBottomRight:xy(485,365)
+							
+						end
+						
+						
+						if beat >= 139.75 and beat <= 140.5 then
+							P3:zoom(ease.inOutCubic(beat-139.75,0.5,0.5,0.75))
+							P3:xy(ease.inOutCubic(beat-139.75,160,SCREEN_CENTER_X-160,0.75), ease.inOutCubic(beat-139.75,SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							P4:zoom(ease.inOutCubic(beat-139.75,0.5,0.5,0.75))
+							P4:xy(ease.inOutCubic(beat-139.75,160,SCREEN_CENTER_X-160,0.75), ease.inOutCubic(beat-139.75,SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-139.75,0.5,0.5,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-139.75,480,SCREEN_CENTER_X-480,0.75), ease.inOutCubic(beat-139.75,SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-139.75,0.5,0.5,0.75))
+							Plr(1):xy(ease.inOutCubic(beat-139.75,480,SCREEN_CENTER_X-480,0.75), ease.inOutCubic(beat-139.75,SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+						end
+						
+						if beat >= 135.75 and beat <= 136.5 then
+							P3:x(ease.inOutExpo(beat-135.75,SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							P4:x(ease.inOutExpo(beat-135.75,SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							
+							Plr(1):x(ease.inOutExpo(beat-135.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutExpo(beat-135.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 136.75 and beat <= 137.5 then
+							P3:y(ease.inOutExpo(beat-136.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							P4:y(ease.inOutExpo(beat-136.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P3:zoom(ease.inOutExpo(beat-136.75,1,-0.5,0.75))
+							P4:zoom(ease.inOutExpo(beat-136.75,1,-0.5,0.75))
+							Plr(1):y(ease.inOutExpo(beat-136.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							Plr(2):y(ease.inOutExpo(beat-136.75,SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							Plr(1):zoom(ease.inOutExpo(beat-136.75,1,-0.5,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-136.75,1,-0.5,0.75))
+						end
+						
+						if beat >= 140.6666666 and beat <= 141.666666 then
+							
+							Plr(1):x(ease.inOutQuart(beat-140.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X-360,1))
+							Plr(2):y(SCREEN_CENTER_Y)
+							Plr(2):x(ease.inOutQuart(beat-140.666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+						end
+						
+						if beat >= 141.666666 and beat <= 142.666666 then
+							Plr(2):x(ease.inOutQuart(beat-141.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(1):x(ease.inOutQuart(beat-141.666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+						end
+						
+						if beat >= 142.666666 and beat <= 143.666666 then
+							Plr(1):x(ease.inOutQuart(beat-142.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(2):x(ease.inOutQuart(beat-142.666666,840,SCREEN_CENTER_X-840,1))
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+							day:x(Plr(2):GetX())
+							day:y(Plr(2):GetY())
+						end
+						
+						
+						
+						
+						
+						
+						
+						if beat >= 128+16 and beat <= 129+16 then
+							YellowTriangle:SetVertexPosition(0,0,0,0)
+							YellowTriangle:SetVertexPosition(1,560,0,0)
+							YellowTriangle:SetVertexPosition(3,-80,Yellow1:getaux(),0,0)
+							YellowTriangle:SetVertexPosition(2,Yellow2:getaux(),Yellow1:getaux(),0)
+							
+							MagentaTriangle:SetVertexPosition(0,640,Magenta2:getaux(),0)
+							MagentaTriangle:SetVertexPosition(1,Magenta1:getaux(),Magenta2:getaux(),0)
+							MagentaTriangle:SetVertexPosition(3,640,480,0)
+							MagentaTriangle:SetVertexPosition(2,-80,480,0)
+						end
+						
+						if beat >= 127.75+16 and beat <= 128.5+16 then
+							Plr(1):xy(ease.inOutCubic(beat-(127.75+16),SCREEN_CENTER_X,SCREEN_CENTER_X*-0.35,0.75), ease.inOutQuint(beat-(127.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*-0.35,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-(127.75+16),1,-0.125,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-(127.75+16),SCREEN_CENTER_X,SCREEN_CENTER_X*0.6,0.75), ease.inOutQuint(beat-(127.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*0.6,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-(127.75+16),1,-0.125,0.75))
+						end
+						
+						if beat >= 128.75+16 and beat <= 129.5+16 then
+						
+							--Plr(1):decelerate(60/140*0.5)
+							--Plr(1):xy(SCREEN_CENTER_X*0.65, SCREEN_CENTER_Y*0.65)
+							--Plr(1):zoom(0.875)
+							--Plr(2):decelerate(60/140*0.5)
+							--Plr(2):xy(SCREEN_CENTER_X*1.6, SCREEN_CENTER_Y*1.6)
+							--Plr(2):zoom(0.875)
+							
+							--Plr(1):decelerate(60/140*0.5)
+							--Plr(1):xy(SCREEN_CENTER_X*1.65, SCREEN_CENTER_Y*0.65)
+							--Plr(2):decelerate(60/140*0.5)
+							--Plr(2):xy(SCREEN_CENTER_X*0.6, SCREEN_CENTER_Y*1.6)
+							
+							Plr(1):xy(ease.inOutCubic(beat-(128.75+16),SCREEN_CENTER_X*0.65,SCREEN_CENTER_X*0.95,0.75), SCREEN_CENTER_Y*0.65)
+							Plr(2):xy(ease.inOutCubic(beat-(128.75+16),SCREEN_CENTER_X*1.6,SCREEN_CENTER_X*-1,0.75), SCREEN_CENTER_Y*1.6)
+						end
+						
+						if beat >= 129.75+16 and beat <= 130.5+16 then
+							Plr(1):xy(ease.inOutCubic(beat-(129.75+16),SCREEN_CENTER_X*1.65,SCREEN_CENTER_X*1.35,0.75), ease.inOutCubic(beat-(129.75+16),SCREEN_CENTER_Y*0.65,SCREEN_CENTER_Y*-2.35,0.75))
+							
+							Plr(2):xy(ease.inOutCubic(beat-(129.75+16),SCREEN_CENTER_X*0.6,SCREEN_CENTER_X*0.4,0.75), ease.inOutCubic(beat-(129.75+16),SCREEN_CENTER_Y*1.6,SCREEN_CENTER_Y*-0.6,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-(129.75+16),0.875,0.125,0.75))
+							
+							
+						end
+						
+						if beat >= 129+16 and beat <= 129.5+16 then
+							YellowTriangle:SetVertexPosition(0,-500,-500,0)
+							YellowTriangle:SetVertexPosition(1,1060,-500,0)
+							YellowTriangle:SetVertexPosition(3,-300,860,0,0)
+							YellowTriangle:SetVertexPosition(2,-300,860,0)
+							YellowTriangle:rotationz(ease.outQuad(beat-(129+16),0,90,0.5))
+							YellowTriangle:x(ease.outQuad(beat-(129+16),0,640,0.5))
+							
+							MagentaTriangle:SetVertexPosition(0,640,0,0)
+							MagentaTriangle:SetVertexPosition(1,640,480,0)
+							MagentaTriangle:SetVertexPosition(2,0,480,0)
+							MagentaTriangle:SetVertexPosition(3,0,0,0)
+						end
+						
+						if beat >= 128.25+16 and beat < 128.74+16 then
+							Triangle1:hidden(0)
+							Triangle1:SetLineWidth(ease.inQuad(beat-(128.25+16),10,-10,0.49))
+							Triangle2:hidden(0)
+							Triangle2:SetLineWidth(ease.inQuad(beat-(128.25+16),10,-10,0.49))
+						end
+						
+						if beat >= 128.74+16 and beat <= 129+16 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 129+16 and beat <=129.5+16 then
+							Triangle1:hidden(0)
+							Triangle2:hidden(0)
+							Triangle1:SetLineWidth(10)
+							Triangle2:SetLineWidth(10)
+						end
+						
+						if beat >= 129.25+16 and beat < 129.74+16 then
+							
+							Triangle1:SetLineWidth(ease.inQuad(beat-(129.25+16),10,-10,0.49))
+							
+							Triangle2:SetLineWidth(ease.inQuad(beat-(129.25+16),10,-10,0.49))
+						end
+						
+						if beat >= 129.74+16 and beat <= 130+16 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 131.25+16 and beat <= 132+16 then
+							P4:y(ease.inOutCubic(beat-(131.25+16),840,-600,0.75))
+							Plr(1):y(ease.inOutCubic(beat-(131.25+16),840,-600,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-(131.25+16),1,-0.4,0.75))
+						end
+						
+						if beat >= 133.75+16 and beat <= 134.5+16 then
+							P4:x(ease.inOutQuart(beat-(133.75+16),144,176,0.75))
+						end
+						
+						if beat >= 134.5+16 and beat <= 135.25+16 then
+							Plr(1):x(ease.inOutQuart(beat-(134.5+16),496,-176,0.75))
+						end
+						
+						if beat >= 135.25+16 and beat <= 136+16 then
+							Plr(1):zoom(ease.inOutExpo(beat-(135.25+16),0.6,0.4,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-(135.25+16),0.6,0.4,0.75))
+						end
+						
+						if beat >= 137.75+16 and beat <= 138.5+16 then
+							BlueSquareTopLeft:stretchto(ease.inOutExpo(beat-(137.75+16),155,-155,0.75),ease.inOutExpo(beat-(137.75+16),115,-115,0.75),ease.inOutExpo(beat-(137.75+16),155,155,0.75),ease.inOutExpo(beat-(137.75+16),115,115,0.75))
+						end
+						
+						if beat >= 138.5+16 and beat <= 139.25+16 then
+							BlueSquareBottomLeft:stretchto(0,0,ease.inOutExpo(beat-(138.5+16),0,310,0.75),ease.inOutExpo(beat-(138.5+16),0,230,0.75))
+							BlueSquareBottomLeft:y(365)
+							BlueSquareTopRight:stretchto(ease.inOutExpo(beat-(138.5+16),155,-155,0.75),ease.inOutExpo(beat-(138.5+16),115,-115,0.75),ease.inOutExpo(beat-(138.5+16),155,155,0.75),ease.inOutExpo(beat-(138.5+16),115,115,0.75))
+							BlueSquareTopRight:x(485)
+						end
+						
+						if beat >= 139.25+16 and beat <= 140+16 then
+							BlueSquareBottomRight:stretchto(ease.inOutExpo(beat-(139.25+16),155,-155,0.75),ease.inOutExpo(beat-(139.25+16),115,-115,0.75),ease.inOutExpo(beat-(139.25+16),155,155,0.75),ease.inOutExpo(beat-(139.25+16),115,115,0.75))
+							BlueSquareBottomRight:xy(485,365)
+							
+						end
+						
+						
+						if beat >= 139.75+16 and beat <= 140.5+16 then
+							P3:zoom(ease.inOutCubic(beat-(139.75+16),0.5,0.5,0.75))
+							P3:xy(ease.inOutCubic(beat-(139.75+16),160,SCREEN_CENTER_X-160,0.75), ease.inOutCubic(beat-(139.75+16),SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							P4:zoom(ease.inOutCubic(beat-(139.75+16),0.5,0.5,0.75))
+							P4:xy(ease.inOutCubic(beat-(139.75+16),160,SCREEN_CENTER_X-160,0.75), ease.inOutCubic(beat-(139.75+16),SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-(139.75+16),0.5,0.5,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-(139.75+16),480,SCREEN_CENTER_X-480,0.75), ease.inOutCubic(beat-(139.75+16),SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-(139.75+16),0.5,0.5,0.75))
+							Plr(1):xy(ease.inOutCubic(beat-(139.75+16),480,SCREEN_CENTER_X-480,0.75), ease.inOutCubic(beat-(139.75+16),SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+						end
+						
+						if beat >= 135.75+16 and beat <= 136.5+16 then
+							P3:x(ease.inOutExpo(beat-(135.75+16),SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							P4:x(ease.inOutExpo(beat-(135.75+16),SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							
+							Plr(1):x(ease.inOutExpo(beat-(135.75+16),SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutExpo(beat-(135.75+16),SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 136.75+16 and beat <= 137.5+16 then
+							P3:y(ease.inOutExpo(beat-(136.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							P4:y(ease.inOutExpo(beat-(136.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P3:zoom(ease.inOutExpo(beat-(136.75+16),1,-0.5,0.75))
+							P4:zoom(ease.inOutExpo(beat-(136.75+16),1,-0.5,0.75))
+							Plr(1):y(ease.inOutExpo(beat-(136.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							Plr(2):y(ease.inOutExpo(beat-(136.75+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							Plr(1):zoom(ease.inOutExpo(beat-(136.75+16),1,-0.5,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-(136.75+16),1,-0.5,0.75))
+						end
+						
+						if beat >= 160 and beat < 160.49 then
+							
+							Triangle1:SetLineWidth(ease.inQuad(beat-160,10,-10,0.49))
+							
+							Triangle2:SetLineWidth(ease.inQuad(beat-160,10,-10,0.49))
+						end
+						
+						if beat >= 159.75 and beat <= 160.5 then
+							Plr(1):x(ease.inOutCubic(beat-159.75,480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.inOutCubic(beat-159.75,480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						--[[if beat >= 161.5 and beat <= 162.25 then
+							Plr(1):zoom(ease.outExpo(beat-161.5,0.66666,-0.66666,0.75))
+							Plr(2):zoom(ease.outExpo(beat-161.5,0.66666,-0.66666,0.75))
+							P4:zoom(ease.outExpo(beat-161.5,0.66666,-0.66666,0.75))
+						end]]--
+						
+						
+						if beat >= 156.75 and beat <= 157.5 then
+							Plr(1):x(ease.inOutExpo(beat-156.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutExpo(beat-156.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						
+						
+						if beat >= 160.49 and beat <= 160.6 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 160.75 and beat < 161.25 then
+							
+							Triangle1:SetLineWidth(ease.inQuad(beat-160.75,10,-10,0.5))
+							
+							Triangle2:SetLineWidth(ease.inQuad(beat-160.75,10,-10,0.5))
+						end
+						
+						if beat >= 161.25 and beat <= 161.5 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 160.75 and beat <= 161.5 then
+							BottomLine:SetVertexPosition(2,325,ease.inOutExpo(beat-160.75,240,480-240,0.75),0)
+							BottomLine:SetVertexPosition(3,315,ease.inOutExpo(beat-160.75,240,480-240,0.75),0)
+							TopLeftLine:SetVertexPosition(0,ease.inOutExpo(beat-160.75,316.5,5-316.5,0.75),ease.inOutExpo(beat-160.75,276.5,-5-276.5,0.75),0)
+							TopLeftLine:SetVertexPosition(1,ease.inOutExpo(beat-160.75,326.5,-5-326.5,0.75),ease.inOutExpo(beat-160.75,266.5,5-266.5,0.75),0)
+							TopRightLine:SetVertexPosition(0,ease.inOutExpo(beat-160.75,336.5,633.5-336.5,0.75),ease.inOutExpo(beat-160.75,276.5,-5-276.5,0.75),0)
+							TopRightLine:SetVertexPosition(1,ease.inOutExpo(beat-160.75,326.5,643.5-326.5,0.75),ease.inOutExpo(beat-160.75,266.5,5-266.5,0.75),0)
+
+						end
+						
+						
+						if beat >= 161.5 and beat <= 162 then
+							--thought this animation wasn't possible for an easy solution
+							--but that is wrong and I made a good animation
+							
+							--this is the animation from a triangle with lines to a filled background
+							for a=1,110 do
+								CircleTop:SetVertexPosition(a,math.cos(((a/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(7.25*math.pi/6)),math.sin(((a/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(7.25*math.pi/6)),0)
+								
+							end
+							for i=1,135 do
+								CircleRight:SetVertexPosition(i,math.cos(((i/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(10.75*math.pi/6)),math.sin(((i/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(10.75*math.pi/6)),0)
+								CircleLeft:SetVertexPosition(i,math.cos(((i/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(0.5*math.pi)),math.sin(((i/180) *math.pi*ease.linear(beat-161.5,0,1,0.5))+(0.5*math.pi)),0)
+							end
+						end
+						
+						if beat >= 162 and beat <= 162.75 then
+							P4:y(ease.inOutCubic(beat-162,840,-600,0.75))
+							
+							Plr(2):zoom(ease.inOutCubic(beat-162,1,-0.4,0.75))
+						end
+						
+						if beat >= 162.25 and beat <= 163.25 then
+							Plr(1):y(ease.inOutCubic(beat-162.25,840,-600,1))
+						end
+						
+						if beat >= 163.25 and beat <= 164 then
+							Plr(1):x(ease.inOutExpo(beat-163.25,496,SCREEN_CENTER_X-496,0.75))
+							P4:x(ease.inOutExpo(beat-163.25,144,SCREEN_CENTER_X-144,0.75))
+							Plr(1):zoom(ease.inOutExpo(beat-163.25,0.6,0.4,0.75))
+							P4:zoom(ease.inOutExpo(beat-163.25,0.6,0.4,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-163.25,0.6,0.4,0.75))
+						end
+						
+						if beat >= 163.75 and beat <= 164.5 then
+							Plr(1):x(ease.inOutExpo(beat-163.75,SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutExpo(beat-163.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 164.833333333 and beat <= 165.333333333 then
+							Plr(1):zoom(ease.inOutExpo(beat-164.833333333,1,-0.4,0.5))
+							Plr(2):zoom(ease.inOutExpo(beat-164.833333333,1,-0.4,0.5))
+						end
+						
+						if beat >= 165.25 and beat <= 166 then
+							Plr(1):y(ease.inOutExpo(beat-165.25,SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							Plr(2):y(ease.inOutExpo(beat-165.25,SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P3:xy(160, ease.inOutExpo(beat-165.25,SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P4:xy(480, ease.inOutExpo(beat-165.25,SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+						end
+						
+						
+						
+						if beat >= 167.25 and beat <= 168 then
+							PurpleSquareTopLeft:stretchto(ease.inOutExpo(beat-(167.25),155,-155,0.75),ease.inOutExpo(beat-(167.25),115,-115,0.75),ease.inOutExpo(beat-(167.25),155,155,0.75),ease.inOutExpo(beat-(167.25),115,115,0.75))
+							PurpleSquareBottomLeft:stretchto(0,0,ease.inOutExpo(beat-(167.25),0,310,0.75),ease.inOutExpo(beat-(167.25),0,230,0.75))
+							PurpleSquareBottomLeft:y(365)
+							PurpleSquareTopRight:stretchto(ease.inOutExpo(beat-(167.25),155,-155,0.75),ease.inOutExpo(beat-(167.25),115,-115,0.75),ease.inOutExpo(beat-(167.25),155,155,0.75),ease.inOutExpo(beat-(167.25),115,115,0.75))
+							PurpleSquareTopRight:x(485)
+							PurpleSquareBottomRight:stretchto(ease.inOutExpo(beat-(167.25),155,-155,0.75),ease.inOutExpo(beat-(167.25),115,-115,0.75),ease.inOutExpo(beat-(167.25),155,155,0.75),ease.inOutExpo(beat-(167.25),115,115,0.75))
+							PurpleSquareBottomRight:xy(485,365)
+							
+							Plr(1):xy(ease.inOutCubic(beat-167.25,160,SCREEN_CENTER_X-160,0.75),ease.inOutCubic(beat-167.25,SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-167.25,0.6,0.4,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-167.25,480,SCREEN_CENTER_X-480,0.75),ease.inOutCubic(beat-167.25,SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-167.25,0.6,0.4,0.75))
+							P3:xy(ease.inOutCubic(beat-167.25,160,SCREEN_CENTER_X-160,0.75),ease.inOutCubic(beat-167.25,SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							P3:zoom(ease.inOutCubic(beat-167.25,0.6,0.4,0.75))
+							P4:xy(ease.inOutCubic(beat-167.25,480,SCREEN_CENTER_X-480,0.75),ease.inOutCubic(beat-167.25,SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							P4:zoom(ease.inOutCubic(beat-167.25,0.6,0.4,0.75))
+						end
+						
+						if beat >= 172.6666666 and beat <= 173.666666 then
+							
+							Plr(1):x(ease.inOutQuart(beat-172.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X-360,1))
+							Plr(2):y(SCREEN_CENTER_Y)
+							Plr(2):x(ease.inOutQuart(beat-172.666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+						end
+						
+						if beat >= 173.666666 and beat <= 174.666666 then
+							Plr(2):x(ease.inOutQuart(beat-173.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(1):x(ease.inOutQuart(beat-173.666666,840,SCREEN_CENTER_X-840,1))
+							Seize:x(Plr(2):GetX())
+							Seize:y(Plr(2):GetY())
+							Seize:y(Plr(2):GetY())
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+						end
+						
+						if beat >= 174.666666 and beat <= 175.666666 then
+							Plr(1):x(ease.inOutQuart(beat-174.666666,SCREEN_CENTER_X,-360-SCREEN_CENTER_X,1))
+							Plr(2):x(ease.inOutQuart(beat-174.666666,840,SCREEN_CENTER_X-840,1))
+							the:x(Plr(1):GetX())
+							the:y(Plr(1):GetY())
+							day:x(Plr(2):GetX())
+							day:y(Plr(2):GetY())
+						end
+						
+						
+						--Repeat!!!! Again
+						
+						
+						
+					if beat >= 160.49+16 and beat <= 160.6+16 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 160.75+16 and beat < 161.25+16 then
+							
+							Triangle1:SetLineWidth(ease.inQuad(beat-(160.75+16),10,-10,0.5))
+							
+							Triangle2:SetLineWidth(ease.inQuad(beat-(160.75+16),10,-10,0.5))
+						end
+						
+						if beat >= 161.25+16 and beat <= 161.5+16 then
+							Triangle1:hidden(1)
+							Triangle2:hidden(1)
+						end
+						
+						if beat >= 160.75+16 and beat <= 161.5+16 then
+							BottomLine:SetVertexPosition(2,325,ease.inOutExpo(beat-(160.75+16),240,480-240,0.75),0)
+							BottomLine:SetVertexPosition(3,315,ease.inOutExpo(beat-(160.75+16),240,480-240,0.75),0)
+							TopLeftLine:SetVertexPosition(0,ease.inOutExpo(beat-(160.75+16),316.5,5-316.5,0.75),ease.inOutExpo(beat-(160.75+16),276.5,-5-276.5,0.75),0)
+							TopLeftLine:SetVertexPosition(1,ease.inOutExpo(beat-(160.75+16),326.5,-5-326.5,0.75),ease.inOutExpo(beat-(160.75+16),266.5,5-266.5,0.75),0)
+							TopRightLine:SetVertexPosition(0,ease.inOutExpo(beat-(160.75+16),336.5,633.5-336.5,0.75),ease.inOutExpo(beat-(160.75+16),276.5,-5-276.5,0.75),0)
+							TopRightLine:SetVertexPosition(1,ease.inOutExpo(beat-(160.75+16),326.5,643.5-326.5,0.75),ease.inOutExpo(beat-(160.75+16),266.5,5-266.5,0.75),0)
+
+						end
+						
+						
+						if beat >= 161.5+16 and beat <= 162+16 then
+							--thought this animation wasn't possible for an easy solution
+							--but that is wrong and I made a good animation
+							
+							--this is the animation from a triangle with lines to a filled background
+							for a=1,110 do
+								CircleTop:SetVertexPosition(a,math.cos(((a/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(7.25*math.pi/6)),math.sin(((a/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(7.25*math.pi/6)),0)
+								
+							end
+							for i=1,135 do
+								CircleRight:SetVertexPosition(i,math.cos(((i/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(10.75*math.pi/6)),math.sin(((i/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(10.75*math.pi/6)),0)
+								CircleLeft:SetVertexPosition(i,math.cos(((i/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(0.5*math.pi)),math.sin(((i/180) *math.pi*ease.linear(beat-(161.5+16),0,1,0.5))+(0.5*math.pi)),0)
+							end
+						end
+						
+						if beat >= 162+16 and beat <= 162.75+16 then
+							P4:y(ease.inOutCubic(beat-(162+16),840,-600,0.75))
+							
+							Plr(2):zoom(ease.inOutCubic(beat-(162+16),1,-0.4,0.75))
+						end
+						
+						if beat >= 162.25+16 and beat <= 163.25+16 then
+							Plr(1):y(ease.inOutCubic(beat-(162.25+16),840,-600,1))
+						end
+						
+						if beat >= 163.25+16 and beat <= 164+16 then
+							Plr(1):x(ease.inOutExpo(beat-(163.25+16),496,SCREEN_CENTER_X-496,0.75))
+							P4:x(ease.inOutExpo(beat-(163.25+16),144,SCREEN_CENTER_X-144,0.75))
+							Plr(1):zoom(ease.inOutExpo(beat-(163.25+16),0.6,0.4,0.75))
+							P4:zoom(ease.inOutExpo(beat-(163.25+16),0.6,0.4,0.75))
+							Plr(2):zoom(ease.inOutExpo(beat-(163.25+16),0.6,0.4,0.75))
+						end
+						
+						if beat >= 163.75+16 and beat <= 164.5+16 then
+							Plr(1):x(ease.inOutExpo(beat-(163.75+16),SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutExpo(beat-(163.75+16),SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 164.833333333+16 and beat <= 165.333333333+16 then
+							Plr(1):zoom(ease.inOutExpo(beat-(164.833333333+16),1,-0.4,0.5))
+							Plr(2):zoom(ease.inOutExpo(beat-(164.833333333+16),1,-0.4,0.5))
+						end
+						
+						if beat >= 165.25+16 and beat <= 166+16 then
+							Plr(1):y(ease.inOutExpo(beat-(165.25+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+							Plr(2):y(ease.inOutExpo(beat-(165.25+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P3:xy(160, ease.inOutExpo(beat-(165.25+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y*1.5-SCREEN_CENTER_Y,0.75))
+							P4:xy(480, ease.inOutExpo(beat-(165.25+16),SCREEN_CENTER_Y,SCREEN_CENTER_Y/2-SCREEN_CENTER_Y,0.75))
+						end
+						
+						
+						
+						if beat >= 167.25+16 and beat <= 168+16 then
+							PurpleSquareTopLeft:stretchto(ease.inOutExpo(beat-(167.25+16),155,-155,0.75),ease.inOutExpo(beat-(167.25+16),115,-115,0.75),ease.inOutExpo(beat-(167.25+16),155,155,0.75),ease.inOutExpo(beat-(167.25+16),115,115,0.75))
+							PurpleSquareBottomLeft:stretchto(0,0,ease.inOutExpo(beat-(167.25+16),0,310,0.75),ease.inOutExpo(beat-(167.25+16),0,230,0.75))
+							PurpleSquareBottomLeft:y(365)
+							PurpleSquareTopRight:stretchto(ease.inOutExpo(beat-(167.25+16),155,-155,0.75),ease.inOutExpo(beat-(167.25+16),115,-115,0.75),ease.inOutExpo(beat-(167.25+16),155,155,0.75),ease.inOutExpo(beat-(167.25+16),115,115,0.75))
+							PurpleSquareTopRight:x(485)
+							PurpleSquareBottomRight:stretchto(ease.inOutExpo(beat-(167.25+16),155,-155,0.75),ease.inOutExpo(beat-(167.25+16),115,-115,0.75),ease.inOutExpo(beat-(167.25+16),155,155,0.75),ease.inOutExpo(beat-(167.25+16),115,115,0.75))
+							PurpleSquareBottomRight:xy(485,365)
+							
+							Plr(1):xy(ease.inOutCubic(beat-(167.25+16),160,SCREEN_CENTER_X-160,0.75),ease.inOutCubic(beat-(167.25+16),SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							Plr(1):zoom(ease.inOutCubic(beat-(167.25+16),0.6,0.4,0.75))
+							Plr(2):xy(ease.inOutCubic(beat-(167.25+16),480,SCREEN_CENTER_X-480,0.75),ease.inOutCubic(beat-(167.25+16),SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							Plr(2):zoom(ease.inOutCubic(beat-(167.25+16),0.6,0.4,0.75))
+							P3:xy(ease.inOutCubic(beat-(167.25+16),160,SCREEN_CENTER_X-160,0.75),ease.inOutCubic(beat-(167.25+16),SCREEN_CENTER_Y*1.5,SCREEN_CENTER_Y-SCREEN_CENTER_Y*1.5,0.75))
+							P3:zoom(ease.inOutCubic(beat-(167.25+16),0.6,0.4,0.75))
+							P4:xy(ease.inOutCubic(beat-(167.25+16),480,SCREEN_CENTER_X-480,0.75),ease.inOutCubic(beat-(167.25+16),SCREEN_CENTER_Y/2,SCREEN_CENTER_Y-SCREEN_CENTER_Y/2,0.75))
+							P4:zoom(ease.inOutCubic(beat-(167.25+16),0.6,0.4,0.75))
+						end
+						
+						if beat >= 188.75 and beat <= 189.5 then
+							Plr(1):x(ease.inOutCubic(beat-188.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutCubic(beat-188.75,SCREEN_CENTER_X,480-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 191.75 and beat <= 192.5 then
+							Plr(1):x(ease.inOutCubic(beat-191.75,480,SCREEN_CENTER_X-480,0.75))
+							Plr(2):x(ease.inOutCubic(beat-191.75,480,SCREEN_CENTER_X-480,0.75))
+						end
+						
+						if beat >= 204.75 and beat <= 205.5 then
+							Plr(1):x(ease.inOutCubic(beat-204.75,SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+							Plr(2):x(ease.inOutCubic(beat-204.75,SCREEN_CENTER_X,160-SCREEN_CENTER_X,0.75))
+						end
+						
+						if beat >= 207.75 and beat <= 208.5 then
+							Plr(1):x(ease.inOutCubic(beat-207.75,160,SCREEN_CENTER_X-160,0.75))
+							Plr(2):x(ease.inOutCubic(beat-207.75,160,SCREEN_CENTER_X-160,0.75))
+						end
+						
+						
+						if beat >= 220 and beat <= 224 then
+							fisheye:GetShader():uniform1f('amount', ease.outQuad(beat-220,0,25*math.pi,4))
+						end
+						
+						if beat >= 224 and beat <= 224.25 then
+							fisheye:GetShader():uniform1f('amount', ease.outCubic(beat-224,25*math.pi,0-25*math.pi,0.25))
+						end
+						
+						if beat >= 240 and beat <= 256 then
+							fisheye:GetShader():uniform1f('amount', ease.linear(beat-240,0,30*math.pi,16))
+						end
+					
+	
+		
+		
+		
+						
+						
+					
+				
+					---------------------------------------
+					-- Actions table --
+					---------------------------------------
+					while curaction<=table.getn(mod_actions) and GAMESTATE:GetSongBeat()>=mod_actions[curaction][1] do
+						if mod_actions[curaction][3] or GAMESTATE:GetSongBeat() < mod_actions[curaction][1]+2 then
+							if type(mod_actions[curaction][2]) == 'function' then
+								mod_actions[curaction][2]()
+							elseif type(mod_actions[curaction][2]) == 'string' then
+								MESSAGEMAN:Broadcast(mod_actions[curaction][2]);
+							end
+						end
+						curaction = curaction+1;
+					end
+				end
+			end
+
+---------------------------------------------------------------------------------------
+----------------------END DON'T TOUCH IT KIDDO-----------------------------------------
+---------------------------------------------------------------------------------------
+			
+		end"
+		
+	/>
+	
+	
+	
+	<Layer Type="ActorFrameTexture" Var="BottomAFT" OnCommand="%function(self) self:hidden(0) self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(false)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:Create() end" />
+			
+		<Layer File="white.png" Frag="Shaders/fisheye.frag" Var="fisheye" InitCommand="hidden,0;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;zoom,1" OnCommand="%function(self)
+				self:basezoomx((SCREEN_WIDTH)/DISPLAY:GetDisplayWidth())
+				self:basezoomy(-(SCREEN_HEIGHT)/DISPLAY:GetDisplayHeight())
+				self:sleep(0.1)
+				self:SetTexture(BottomAFT:GetTexture()) end" 
+		/>
+		
+		<Layer
+        Type="Quad"
+		Var="Black"
+        InitCommand="zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1;x,SCREEN_CENTER_X;y,SCREEN_CENTER_Y;diffusealpha,0;"
+    />
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	
+	<ZZLAER Type="ActorFrame" InitCommand="%function(self) judc = self end"><children>
+	<LAER Type="ActorProxy" InitCommand="%function(self) jud1p = self end"
+	GetProxyMessageCommand="%function(self) if P1 then self:SetTarget(P1:GetChild('Judgment')) end end"/>
+	<LAER Type="ActorProxy" InitCommand="%function(self) jud2p = self end"
+	GetProxyMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('Judgment')) end end"/>
+	</children></ZZLAER>
+	<ZZLAER Type="ActorFrame" InitCommand="%function(self) comc = self end"><children>
+	<LAER Type="ActorProxy" InitCommand="%function(self) com1p = self end"
+	GetProxyMessageCommand="%function(self) if P1 then self:SetTarget(P1:GetChild('Combo')) end end"/>
+	<LAER Type="ActorProxy" InitCommand="%function(self) com2p = self end"
+	GetProxyMessageCommand="%function(self) if P2 then self:SetTarget(P2:GetChild('Combo')) end end"/>
+	</children></ZZLAER>
+	<Layer Type="ActorProxy" InitCommand="%function(self) P1ActorProxy = self end"
+	GetProxyMessageCommand="%function(self) self:hidden(1) if P1 then self:SetTarget(P1) end end"/>
+	
+	
+	
+	
+	
+	<!--This is for the time based mod reader-->
+	<BitmapText
+		Font="Common Normal"
+		Text="test"
+		OnCommand="x,SCREEN_CENTER_X;y,SCREEN_CENTER_Y;effectclock,music;playcommand,SetTime;hidden,1"
+		SetTimeCommand="%function(self) self:settext(self:GetSecsIntoEffect()); mod_time = tonumber(self:GetText()); self:sleep(0.02); self:queuecommand('SetTime'); end"
+	/>
+		
+	------------------------------------------------------------------------------------
+	---------------------------------FG Font Section!!!---------------------------------
+	------------------------------------------------------------------------------------
+	
+	--Used for accurate font placing on the "just," text
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Text="Just,"
+			OnCommand="x,SCREEN_CENTER_X-210;y,SCREEN_CENTER_Y-144;effectclock,music;hidden,1;zoom,1;"
+		/>
+		
+	--Used to make each letter fade which is a really nice effect
+	<Layer Type="ActorFrame" OnCommand="addx,-128" Var="JustFG" ><children>
+		<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="J_letter"
+			Text="J"
+			OnCommand="x,SCREEN_CENTER_X-359;y,SCREEN_CENTER_Y-72;effectclock,music;hidden,0;zoom,1;"
+		/>
+		<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="u_letter"
+			Text="u"
+			OnCommand="x,SCREEN_CENTER_X-328;y,SCREEN_CENTER_Y-72;effectclock,music;hidden,0;zoom,1;"
+		/>
+		<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="s_letter"
+			Text="s"
+			OnCommand="x,SCREEN_CENTER_X-286;y,SCREEN_CENTER_Y-72;effectclock,music;hidden,0;zoom,1;"
+		/>
+		<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="t_letter"
+			Text="t"
+			OnCommand="x,SCREEN_CENTER_X-250;y,SCREEN_CENTER_Y-72;effectclock,music;hidden,0;zoom,1;"
+		/>
+		<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="comma"
+			Text=","
+			OnCommand="x,SCREEN_CENTER_X-225;y,SCREEN_CENTER_Y-72;effectclock,music;hidden,0;zoom,1;"
+		/>
+	</children></Layer>
+	
+	--Try Your Best
+	
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="Try"
+			Text="Try"
+			OnCommand="x,-92;y,SCREEN_CENTER_Y-144;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="your"
+			Text="your"
+			OnCommand="x,-92;y,SCREEN_CENTER_Y;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="best"
+			Text="best"
+			OnCommand="x,-92;y,SCREEN_CENTER_Y+144;effectclock,music;hidden,0;zoom,1;"
+		/>
+		
+	
+		
+	--Let's sing out
+		
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="Lets"
+			Text="Let's"
+			OnCommand="x,150;y,-100;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="sing"
+			Text="sing"
+			OnCommand="x,360;y,-100;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="out"
+			Text="out"
+			OnCommand="x,540;y,-100;effectclock,music;hidden,0;zoom,1;"
+		/>
+		
+	--Seize the day
+		
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 72px.ini"
+			Var="Seize"
+			Text="Seize"
+			OnCommand="x,-999;y,SCREEN_CENTER_Y-144;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 72px.ini"
+			Var="the"
+			Text="the"
+			OnCommand="x,-999;y,SCREEN_CENTER_Y;effectclock,music;hidden,0;zoom,1;"
+		/>
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 72px.ini"
+			Var="day"
+			Text="day"
+			OnCommand="x,-999;y,SCREEN_CENTER_Y+144;effectclock,music;hidden,0;zoom,1;"
+		/>
+		
+	--So try your best!!
+	
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="So"
+			Text="So"
+			OnCommand="x,-92;y,SCREEN_CENTER_Y-144;effectclock,music;hidden,0;zoom,1;"
+		/>
+		
+	<Layer
+			Font="../bg/TimeBurner/_timeburner 92px.ini"
+			Var="try_2"
+			Text="try"
+			OnCommand="x,-92;y,SCREEN_CENTER_Y-144;effectclock,music;hidden,0;zoom,1;"
+		/>
+		
+	<Layer
+	Type="Quad"
+	OnCommand="%function(self)
+	flash=self;
+	 self:diffusealpha(0);
+         self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT);
+           self:x(SCREEN_CENTER_X);
+            self:y(SCREEN_CENTER_Y);
+            self:diffuse(1,1,1,0);
+	end"
+	/>
+	
+</children></ActorFrame></children></ActorFrame>

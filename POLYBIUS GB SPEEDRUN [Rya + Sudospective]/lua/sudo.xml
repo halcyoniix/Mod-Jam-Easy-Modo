@@ -1,0 +1,247 @@
+<Mods Name = "Sudo" LoadCommand = "%xero(function(self)
+
+	--sugarkill {53.5, 2.5}
+	--sugarkill {61.5, 2}
+	--sugarkill {69.5, 2}
+
+	set {0, 4, 'pixelsize'}
+	ease {44, 4, linear, 0.0001, 'pixelsize'}
+
+	sugarkill {77, 3, mode = 'confusion'}
+	-- subo this might be a bit too flickery to be constantly running for 31 beats ~rya
+	-- but its readable .n.
+
+	ease {172, 4, flip(outQuad), 360, 'roty', -2000, 'tinyz'}
+	ease {172, 4, bounce, 25, 'flip', 25, 'reverse', 800, 'zoomz', 1, 'xmod', -200, 'wave'}
+	ease {172, 3, bounce, confOff(360), 'confusionoffset3'}
+	ease {172.25, 3, bounce, confOff(360), 'confusionoffset2'}
+	ease {172.50, 3, bounce, confOff(360), 'confusionoffset1'}
+	ease {172.75, 3, bounce, confOff(360), 'confusionoffset0'}
+	ease {174, 2, flip(outQuad), 35, 'hidden', 200, 'hiddenoffset'}
+
+	for beat = 112, 135 do
+		ease {beat, 1, flip(outCirc), 16, 'pixelsize'}
+	end
+
+	ease {124.5, 0.5, flip(outCirc), 16, 'pixelsize'}
+
+	ease {124.5, 0.5, flip(inCirc), 0, 'flip', 0, 'invert'}
+	swap {124.5, 0.5, flip(inCirc), 'rudl'}
+
+	for beat = 208, 236, 4 do
+		set {beat + 3, 100, 'invert', plr = 1}
+		set {beat + 4, 0, 'invert', plr = 1}
+	end
+
+	ease {264, 6, tap, 50, 'brake'}
+	ease {270, 1, outExpo, 4, 'pixelsize'}
+	ease {269, 2, flip(inOutCirc), 720 * math.pi/1.8, 'confusionoffset'}
+	ease {268, 4, inverse, -500, 'tiny', 100, 'dark', 50, 'stealth', 50, 'reverse', 50, 'flip'}
+
+	-- Sorry, we only have enough cartridge memory for the linear ease. ~Sudo
+	for beat = 272, 319 do
+		--add {beat, 1, flip(linear), 50, 'tiny0', 50, 'tiny1', 50, 'tiny2', 50, 'tiny3'}
+	end
+	for beat = 272, 312, 8 do
+		-- drums
+		ease {beat, 2, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+		add {beat, 2, flip(outSine), -50, 'tiny'}
+		ease {beat + 2, 0.5, flip(linear), 100, 'invert'}
+		if beat ~= 296 then
+			ease {beat + 4.5, 0.25, flip(linear), 50, 'movey'}
+			ease {beat + 5, 0.25, flip(linear), 50, 'movey'}
+			ease {beat + 6, 0.5, flip(linear), 100, 'invert'}
+			--ease {beat + 7, 1, flip(linear), 360 * math.pi/1.8, 'confusionoffset'}
+		end
+
+		-- bass
+
+		set {beat + 2, 20, 'stealth'}
+		ease {beat + 2, 2.5, flip(linear), 100, 'reverse'}
+		set {beat + 2, 50, 'drunk'}
+		set {beat + 2.25, -50, 'drunk'}
+		set {beat + 2.5, 50, 'drunk'}
+		set {beat + 2.75, -50, 'drunk'}
+		set {beat + 3, 50, 'drunk'}
+		set {beat + 3.25, -50, 'drunk'}
+		set {beat + 3.5, 50, 'drunk'}
+		set {beat + 3.75, -50, 'drunk'}
+		set {beat + 4, 50, 'drunk'}
+		set {beat + 4.25, -50, 'drunk'}
+		if slump then
+			swap {beat + 2, 0, instant, 'ulrd'}
+			swap {beat + 2.25, 0, instant, 'ldur'}
+			set {beat + 2, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', -90 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 2.25, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+			swap {beat + 2.5, 0, instant, 'drlu'}
+			swap {beat + 2.75, 0, instant, 'ldur'}
+			set {beat + 2.5, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', 90 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 2.75, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+			swap {beat + 3, 0, instant, 'ulrd'}
+			swap {beat + 3.25, 0, instant, 'ldur'}
+			set {beat + 3, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', -90 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 3.25, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+			swap {beat + 3.5, 0, instant, 'drlu'}
+			swap {beat + 3.75, 0, instant, 'ldur'}
+			set {beat + 3.5, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', 90 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 3.75, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+			swap {beat + 4, 0, instant, 'ulrd'}
+			swap {beat + 4.25, 0, instant, 'ldur'}
+			set {beat + 4, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', -90 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 4.25, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+		end
+		if beat ~= 296 then
+			set {beat + 4.5, 50, 'drunk'}
+			set {beat + 4.75, -50, 'drunk'}
+			set {beat + 5, 50, 'drunk'}
+			set {beat + 5.25, -50, 'drunk'}
+			set {beat + 5.5, 50, 'drunk'}
+			set {beat + 5.75, -50, 'drunk'}
+			set {beat + 6, 0, 'drunk', 0, 'stealth', 0, 'stealthglowred', 0, 'stealthglowgreen', 0, 'confusionoffset'}
+			if slump then
+				swap {beat + 4.5, 0, instant, 'drlu'}
+				swap {beat + 4.75, 0, instant, 'ldur'}
+				set {beat + 4.5, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', 90 * math.pi/1.8, 'confusionoffset'}
+				set {beat + 4.75, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+				swap {beat + 5, 0, instant, 'ulrd'}
+				swap {beat + 5.25, 0, instant, 'ldur'}
+				set {beat + 5, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', -90 * math.pi/1.8, 'confusionoffset'}
+				set {beat + 5.25, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+				swap {beat + 5.5, 0, instant, 'drlu'}
+				swap {beat + 5.75, 0, instant, 'ldur'}
+				set {beat + 5.5, 50, 'drunk', 100, 'stealthglowred', 0, 'stealthglowgreen', 90 * math.pi/1.8, 'confusionoffset'}
+				set {beat + 5.75, -50, 'drunk', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'confusionoffset'}
+			end
+			ease {beat + 6, 0.5, flip(linear), 400, 'drunk'}
+		else
+			set {beat + 4.5, 0, 'drunk', 0, 'stealth', 0, 'stealthglowred', 0, 'stealthglowgreen', 0, 'confusionoffset'}
+		end
+
+		-- special
+		if beat == 272 then
+			sugarkill {beat + 7, 1, 50, 90}
+		elseif beat == 280 then
+			set {beat + 6.5, 100, 'flip', 20, 'stealth', 45 * math.pi/1.8, 'confusionoffset', 200, 'tipsy'}
+			set {beat + 6.75, -100, 'invert', -45 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 7, 40, 'flip', 40, 'reverse', 0, 'invert', 0, 'stealth', 0, 'confusionoffset', 0, 'tipsy', -200, 'tiny'}
+			set {beat + 7.5, 20, 'flip', 20, 'reverse', -100, 'tiny', 45 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 7.75, -45 * math.pi/1.8, 'confusionoffset'}
+			set {beat + 8, 0, 'flip', 0, 'reverse', 0, 'tiny', 0, 'confusionoffset'}
+		elseif beat == 288 then
+			for col = 0, 3 do
+				set {beat + 7 + (col * 0.25), 30, 'stealth'..col, -100, 'tiny'..col}
+				set {beat + 7.5 + (col * 0.25), 0, 'stealth'..col, 0, 'tiny'..col}
+				add {beat + 7 + (col * 0.25), 0, instant, 90 * math.pi/1.8, 'confusionoffset'..col}
+				add {beat + 7.125 + (col * 0.25), 0, instant, 90 * math.pi/1.8, 'confusionoffset'..col}
+				add {beat + 7.25 + (col * 0.25), 0, instant, 90 * math.pi/1.8, 'confusionoffset'..col}
+				add {beat + 7.375 + (col * 0.25), 0, instant, 90 * math.pi/1.8, 'confusionoffset'..col}
+			end
+		elseif beat == 296 then
+			swap {beat + 4.5, 0.125, linear, 'dlru'}
+			swap {beat + 5, 0.125, linear, 'urld'}
+			swap {beat + 5.5, 0.125, linear, 'ldur'}
+			set {beat + 6, -720, 'roty'}
+			for i = 1, 16 do
+			add {beat + 6 + (0.125 * i), 0, instant, 45, 'roty'}
+			end
+			ease {beat + 7, 1, linear, 200, 'mini'}
+			set {beat + 8, 0, 'mini'}
+			ease {beat + 8, 1, flip(outCirc), -500, 'mini', 25, 'flip'}
+			ease {beat + 8, 2, flip(outCirc), -360, 'roty', -25, 'rotz'}
+			ease {beat + 8, 2, flip(outCirc), 50, 'reverse'}
+		elseif beat == 304 then
+			set {beat + 7, 300, 'movex0', 180 * math.pi/1.8, 'confusionzoffset0', 50, 'stealth'}
+			set {beat + 7.125, -300, 'movex3', 180 * math.pi/1.8, 'confusionzoffset3', 50, 'stealth'}
+			set {beat + 7.25, 100, 'movex1', 180 * math.pi/1.8, 'confusionzoffset1', 50, 'stealth'}
+			set {beat + 7.375, -100, 'movex2', 180 * math.pi/1.8, 'confusionzoffset2', 50, 'stealth'}
+			set {beat + 7.5, 0, 'movex0', 0, 'confusionzoffset0', 0, 'stealth'}
+			set {beat + 7.625, 0, 'movex3', 0, 'confusionzoffset3', 0, 'stealth'}
+			set {beat + 7.75, 0, 'movex1', 0, 'confusionzoffset1', 0, 'stealth'}
+			set {beat + 7.875, 0, 'movex2', 0, 'confusionzoffset2', 0, 'stealth'}
+		elseif beat == 312 then
+			ease {beat + 7, 0.25, linear, 100, 'flip', -100, 'invert'}
+			ease {beat + 7.75, 0.25, linear, 0, 'flip', 0, 'invert'}
+		end
+	end
+	
+	for beat = 320, 326, 2 do
+		ease {beat + 1, 0.5, flip(linear), 100, 'invert'}
+	end
+	ease {320, 2, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {324, 2, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {328, 2, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+
+	ease {330, 1, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {332, 1, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {332.5, 1, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {333, 1, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {333.5, 1, flip(outSine), -100, 'bumpy', 25, 'flip', -50, 'tornado', 800, 'zoomz', 0.0001, 'pixelsize', -200, 'tinyz'}
+	ease {334, 1, inOutCirc, 0.0001, 'pixelsize'}
+
+	flicker {323, 0.5, 100, -100, 'tiny'}
+	flicker {327, 0.25, -50, 0, 'tipsy', 400, 0, 'drunk'}
+	flicker {327.25, 0.25, -25, 0, 'tipsy', 200, 0, 'drunk'}
+	flicker {327.5, 0.25, -12.5, 0, 'tipsy', 100, 0, 'drunk'}
+	flicker {327.75, 0.25, -6.25, 0, 'tipsy', 50, 0, 'drunk'}
+
+	ease {329, 0.25, linear, 100, 'reverse'}
+	ease {329, 0.5, tri, -200, 'tiny'}
+	swap {329, 0.25, linear, 'dlru'}
+	ease {331, 0.25, linear, 0, 'reverse'}
+	ease {331, 0.5, tri, -200, 'tiny'}
+	swap {331, 0.25, linear, 'rudl'}
+	ease {332, 0.5, tri, -200, 'tiny'}
+	swap {332, 0.25, linear, 'urld'}
+	ease {333, 0.5, tri, -200, 'tiny'}
+	swap {333, 0.25, linear, 'dlru'}
+	ease {334, 2, flip(outCirc), -360 * math.pi/1.8, 'confusionoffset'}
+	swap {334, 2, inOutCirc, 'ldur'}
+
+	ease {336, 28, function(x) return inCirc(inCirc(x)) end, 360 * 20, 'rotz'}
+	set {364, 0, 'rotz'}
+
+	if slump then
+		for beat = 368, 402, 2 do
+			swap {beat, 0.5, outCirc, 'urld'}
+			swap {beat + 1, 0.5, outCirc, 'ldur'}
+		end
+		for beat = 408, 438, 2 do
+			swap {beat, 0.5, outCirc, 'urld'}
+			swap {beat + 1, 0.5, outCirc, 'ldur'}
+		end
+		swap {467, 1, linear, 'rudl'}
+		add {468, 0, instant, 20, 'flip'}
+		add {468.75, 0, instant, 20, 'flip'}
+		add {469.5, 0, instant, 20, 'flip'}
+		add {470.25, 0, instant, 20, 'flip'}
+		swap {471, 1, linear, 'ldur'}
+		swap {473, 1, linear, 'dlru'}
+		swap {475, 1, linear, 'ldur'}
+	end
+
+	ease {514, 8, outCirc, 85, 'dark'}
+	set {516, 100, 'hidenoteflash'}
+	sugarkill {520, 24, 10, 95, mode = 'confusion'}
+	set {544, 0, 'hidenoteflash', 0, 'dark'}
+	add {544, 4, outSine, -0.5, 'xmod'}
+
+	for i, v in ipairs(P1:GetNoteData(548, 563)) do
+		local order
+		if (i - 1) % 4 == 0 then
+			order = 'dlur'
+			ease {v[1], 1, outCirc, 90, 'stealth', 20, 'stealthglowred', 0, 'stealthglowgreen', 0, 'stealthglowblue'}
+		elseif (i - 1) % 4 == 1 or (i - 1) % 4 == 3 then
+			order = 'ldur'
+			ease {v[1], 1, outCirc, 0, 'stealth', 0, 'stealthglowred', 100, 'stealthglowgreen', 0, 'stealthglowblue'}
+		else
+			order = 'urld'
+			ease {v[1], 1, outCirc, 90, 'stealth', 0, 'stealthglowred', 20, 'stealthglowgreen', 20, 'stealthglowblue'}
+		end
+		swap {v[1], 0.5, outCirc, order}
+		ease {v[1], 1, flip(linear), -100, 'wave', 0, 'drunk'}
+	end
+
+	add {563, 1, outCirc, 0.5, 'xmod'}
+	ease {563, 1, inQuad, 0, 'stealth', 0, 'stealthglowred', 0, 'stealthglowgreen'}
+
+end)" />

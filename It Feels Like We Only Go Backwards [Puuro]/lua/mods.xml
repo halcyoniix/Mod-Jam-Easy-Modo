@@ -1,0 +1,1630 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	local bw_bt=.4
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+		PC[pn]:hidden(1)
+		P[pn]:GetChild('Judgment'):GetChild(''):diffusealpha(.6)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+
+		PP[pn]:SetTarget(P[5-pn]:GetChild('NoteField'))
+		P[pn]:hidden(1)
+		P[pn]:GetChild('NoteField'):y(0)
+		P[pn]:SetAwake(true)
+		
+		
+	end
+	
+	 for pn=1,6 do
+                    local pr = math.mod(pn,2)+1
+                    
+                    local a = P[pn]
+                    
+                    if a then
+                    
+                        a:SetInputPlayer(math.mod(pn-1,2))
+                        
+                    end
+                    
+                end
+	-- your code goes here here:
+	--[[
+	function setLilStars1(ang,radi)
+		
+			for i=1,7 do
+			_G['lilstar'..i]:x(0+radi*math.cos(math.rad(ang*i)))
+			_G['lilstar'..i]:y(0+radi*math.sin(math.rad(ang*i)))
+			end
+			
+		end
+	--]]
+	
+	func{0,function()
+
+			mw_squares:xy(0,0)
+			mw_squares:rotationz(0)
+			mw_squares:linear(60*3)
+			mw_squares:rotationz(-360*6)
+			for i=1,#mq do
+				
+				mq[i]:customtexturerect(.2,0.5,2,2.5)
+				mq[i]:texcoordvelocity(1+math.sin(i*1.02)*.21,0)
+				mq[i]:y(150*2.5-i*150)
+				mq[i]:diffusealpha(.5)
+				mq[i]:zoom(2)
+				mq[i]:croptop(.25)
+				mq[i]:cropbottom(.25)
+			end
+		end}
+	
+	for i=1,table.getn(notedata) do
+			
+			local chimebeat=notedata[i][1]
+			local cn=notedata[i][2]
+			--me(chimebeat,1,80,100,'stealth'..cn,'len',linear,4,3)
+		--	me(chimebeat,1,-200,200,'tiny'..cn,'len',linear,4,3)
+			--me(chimebeat,1,100,50,'arrowpath'..cn,'len',linear,1,3)
+			
+			func{chimebeat,function()		
+				mq[cn+1]:stoptweening(0)
+				mq[cn+1]:hidden(0)
+				mq[cn+1]:diffusealpha(.5)
+				mq[cn+1]:zoomy(1)
+				mq[cn+1]:linear(bw_bt*2)
+				mq[cn+1]:diffusealpha(0)
+				mq[cn+1]:zoomy(0)
+			end}
+		end
+		
+		for i=1,table.getn(bwdata) do
+			if bwdata[i][2]==3 then
+				set {bwdata[i][1], 50, 'stealth', plr = 5}
+				ease {bwdata[i][1],2,bounce, -25, 'flip', plr = 5}
+				ease {bwdata[i][1]+.1, 4, linear, 0, 'stealth', plr = 5}
+			elseif bwdata[i][2]==2 then	
+				if bwdata[i][1]>209 and bwdata[i][1]<240 then
+				ease {bwdata[i][1],.2, outSine, 150, 'tipsy', plr = 5}
+				ease {bwdata[i][1]+.2, 3, outElastic, 0, 'tipsy', plr = 5}
+				else
+				ease {bwdata[i][1],.2, outSine, 150, 'tipsy', plr = 5}
+				ease {bwdata[i][1]+.2, 1, outQuad, 0, 'tipsy', plr = 5}
+				end
+			elseif bwdata[i][2]==0 then	
+				for j=0,3 do
+					set {bwdata[i][1], -100, 'tiny'..j, plr = 5}
+					ease {bwdata[i][1]+.1, 1, outQuint, 0, 'tiny'..j, plr = 5}
+				end
+			end
+		end
+		
+			ease {207, .25, outSine, -25, 'rotationz', plr = 5}
+			ease {207.25, 4, outElastic, 0, 'rotationz', plr = 5}
+			
+			set {221.5, math.rad(360)*200, 'confusionoffset', plr = 5}
+			ease {221.5, 1, outQuart, 0, 'confusionoffset', plr = 5}
+			
+			set {225.5, math.rad(360)*200, 'confusionoffset', plr = 5}
+			ease {225.5, 1, outQuart, 0, 'confusionoffset', plr = 5}
+			
+			set {229.5, math.rad(360)*200, 'confusionoffset', plr = 5}
+			ease {229.5, 1, outQuart, 0, 'confusionoffset', plr = 5}
+	--]]
+	
+			set {280, 50, 'drunk', plr = 5}
+	
+	func{0,function()
+
+			mw_waves:xy(0,0)
+			mw_waves:rotationz(0)
+			mw_waves:linear(60*3)
+			mw_waves:rotationz(360*6)
+			for i=1,#mw do
+				
+				mw[i]:customtexturerect(.2,0.5,2,2.5)
+				mw[i]:texcoordvelocity(-1-math.sin(i*1.02)*.21,0)
+				mw[i]:y(150*2.5-i*150)
+				mw[i]:diffusealpha(.5)
+				mw[i]:zoom(2)
+				mw[i]:croptop(.25)
+				mw[i]:cropbottom(.25)
+			end
+		end}
+	
+	for i=1,table.getn(notedata) do
+			
+			local chimebeat=notedata[i][1]
+			local cn=notedata[i][2]
+			--me(chimebeat,1,80,100,'stealth'..cn,'len',linear,4,3)
+		--	me(chimebeat,1,-200,200,'tiny'..cn,'len',linear,4,3)
+			--me(chimebeat,1,100,50,'arrowpath'..cn,'len',linear,1,3)
+			
+			func{chimebeat,function()		
+				mw[cn+1]:stoptweening(0)
+				mw[cn+1]:hidden(0)
+				mw[cn+1]:diffusealpha(.5)
+				mw[cn+1]:zoomy(1)
+				mw[cn+1]:linear(bw_bt*2)
+				mw[cn+1]:diffusealpha(0)
+				mw[cn+1]:zoomy(0)
+			end}
+		end
+		--]]
+	
+	function bears()
+			local radi=64*3
+			local ang=360/#bear
+			local slpamt=bw_bt*2.0
+			local anim=bw_bt*15
+			beaws[1]:stoptweening(0)
+			beaws[1]:rotationz(0)
+			beaws[1]:linear(60)
+			beaws[1]:rotationz(-360*2.5)
+			for i=1,#bear do
+				local a=bear[i]
+				a:x(radi*math.sin(math.rad(ang*i)))
+				a:y(radi*math.cos(math.rad(ang*i)))
+				a:rotationz((-ang*i)+180+(0))
+				a:zoom(.9)
+				a:setstate(i)
+			end
+	end
+	
+	function arrows()
+
+		local ix=160
+		local iy=64*2
+		local startx=-200-ix-ix/4
+		local starty=-200-iy*2
+		
+		for i=1,#arr do
+			for j=1,8 do
+				
+				arr[i][j]:xy(startx+ix*i,starty+iy*j)
+				for k = 1,10 do
+				if i%2 == 0 then
+					arr[i][j]:rotationz(180)
+					arr[i][j]:tween(bw_bt * 4, function(t) return outSine(t) end)
+					arr[i][j]:addy(iy)
+					arr[i][j]:sleep(0)
+					arr[i][j]:xy(startx+ix*i,starty+iy*j)
+				else
+					arr[i][j]:rotationz(0)
+					arr[i][j]:tween(bw_bt * 4, function(t) return outSine(t) end)
+					arr[i][j]:addy(-iy)
+					arr[i][j]:sleep(0)
+					arr[i][j]:xy(startx+ix*i,starty+iy*j)
+				end
+				end
+			end
+		end
+
+	end
+	
+	function triangles()
+		for i=1,#tri do
+			local asd = i%2
+				for j=1,10 do
+					tri[i]:zoom(i*4)
+					tri[i]:diffuse(asd,asd,asd,1)
+					if i<2 then
+						tri[i]:linear(bw_bt*4)
+						tri[i]:zoom((i*4)-4)
+						tri[i]:sleep(bw_bt*4)
+					else
+						tri[i]:linear(bw_bt*8)
+						tri[i]:zoom((i*4)-8)
+						tri[i]:sleep(0)
+					end
+				end
+		end
+	end
+	
+	function bots()
+		local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+		end
+		dummy[2]:addcommand('Makedots',function(self) 
+			local difftable={
+			{107, 132, 126},
+			{203, 71, 67},
+			{185, 160, 43},
+			{90, 142, 74},
+			{113, 53, 82},
+			{166, 152, 130},
+			}
+			for i=1,#dot do
+			local rand=math.random(1,#difftable)
+			bot[i]:xy(math.random(-300,300),math.random(-300,300))
+			bot[i]:zoom(math.random(1,5)/100)
+			bot[i]:diffuse(rgba(difftable[rand][1],difftable[rand][2],difftable[rand][3],1))
+			
+			end
+			dummy[2]:sleep(bw_bt*.25)
+			dummy[2]:queuecommand('Makedots')
+		end)
+			dummy[2]:queuecommand('Makedots')
+	end
+	
+	function dots()
+		local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+		end
+		dummy[1]:addcommand('Bakedots',function(self) 
+			local difftable={
+			{107, 132, 126},
+			{203, 71, 67},
+			{185, 160, 43},
+			{90, 142, 74},
+			{113, 53, 82},
+			{166, 152, 130},
+			}
+			for i=1,#dot do
+			local rand=math.random(1,#difftable)
+			dot[i]:xy(math.random(-300,300),math.random(-300,300))
+			dot[i]:zoom(math.random(1,5)/100)
+			dot[i]:diffuse(rgba(difftable[rand][1],difftable[rand][2],difftable[rand][3],1))
+			
+			end
+			dummy[1]:sleep(bw_bt*.25)
+			dummy[1]:queuecommand('Bakedots')
+		end)
+			dummy[1]:queuecommand('Bakedots')
+	end
+	
+	function waves3()
+		local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+		end
+		ywavec[1]:rotationz(0)
+		ywavec[1]:fov(100)
+		for i=1,#ywave do
+			--ywave[i]:x(-sw+(sw/5)*2+(i*sw/5))
+			ywave[i]:diffuse(rgba(15, 27, 77, 1))
+			ywave[i]:rotationx(88)
+			ywave[i]:zoomx(.2)
+			ywave[i]:cropbottom(.2)
+			ywavew[i]:rotationz((360/#ywave)*i)
+			
+			ywaved[i]:diffuse(rgba(243, 199, 50, 1))
+			ywaved[i]:rotationx(88)
+			ywaved[i]:zoomx(.2)
+			
+			for j=1,15 do
+			
+			ywaved[i]:cropbottom(1)
+			ywaved[i]:croptop(-.01)
+			
+			ywaved[i]:tween(bw_bt * 4, function(t) return inCirc(t) end)
+			
+			ywaved[i]:cropbottom(-.4)
+			ywaved[i]:croptop(1)
+			ywaved[i]:sleep(bw_bt*2)
+			end
+			
+		end
+	end
+	
+	function waves2()
+		local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+		end
+		pwavec[1]:rotationz(-45)
+		for i=1,#pwave do
+			pwave[i]:x(-sw+(sw/5)*2+(i*sw/5))
+			pwave[i]:diffuse(rgba(240, 198, 39, 1))
+			pwave[i]:zoomy(3+math.abs(math.sin(i*1.23)))
+			
+		end
+	end
+	
+	function waves()
+		for i=1,#rwave do
+			rwave[i]:x(-sw+(sw/5)*2+(i*sw/5))
+			rwave[i]:rainbow()
+			rwave[i]:effectoffset(i)
+			rwave[i]:effectperiod(10)
+		end
+	end
+	
+	function vibes()
+		hquad[1]:xy(64*4,32*5)
+		hquad[1]:zoom(0)
+		hquad[1]:tween(bw_bt * 6, function(t) return outSine(t) end)
+		hquad[1]:xy(64,32)
+		hquad[1]:zoom(350)
+		
+		
+		hquad[2]:xy(64*4,32*5)
+		hquad[2]:zoom(0)
+		hquad[2]:tween(bw_bt * 6, function(t) return outSine(t) end)
+		hquad[2]:xy(64,32)
+		hquad[2]:zoom(354)
+		
+		
+		hv[1]:xy(-69*4,64*-4)
+		hv[1]:diffusealpha(0)
+		hv[1]:sleep(bw_bt*3)
+		hv[1]:tween(bw_bt * 4, function(t) return outBack(t) end)
+		hv[1]:xy(-69,64)
+		hv[1]:zoom(.5)
+		hv[1]:diffusealpha(1)
+		hv[1]:hidden(0)
+		hv[1]:sleep(0)
+		
+		hv[2]:cropright(1)
+		hv[2]:sleep(bw_bt*3)
+		hv[2]:hidden(0)
+		hv[2]:tween(bw_bt * 4, function(t) return outQuad(t) end)
+		hv[2]:cropright(0)
+		hv[2]:sleep(0)
+		
+		hv[3]:cropright(1)
+		hv[3]:sleep(bw_bt*3)
+		hv[3]:hidden(0)
+		hv[3]:tween(bw_bt * 4, function(t) return outQuad(t) end)
+		hv[3]:cropright(0)
+		hv[3]:sleep(0)
+	end
+	
+	function sines()
+		for i=1,#sine do
+			sine[i]:rainbow()
+			sine[i]:effectclock('bgm')
+			sine[i]:effectperiod(32)
+			sine[i]:effectoffset(i*3)
+		end
+	end
+	
+	function lonesome()
+			for i=1,#stl_sn do
+			local hhh=(math.floor(31/#stl_sn)*i)-math.floor(31/#stl_sn)
+				stl_sn[i]:xy2(0-math.sin(i)*200,0-math.cos(i)*200)
+				stl_sn[i]:rotationz(360/6*i)
+				stl_sn[i]:setstate(hhh)
+				stl_sn[i]:hidden(0)
+				stl_sn[i]:fadetop(.2)
+				stl_sn[i]:fadebottom(.2)
+				stl_sn[i]:zoom(.8)
+				stl_sn[i]:croptop(.05)
+				stl_sn[i]:cropbottom(.05)
+				
+				stl_sn[i]:wag()
+				stl_sn[i]:effectmagnitude(0,0,40)
+				stl_sn[i]:effectclock('bgm')
+				stl_sn[i]:effectperiod(8)
+				stl_sn[i]:effectoffset(i*.8)
+			end
+	end
+	
+	function waters()
+		for i=1,#water do
+			water[i]:diffuseshift()
+			water[i]:effectcolor1(145/255, 159/255, 186/255,1)
+			water[i]:effectcolor2(6/255, 31/255, 78/255,1)
+			water[i]:effectclock('bgm')
+			water[i]:effectperiod(32)
+			water[i]:effectoffset(i*3)
+		end
+	end
+	
+	function butterflies()
+		local bdfs={255/225,238/225,145/225}
+		local dfs={128/255,199/255,93/255}
+		bbg[1]:diffuse(dfs[1],dfs[2],dfs[3],1)
+		--for n=1,2 do
+		for k=1,#flock do
+			local rmult=1
+			if math.mod(k,2)==0 then rmult=-1 end
+			local radi=0
+			local radi2=64*8
+			local ang=360/5
+			local slpamt=bw_bt*3
+			local anim=bw_bt*15
+			flock[k]:sleep(slpamt*k)
+			flock[k]:linear(anim)
+			flock[k]:rotationz(90*rmult)
+			
+			flock[k]:sleep(bw_bt*9)
+			flock[k]:rotationz(0)
+			flock[k]:linear(anim)
+			flock[k]:rotationz(90*rmult)
+			for i = 1,5 do
+				local a=bfly[k][i]
+				local mult=1
+				a:zoom(.25)
+				a:zoomz(.25)
+				
+				a:x(radi*math.sin(math.rad(ang*i)))
+				a:y(radi*math.cos(math.rad(ang*i)))
+				a:rotationz((-ang*i)+180+(45*rmult))
+				a:sleep(slpamt*k)
+				a:linear(anim)
+				a:x(radi2*math.sin(math.rad(ang*i)))
+				a:y(radi2*math.cos(math.rad(ang*i)))
+				
+				a:sleep(bw_bt*9)
+				a:x(radi*math.sin(math.rad(ang*i)))
+				a:y(radi*math.cos(math.rad(ang*i)))
+				a:linear(anim)
+				a:x(radi2*math.sin(math.rad(ang*i)))
+				a:y(radi2*math.cos(math.rad(ang*i)))
+				
+				bbody[k][i]:diffuse(bdfs[1],bdfs[2],bdfs[3],0)
+				bbody[k][i]:sleep(slpamt*k)
+				bbody[k][i]:linear(bw_bt*1.5)
+				bbody[k][i]:diffusealpha(1)
+				
+				bbody[k][i]:sleep(anim-bw_bt*1.5)
+				bbody[k][i]:sleep(bw_bt*9)
+				bbody[k][i]:diffusealpha(0)
+				bbody[k][i]:linear(bw_bt*1.5)
+				bbody[k][i]:diffusealpha(1)
+				
+					for j=1,2 do
+						if j==2 then 
+							mult=-1 
+						end
+					
+					bwing[k][i][j]:x(-9*mult)
+					bwing[k][i][j]:diffuse(bdfs[1],bdfs[2],bdfs[3],0)
+					bwing[k][i][j]:wag()
+					bwing[k][i][j]:effectclock('bgm')
+					bwing[k][i][j]:effectmagnitude(0,45*mult,0)
+					bwing[k][i][j]:effectoffset(i*.5)
+					bwing[k][i][j]:effectperiod(4)
+					bwing[k][i][j]:sleep(slpamt*k)
+					bwing[k][i][j]:linear(bw_bt*1.5)
+					bwing[k][i][j]:diffusealpha(1)
+					bwing[k][i][j]:sleep(anim-bw_bt*1.5)
+					bwing[k][i][j]:sleep(bw_bt*9)
+					bwing[k][i][j]:diffusealpha(0)
+					bwing[k][i][j]:linear(bw_bt*1.5)
+					bwing[k][i][j]:diffusealpha(1)
+					
+					end --for j
+			end --for i
+		end --for k
+	--	end --for n
+	end --end function
+	
+	for i = 1, #hAFT do
+		sprite(hh[i]) -- set up the sprite
+		sprite(hx[i]) -- set up the sprite
+		aft(hAFT[i]) -- set up the aft
+		hh[i]:SetTexture(hAFT[i]:GetTexture()) -- set up the texture
+		hx[i]:SetTexture(hAFT[i]:GetTexture()) -- set up the texture
+	end
+	
+	noteskinPath='../../../../NoteSkins/Dance/'..GAMESTATE:GetCurrentNoteSkins()[1]..''
+	--curNoteskins= {GAMESTATE:GetFileStructure('NoteSkins/Dance/'..GAMESTATE:GetCurrentNoteSkins()[1]..'/')}
+	--curNoteskin= GAMESTATE:GetCurrentNoteSkins()[1]
+	
+	definemod{'proxymag',function(val)
+		proxies:effectmagnitude(0,0,val)
+	end}
+	
+	definemod {'bettertiny', function(tinyval,pn)
+		if pn<=4 then
+		for i=1,4 do
+		rec[5-pn][i]:zoom(tinyval)
+		end
+		local tiny = 200-200*tinyval
+		return tiny
+		end
+	end,
+	'tiny'
+	}
+	
+	local diffuses = {
+	{1,1,1,1},
+	{1,1,1,1},
+	{1,1,1,1},
+	{1,1,1,1},
+	}
+	func{0.1,function()
+		for pn=1,#PP do
+			PP[pn]:xyz(scx,scy,20)
+			--PP[pn]:rotationz(10)
+		end
+		--butterflies()
+		waters()
+		lonesome()
+		--vibes()
+		triangles()
+		
+		--bears()
+		--waves()
+		waves2()
+		--waves3()
+		--dots()
+		bots()
+		for i=1,#recrow do
+			local a=recrow[i]
+			a:xyz(scx,scy,20)
+			--a:wag()
+		end
+		
+		
+		for i=1,4 do
+			local a=rec[i]
+			for j=1,4 do
+			a[j]:xy(-32-64-64+64*j,-136)
+			end
+		end
+			
+		hh[1]:SetTexture(hAFT[4]:GetTexture())
+		hh[2]:SetTexture(hAFT[3]:GetTexture())
+		hh[3]:SetTexture(hAFT[2]:GetTexture())
+		hh[4]:SetTexture(hAFT[1]:GetTexture())
+		
+		hx[1]:SetTexture(hAFT[4]:GetTexture())
+		hx[2]:SetTexture(hAFT[3]:GetTexture())
+		hx[3]:SetTexture(hAFT[2]:GetTexture())
+		hx[4]:SetTexture(hAFT[1]:GetTexture())
+		
+
+		scprx[1]:SetTarget(P[5]:GetChild('NoteField'))
+		scprx[1]:zoom(1)
+		P[5]:GetChild('NoteField'):y(0)
+
+		P5:SetAwake(true)
+		
+	end}
+	
+	
+
+	--[[
+	func{2,function()
+		scprx[2]:x(-120)
+		scprx[2]:tween(bw_bt * 2, function(t) return outBack(t) end)
+		scprx[2]:zoom(0)
+	end}
+	
+	func{4,function()
+		scprx[3]:y(120)
+		scprx[3]:tween(bw_bt * 2, function(t) return outBack(t) end)
+		scprx[3]:zoom(0)
+	end}
+	
+	func{6,function()
+		scprx[4]:x(120)
+		scprx[4]:tween(bw_bt * 2, function(t) return outBack(t) end)
+		scprx[4]:zoom(0)
+	end}
+	--]]
+	func{0.1,1000,function()
+		for i=1,4 do
+			local a=rec[i]
+			for j=1,4 do
+			a[j]:x((-32-64-64+64*j)+GAMESTATE:GetX(i-1,j-1,0))
+			end
+		end
+	end}
+	
+	func{68,function()
+		maskquad:hidden(0)
+		maskquad:xy(scx,scy)
+		maskquad:linear(bw_bt*6)
+		maskquad:rotationz(180)
+		maskquad:zoom(1000)
+	end}
+	
+	
+		for i=0,3 do
+		set {0, 200, 'tiny'..i, plr = 5}
+		end
+		set {0, 100, 'dizzyholds', plr = 5}
+		set {0, 100, 'overhead', plr = {1,2,3,4,5}}
+		set {0, 100, 'modtimer', plr = {1,2,3,4,5}}
+		set {0, 1.8, 'xmod', plr = {1,2,3,4,5}}
+		--set {0, 100, 'drunk', plr = {1,2,3,4,5}}
+		set {0, -50, 'flip', plr = {1,2,3,4,5}}
+		--set {0, 0, 'beat', plr = {1,2,3,4,5}}
+		set {0, 100, 'zbuffer', plr = {1,2,3,4,5}}
+		set {0, 100, 'dark', plr = {1,2,3,4}}
+		set {0, 100, 'hidenoteflash', plr = {1,2,3,4}}
+		set {0, -100, 'drawsizeback', plr = {1,2,3,4}}
+		set {0, 50, 'drawsize', plr = {1,2,3,4}}
+		set {0, 100, 'dizzyholds', plr = {1,2,3,4,5}}
+	--	set {0, 1000, 'beat', plr = {1}}
+		--set {1, 100, 'beat', plr = {1,2,3,4}}
+	
+		ease {0.1, bw_bt*3, outBack, -100, 'tiny3', plr = 5}
+		ease {2.0, bw_bt*3, outBack, -100, 'tiny2', plr = 5}
+		ease {4.0, bw_bt*3, outBack, -100, 'tiny1', plr = 5}
+		ease {6.0, bw_bt*3, outBack, -100, 'tiny0', plr = 5}
+		
+		func{30,function()
+			proxies:zoom(0)
+		end}
+		
+		for i=0,3 do
+		set {73, 0, 'tiny'..i, plr = 5}
+		end
+		set {70, 100, 'stealth', plr = 5}
+		set {70, 100, 'dark', plr = 5}
+		set {70, 0, 'flip', plr = 5}
+		set {70, 0, 'drawsize', plr = 5}
+		set {70, 1, 'xmod', plr = 5}
+		set {70, 0, 'mini', plr = 5}
+		
+		ease {73, 4, linear, 0, 'stealth', plr = 5}
+		ease {73, 4, linear, 0, 'dark', plr = 5}
+		ease {94, 20, linear, 20, 'proxymag'}
+
+		for i=0,14 do
+		local mmm=6.25
+		set {71+mmm*i, 0, 'movey', plr = 5}
+		ease {71.0+mmm*i, mmm, linear, 625, 'movey', plr = 5}
+		end
+		--ease {75, 4, outBack, 100, 'zoom', plr = 5}
+		
+		func{73,function()
+			local ph=400
+			proxies:zoomy(1)
+			proxies:zoomx(0)
+			proxies:tween(bw_bt * 4, function(t) return inOutSine(t) end)
+			proxies:zoom(1)
+			for i=1,3 do
+				scprx[i]:SetTarget(P[5]:GetChild('NoteField'))
+				scprx[i]:y(((-ph*3)+ph*i)+20)
+				if i>2 then
+				scprx[i]:zoom(1)
+				else
+				scprx[i]:zoomy(1)
+				scprx[i]:zoomx(1)
+				end
+				
+			end
+		end}
+		
+		func{73,function()
+			proxies:wag()
+			proxies:effectmagnitude(0,0,0)
+			proxies:effectclock('bgm')
+			proxies:effectperiod(8)
+		end}
+		
+		func{183,function()
+			local radi=64*2
+			local ang=360/4
+			--proxies:linear(60)
+		--	proxies:rotationz(-360*2.5)
+			proxies:xy(0,0)
+			for i=1,#scprx do
+				local a=scprx[i]
+				scprx[i]:SetTarget(P[5]:GetChild('NoteField'))
+				a:x(radi*math.sin(math.rad(ang*i)))
+				a:y(radi*math.cos(math.rad(ang*i)))
+				--a:rotationz((-ang*i)+180+(9))
+				a:zoom(.5)
+				a:hidden(0)
+				a:wag()
+				a:effectmagnitude(0,0,-180)
+				a:effectclock('bgm')
+				a:effectperiod(32)
+				a:effectoffset(0)
+				
+			end
+		end}
+		
+		func{183,function()
+			proxies:wag()
+			proxies:xy(0,0)
+			proxies:effectmagnitude(0,0,180)
+			proxies:effectclock('bgm')
+			proxies:effectperiod(32)
+			proxies:effectoffset(0)
+		end}
+		ease {181, 0, linear, 0, 'proxymag'}
+		set {183, 0, 'movey', plr = 5}
+		set {183, 0, 'stealth', plr = 5}
+		set {183, 0, 'dark', plr = 5}
+		set {183, 100, 'sudden', plr = 5}
+		set {183, 100, 'suddenoffset', plr = 5}
+		set {183, 100, 'suddenoffset', plr = 5}
+		
+		func{82,function()
+
+			for i=1,2 do
+
+				scprx[i]:tween(bw_bt * 4, function(t) return inOutSine(t) end)
+				scprx[i]:zoomy(1)
+				scprx[i]:zoomx(1)
+			end
+		end}
+	
+		local loops=-1
+	--[[
+	for i=0,8*10,8 do
+	
+		if loops <= 2 then
+			loops = loops+1
+		elseif loops>2 then
+			loops = 0
+		end
+		set {1+i, -zoomamount*3+200, 'tiny', plr = {1}}
+		set {1+i, -zoomamount*2+200, 'tiny', plr = {2}}
+		set {1+i, -zoomamount+200, 'tiny', plr = {3}}
+		set {1+i, 0+200, 'tiny', plr = {4}}
+		
+		ease {1+i, 8, linear, -zoomamount*2+200, 'tiny', plr = {1}}
+		ease {1+i, 8, linear, -zoomamount+200, 'tiny', plr = {2}}
+		ease {1+i, 8, linear, 0+200, 'tiny', plr = {3}}
+		ease {1+i, 8, linear, 200, 'tiny', plr = {4}}
+		local dval = loops
+		func{1+i,function()
+		--SCREENMAN:SystemMessage('a '..loops)
+		-- 2 3 4 5
+		-- 3 4 5 6
+		-- 4 5 6 7
+		-- 5 6 7 8
+			for j=1,#hh do
+			
+				 dval = dval+j
+				 
+				 if dval>#diffuses then
+				  dval=dval-#diffuses
+				 end
+				
+					hh[j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+					
+					Trace('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA '..dval)
+			end
+		end}
+	end
+	--]]
+	
+	
+	local dur=8
+	local zmult=1.5
+	local zoomamount=3
+	local durb = 11
+	
+	
+	for i=1,2 do
+	
+		func{21-dur+dur*i,function()
+			if i>1 then
+				scene[1][i-1]:hidden(1)
+				scene[1][i]:hidden(0)
+			end
+		end}
+	
+	end
+	
+	for i=1,2 do
+	
+		func{(21+dur)-dur+dur*i,function()
+			if i>1 then
+				scene[2][i-1]:hidden(1)
+				scene[2][i]:hidden(0)
+			end
+		end}
+	
+	end
+	
+	for i=1,2 do
+	
+		func{(21+dur*2)-dur+dur*i,function()
+			if i>1 then
+				scene[3][i-1]:hidden(1)
+				scene[3][i]:hidden(0)
+			end
+		end}
+	
+	end
+	
+	for i=1,2 do
+	
+		func{(21+dur*3)-dur+dur*i,function()
+			if i>1 then
+				scene[4][i-1]:hidden(1)
+				scene[4][i]:hidden(0)
+			end
+		end}
+	
+	end
+	
+	func{21,function()
+		arrows()
+	end}
+	
+	func{53,function()
+		scene[1][1]:hidden(0)
+		scene[1][2]:hidden(1)
+	end}
+	
+		set {0, zoomamount*(7*zmult), 'bettertiny', plr = 4}
+		set {0, zoomamount*(6*zmult), 'bettertiny', plr = 3}
+		set {0, zoomamount*(5*zmult), 'bettertiny', plr = 2}
+		set {0, zoomamount*(4*zmult), 'bettertiny', plr = 1}
+		
+		ease {12-durb, durb, linear, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		ease {12-durb, durb, linear, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		ease {12-durb, durb, linear, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		ease {12-durb, durb, linear, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+	
+	
+	for i=0,dur*8,dur do
+    local i2 = i/dur
+		if i<dur*8 then
+		set {12+i, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		set {12+i, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		set {12+i, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		set {12+i, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+		
+		
+		ease {12+i, dur, linear, zoomamount*(3*zmult), 'bettertiny', plr = 4}
+		ease {12+i, dur, linear, zoomamount*(2*zmult), 'bettertiny', plr = 3}
+		ease {12+i, dur, linear, zoomamount*(1*zmult), 'bettertiny', plr = 2}
+		
+		end
+		
+		
+		ease {12+i, dur, linear, 0, 'bettertiny', plr = 1}
+		--
+	local framenum=0
+	if i>3 and i<dur*8 then
+    func{12.0+i,.2,function()
+		
+		if framenum==1 then
+        for j=1,#hh do
+        local dval = (j + i2 - 1) % 4 + 1
+           -- Trace(dval)
+			--hh[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hh[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+		end
+		framenum=framenum+1
+    end}
+	
+	func{12.0+i,function()
+        for j=1,#hx do
+        local dval = (j + i2 - 1) % 4 + 1
+            --Trace(dval)
+			--hx[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hx[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+
+    end} --]]
+		
+	end
+end
+------------------------------------------------------- second time
+func{130,function()
+		maskquad:stoptweening()
+		maskquad:zoom(0)
+	end}
+func{130,function()
+
+		hh[1]:SetTexture(hAFT[4]:GetTexture())
+		hh[2]:SetTexture(hAFT[3]:GetTexture())
+		hh[3]:SetTexture(hAFT[2]:GetTexture())
+		hh[4]:SetTexture(hAFT[1]:GetTexture())
+		
+		hx[1]:SetTexture(hAFT[4]:GetTexture())
+		hx[2]:SetTexture(hAFT[3]:GetTexture())
+		hx[3]:SetTexture(hAFT[2]:GetTexture())
+		hx[4]:SetTexture(hAFT[1]:GetTexture())
+		
+		for i=2,4 do
+		scene[i][1]:hidden(1)
+		scene[i][2]:hidden(1)
+		scene[i][3]:hidden(0)
+		end
+		waves()
+		waves3()
+		sines()
+		bears()
+	end}
+	
+func{151,function()
+		scene[1][1]:hidden(1)
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(0)
+end}
+
+func{159,function()
+		scene[2][3]:hidden(1)
+		scene[2][4]:hidden(0)
+end}
+
+func{159+8,function()
+		scene[3][3]:hidden(1)
+		scene[3][4]:hidden(0)
+end}
+
+func{159+8*2,function()
+		scene[4][3]:hidden(1)
+		scene[4][4]:hidden(0)
+end}
+
+func{159+8*3,function()
+		scene[1][1]:hidden(0)
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(1)
+end}
+
+func{130+68,function()
+		maskquad:hidden(0)
+		maskquad:rotationz(0)
+		maskquad:xy(scx,scy)
+		maskquad:linear(bw_bt*6)
+		maskquad:rotationz(180)
+		maskquad:zoom(1000)
+	end}
+
+set {130+0, zoomamount*(7*zmult), 'bettertiny', plr = 4}
+		set {130+0, zoomamount*(6*zmult), 'bettertiny', plr = 3}
+		set {130+0, zoomamount*(5*zmult), 'bettertiny', plr = 2}
+		set {130+0, zoomamount*(4*zmult), 'bettertiny', plr = 1}
+		
+		ease {130+12-durb, durb, linear, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		ease {130+12-durb, durb, linear, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		ease {130+12-durb, durb, linear, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		ease {130+12-durb, durb, linear, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+	
+	
+	for i=0,dur*8,dur do
+    local i2 = i/dur
+		if i<dur*8 then
+		set {130+12+i, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		set {130+12+i, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		set {130+12+i, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		set {130+12+i, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+		
+		
+		ease {130+12+i, dur, linear, zoomamount*(3*zmult), 'bettertiny', plr = 4}
+		ease {130+12+i, dur, linear, zoomamount*(2*zmult), 'bettertiny', plr = 3}
+		ease {130+12+i, dur, linear, zoomamount*(1*zmult), 'bettertiny', plr = 2}
+		
+		end
+		
+		
+		ease {130+12+i, dur, linear, 0, 'bettertiny', plr = 1}
+		--
+	local framenum=0
+	if i>3 and i<dur*8 then
+    func{130+12.0+i,.2,function()
+		
+		if framenum==1 then
+        for j=1,#hh do
+        local dval = (j + i2 - 1) % 4 + 1
+           -- Trace(dval)
+			--hh[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hh[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+		end
+		framenum=framenum+1
+    end}
+	
+	func{130+12.0+i,function()
+        for j=1,#hx do
+        local dval = (j + i2 - 1) % 4 + 1
+            --Trace(dval)
+			--hx[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hx[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+
+    end} --]]
+		
+	end
+end
+
+--------------------- third time
+func{128+130,function()
+		maskquad:stoptweening()
+		maskquad:zoom(0)
+	end}
+func{128+130,function()
+
+		hh[1]:SetTexture(hAFT[4]:GetTexture())
+		hh[2]:SetTexture(hAFT[3]:GetTexture())
+		hh[3]:SetTexture(hAFT[2]:GetTexture())
+		hh[4]:SetTexture(hAFT[1]:GetTexture())
+		
+		hx[1]:SetTexture(hAFT[4]:GetTexture())
+		hx[2]:SetTexture(hAFT[3]:GetTexture())
+		hx[3]:SetTexture(hAFT[2]:GetTexture())
+		hx[4]:SetTexture(hAFT[1]:GetTexture())
+		
+		for i=2,4 do
+		scene[i][1]:hidden(1)
+		scene[i][2]:hidden(1)
+		scene[i][3]:hidden(1)
+		scene[i][4]:hidden(1)
+		scene[i][5]:hidden(0)
+		end
+		butterflies()
+		waves()
+		waves3()
+		sines()
+		bears()
+		
+	end}
+	
+func{128+151,function()
+		scene[1][1]:hidden(1)
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(0)
+end}
+
+func{128+159,function()
+		scene[2][3]:hidden(1)
+		scene[2][4]:hidden(1)
+		scene[2][5]:hidden(1)
+		scene[2][6]:hidden(0)
+		scene[2][6]:SetTarget(scene[4][4])
+end}
+
+func{286,function()
+		vibes()
+end}
+
+
+
+func{128+159+8,function()
+		scene[3][2]:hidden(1)
+		scene[3][3]:hidden(1)
+		scene[3][4]:hidden(1)
+		scene[3][5]:hidden(1)
+		scene[3][1]:hidden(0)
+		triangles()
+end}
+
+func{128+159+8*2,function()
+		scene[4][2]:hidden(1)
+		scene[4][3]:hidden(1)
+		scene[4][4]:hidden(1)
+		scene[4][5]:hidden(1)
+		scene[4][1]:hidden(0)
+end}
+
+func{128+159+8*3,function()
+		scene[1][1]:hidden(0)
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(1)
+end}
+
+func{318,function()
+		scene[2][6]:hidden(1)
+		scene[2][4]:hidden(0)
+
+end}
+
+func{318+8,function()
+		scene[3][2]:hidden(1)
+		scene[3][3]:hidden(1)
+		scene[3][4]:hidden(1)
+		scene[3][5]:hidden(1)
+		scene[3][1]:hidden(1)
+		scene[3][6]:hidden(0)
+		scene[3][6]:SetTarget(scene[4][3])
+		--arrows()
+
+end}
+
+func{318+8*2,function()
+		scene[4][2]:hidden(1)
+		scene[4][3]:hidden(1)
+		scene[4][4]:hidden(1)
+		scene[4][5]:hidden(1)
+		scene[4][1]:hidden(1)
+		scene[4][6]:hidden(0)
+		scene[4][6]:SetTarget(scene[1][2])
+		arrows()
+
+end}
+
+func{318+8*3,function()
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(1)
+		scene[1][4]:hidden(0)
+		scene[1][4]:SetTarget(scene[2][1])
+
+end}
+
+func{318+8*4,function()
+		scene[2][2]:hidden(1)
+		scene[2][3]:hidden(1)
+		scene[2][4]:hidden(1)
+		scene[2][5]:hidden(0)
+		scene[2][1]:hidden(1)
+		scene[2][6]:hidden(1)
+		scene[2][6]:SetTarget(scene[1][2])
+		butterflies()
+
+end}
+
+
+func{318+8*5,function()
+		scene[3][2]:hidden(0)
+		scene[3][3]:hidden(1)
+		scene[3][4]:hidden(1)
+		scene[3][5]:hidden(1)
+		scene[3][1]:hidden(1)
+		scene[3][6]:hidden(1)
+		scene[3][6]:SetTarget(scene[1][2])
+
+end}
+
+func{318+8*6,function()
+		scene[4][2]:hidden(1)
+		scene[4][3]:hidden(1)
+		scene[4][4]:hidden(1)
+		scene[4][5]:hidden(1)
+		scene[4][1]:hidden(1)
+		scene[4][6]:hidden(0)
+		scene[4][6]:SetTarget(scene[2][2])
+
+end}
+
+func{318+8*7,function()
+		scene[1][2]:hidden(1)
+		scene[1][3]:hidden(1)
+		scene[1][4]:hidden(0)
+		scene[1][4]:SetTarget(scene[3][5])
+
+end}
+
+func{318+8*8,function()
+		scene[2][2]:hidden(1)
+		scene[2][3]:hidden(1)
+		scene[2][4]:hidden(1)
+		scene[2][5]:hidden(1)
+		scene[2][1]:hidden(1)
+		scene[2][6]:hidden(0)
+		scene[2][6]:SetTarget(scene[1][1])
+		scene[2][7]:hidden(1)
+		proxies:hidden(1)
+end}
+
+func{318+8*9,function()
+		scene[3][2]:hidden(1)
+		scene[3][3]:hidden(1)
+		scene[3][4]:hidden(1)
+		scene[3][5]:hidden(1)
+		scene[3][1]:hidden(1)
+		scene[3][6]:hidden(0)
+		scene[3][6]:SetTarget(scene[1][1])
+end}
+
+func{318+8*10,function()
+		scene[4][2]:hidden(1)
+		scene[4][3]:hidden(1)
+		scene[4][4]:hidden(1)
+		scene[4][5]:hidden(1)
+		scene[4][1]:hidden(1)
+		scene[4][6]:hidden(0)
+		scene[4][6]:SetTarget(scene[1][1])
+		maskquad:hidden(0)
+		maskquad:xy(scx,scy)
+		maskquad:linear(bw_bt*6)
+		maskquad:rotationz(180)
+		maskquad:zoom(1000)
+end}
+
+
+
+set {128+130+0, zoomamount*(7*zmult), 'bettertiny', plr = 4}
+		set {128+130+0, zoomamount*(6*zmult), 'bettertiny', plr = 3}
+		set {128+130+0, zoomamount*(5*zmult), 'bettertiny', plr = 2}
+		set {128+130+0, zoomamount*(4*zmult), 'bettertiny', plr = 1}
+		
+		ease {128+130+12-durb, durb, linear, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		ease {128+130+12-durb, durb, linear, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		ease {128+130+12-durb, durb, linear, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		ease {128+130+12-durb, durb, linear, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+	
+	
+	for i=0,dur*16+8,dur do
+    local i2 = i/dur
+		if i<dur*16+8 then
+		set {128+130+12+i, zoomamount*(4*zmult), 'bettertiny', plr = 4}
+		set {128+130+12+i, zoomamount*(3*zmult), 'bettertiny', plr = 3}
+		set {128+130+12+i, zoomamount*(2*zmult), 'bettertiny', plr = 2}
+		set {128+130+12+i, zoomamount*(1*zmult), 'bettertiny', plr = 1}
+		
+		
+		ease {128+130+12+i, dur, linear, zoomamount*(3*zmult), 'bettertiny', plr = 4}
+		ease {128+130+12+i, dur, linear, zoomamount*(2*zmult), 'bettertiny', plr = 3}
+		ease {128+130+12+i, dur, linear, zoomamount*(1*zmult), 'bettertiny', plr = 2}
+		
+		end
+		
+		
+		ease {128+130+12+i, dur, linear, 0, 'bettertiny', plr = 1}
+		--
+	local framenum=0
+	if i>3 and i<dur*16+8 then
+    func{128+130+12.0+i,.2,function()
+		
+		if framenum==1 then
+        for j=1,#hh do
+        local dval = (j + i2 - 1) % 4 + 1
+           -- Trace(dval)
+			--hh[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hh[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+		end
+		framenum=framenum+1
+    end}
+	
+	func{128+130+12.0+i,function()
+        for j=1,#hx do
+        local dval = (j + i2 - 1) % 4 + 1
+            --Trace(dval)
+			--hx[5-j]:diffuse(diffuses[(dval - 1) % 4 + 1][1],diffuses[(dval - 1) % 4 + 1][2],diffuses[(dval - 1) % 4 + 1][3],diffuses[(dval - 1) % 4 + 1][4])
+			hx[5-j]:SetTexture(hAFT[dval]:GetTexture())
+        end
+
+    end} --]]
+		
+	end
+end
+
+	
+end)"
+Type = "ActorFrame"
+Fov="90"><children>
+
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(0,1,0,1); self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); end" />
+
+	<Layer File="scenes/1/scenes.xml" Name = "scenes[1]" OnCommand="%function(self) self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y) end" />
+
+<Layer Type = "ActorFrameTexture" Name = "hAFT[1]" />
+
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(1,0,0,1); self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); end" />
+
+	<Layer File="scenes/2/scenes.xml" Name = "scenes[2]" OnCommand="%function(self) self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y) end" />
+
+<Layer Type = "ActorFrameTexture" Name = "hAFT[2]" />
+
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(0,0,0,1); self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); end" />
+
+	<Layer File="scenes/3/scenes.xml" Name = "scenes[3]" OnCommand="%function(self) self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y) end" />
+	
+<Layer Type = "ActorFrameTexture" Name = "hAFT[3]" />
+
+<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(0,0,0,1); self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); end" />
+
+	<Layer File="scenes/4/scenes.xml" Name = "scenes[4]" OnCommand="%function(self) self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y) end" />
+
+<Layer Type = "ActorFrameTexture" Name = "hAFT[4]" />
+
+
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	
+	
+	
+	
+	<Layer Type = "ActorFrame" Name = "recrow[1]"><children>
+		<Layer File="@xero.bw_plrnoteskin2..'/Left Receptor Go'" Name = "rec[1][1]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Down Receptor Go'" Name = "rec[1][2]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Up Receptor Go'" Name = "rec[1][3]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Right Receptor Go'" Name = "rec[1][4]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+	</children></Layer>
+	
+	<Layer Type = "Sprite" Texture="white.png" Name = "hx[1]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	
+	<Layer Type = "Sprite" Texture="white.png" Name = "hh[1]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	
+	
+
+	<Layer Type = "ActorFrame" Name = "recrow[2]"><children>
+		<Layer File="@xero.bw_plrnoteskin..'/Left Receptor Go'" Name = "rec[2][1]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Down Receptor Go'" Name = "rec[2][2]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Up Receptor Go'" Name = "rec[2][3]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Right Receptor Go'" Name = "rec[2][4]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+	</children></Layer>
+	
+	<Layer Type = "Sprite" Texture="white.png" Name = "hx[2]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	
+	<Layer Type = "Sprite" Texture="white.png" Name = "hh[2]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	
+	
+
+	<Layer Type = "ActorFrame" Name = "recrow[3]"><children>
+		<Layer File="@xero.bw_plrnoteskin2..'/Left Receptor Go'" Name = "rec[3][1]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Down Receptor Go'" Name = "rec[3][2]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Up Receptor Go'" Name = "rec[3][3]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin2..'/Right Receptor Go'" Name = "rec[3][4]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+	</children></Layer>
+	<Layer Type = "Sprite" Texture="white.png" Name = "hx[3]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	<Layer Type = "ActorProxy" Name = "PP[3]" />
+	
+	<Layer Type = "Quad" Name="maskquad" OnCommand="%function(self) self:zwrite(1); self:hidden(1); self:blend('noeffect'); end" />
+	<Layer Type = "Sprite" Texture="white.png" Name = "hh[3]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0);  end" />
+	
+	
+
+	<Layer Type = "ActorFrame" Name = "recrow[4]"><children>
+		<Layer File="@xero.bw_plrnoteskin..'/Left Receptor Go'" Name = "rec[4][1]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Down Receptor Go'" Name = "rec[4][2]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Up Receptor Go'" Name = "rec[4][3]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+		
+		<Layer File="@xero.bw_plrnoteskin..'/Right Receptor Go'" Name = "rec[4][4]" OnCommand="%function(self) 
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+		self:zoom(1) 
+				local asdff
+			if self.GetChildAt then
+				asdff=self:GetChildAt(0)
+				else
+				asdff=self
+			end
+				asdff:zwrite(1)
+				asdff:blend('noeffect')
+				asdff:rotationz(0)
+		end" />
+	</children></Layer>
+	<Layer Type = "Sprite" Texture="white.png" Name = "hx[4]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0); end" />
+	<Layer Type = "ActorProxy" Name = "PP[4]" />
+	
+	<Layer Type = "Sprite" Texture="white.png" Name = "hh[4]" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:ztestmode('writeonfail')
+	end" />
+	<Layer Type = "Quad" OnCommand="%function(self) self:clearzbuffer(1); self:diffusealpha(0);  end" />
+	
+	<Layer File = "vingette.png" Name = "vingette" OnCommand="%function(self) 
+	self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y); 
+	self:zoom(.0); 
+	end" />
+	
+	
+<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+
+	
+
+<Layer File="notedata1.xml" />
+<Layer File="bwdata.xml" />
+	
+</children></Mods>

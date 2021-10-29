@@ -1,0 +1,48 @@
+<Layer Type="ActorFrame" ><children>
+
+<Layer Type="Quad"
+			OnCommand="%function(self)
+			self:zoom(1000)
+			self:diffuse(.25,0,0,1)
+			end"
+			
+		/>
+		
+		
+		<Layer Type="ActorFrame" Name="mw_squares"><children>
+				<Layer File="w1.png" Name="mq[1]"
+				OnCommand="%function(self)
+					self:xy(0,0)
+					self:hidden(1)
+
+				end"
+				/>
+				
+				<Layer File="w2.png" Name="mq[2]"
+				OnCommand="%function(self)
+					self:xy(0,0)
+					self:hidden(1)
+
+				end"
+				/>
+				
+				<Layer File="w3.png" Name="mq[3]"
+				OnCommand="%function(self)
+					self:xy(0,0)
+					self:hidden(1)
+
+				end"
+				/>
+				
+				<Layer File="w4.png" Name="mq[4]"
+				OnCommand="%function(self)
+					self:xy(0,0)
+					self:hidden(1)
+
+				end"
+				/>
+
+		</children></Layer>
+
+
+</children></Layer>

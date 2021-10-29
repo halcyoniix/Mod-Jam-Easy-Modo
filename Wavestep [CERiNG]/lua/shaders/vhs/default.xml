@@ -1,0 +1,62 @@
+<ActorFrame
+  OnCommand="%function( self )
+    self:fov( 60 )
+  end"
+><children>
+		<Layer
+		File="random.png"
+		OnCommand="%function(self)
+
+			self:x(SCREEN_CENTER_X);
+			self:y(SCREEN_CENTER_Y);
+			self:zoomto((DISPLAY:GetDisplayWidth()),(DISPLAY:GetDisplayHeight()));
+			self:ztestmode('writeonfail');
+			self:hidden(1)
+			spriteRandom = self;
+
+			end"
+		/>
+  <Layer Type="ActorFrameTexture"
+    OnCommand="%function( self )
+      self:SetWidth( DISPLAY:GetDisplayWidth() )
+      self:SetHeight( DISPLAY:GetDisplayHeight() )
+      self:EnableDepthBuffer( true )
+      self:EnableAlphaBuffer( true )
+      self:EnableFloat( true )
+      self:EnablePreserveTexture( true )
+
+      self:Create()
+	
+      duhAft = self
+    end"
+  />
+  <Layer Type="Sprite"
+    Shader="vhs.frag"
+    OnCommand="%function( self )
+      self:x( SCREEN_CENTER_X )
+      self:y( SCREEN_CENTER_Y )
+      self:basezoomx( ( SCREEN_WIDTH ) / DISPLAY:GetDisplayWidth() )
+      self:basezoomy( -( SCREEN_HEIGHT ) / DISPLAY:GetDisplayHeight() )
+      self:SetTexture( duhAft:GetTexture() )
+	  self:blend('add')
+      self:queuecommand( 'Update' )
+    end"
+
+    UpdateCommand="%function( self )
+      local beat = GAMESTATE:GetSongBeat()
+
+		--self:GetShader():uniform1f( 'auxblackhole', math.sin(beat) )
+
+		self:GetShader():uniformTexture( 'samplerRandom', spriteRandom:GetTexture() )
+		
+      self:sleep( 0.02 )
+      self:queuecommand( 'Update' )
+    end"
+  />
+
+  <Layer Type="ActorFrame"
+    OnCommand="%function( self )
+      self:sleep( 9E9 )
+    end"
+  />
+</children><ActorFrame>

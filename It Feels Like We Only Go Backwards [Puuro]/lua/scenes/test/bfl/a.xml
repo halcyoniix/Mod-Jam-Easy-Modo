@@ -1,0 +1,274 @@
+<Layer Type="ActorFrame" ><children>
+<Layer Type="Quad" Name="bbg[1]" OnCommand="%function(self) self:zoom(1000); self:diffuse(255/225,238/225,145/225,1); end"/>
+<Layer Type="ActorFrame" OnCommand="%function(self) self:fov(70) end"><children>
+
+	<Layer Type="ActorFrame" Name="flock[1]"><children>
+		<Layer Type="ActorFrame" Name="bfly[1][1]"><children>
+			<Layer File="body.png" Name="bbody[1][1]"/>
+			<Layer File="wing.png" Name="bwing[1][1][1]"/>
+			<Layer File="wing.png" Name="bwing[1][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[1][2]"><children>
+			<Layer File="body.png" Name="bbody[1][2]"/>
+			<Layer File="wing.png" Name="bwing[1][2][1]"/>
+			<Layer File="wing.png" Name="bwing[1][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[1][3]"><children>
+			<Layer File="body.png" Name="bbody[1][3]"/>
+			<Layer File="wing.png" Name="bwing[1][3][1]"/>
+			<Layer File="wing.png" Name="bwing[1][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[1][4]"><children>
+			<Layer File="body.png" Name="bbody[1][4]"/>
+			<Layer File="wing.png" Name="bwing[1][4][1]"/>
+			<Layer File="wing.png" Name="bwing[1][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[1][5]"><children>
+			<Layer File="body.png" Name="bbody[1][5]"/>
+			<Layer File="wing.png" Name="bwing[1][5][1]"/>
+			<Layer File="wing.png" Name="bwing[1][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	
+	<Layer Type="ActorFrame" Name="flock[2]"><children>
+		<Layer Type="ActorFrame" Name="bfly[2][1]"><children>
+			<Layer File="body.png" Name="bbody[2][1]"/>
+			<Layer File="wing.png" Name="bwing[2][1][1]"/>
+			<Layer File="wing.png" Name="bwing[2][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[2][2]"><children>
+			<Layer File="body.png" Name="bbody[2][2]"/>
+			<Layer File="wing.png" Name="bwing[2][2][1]"/>
+			<Layer File="wing.png" Name="bwing[2][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[2][3]"><children>
+			<Layer File="body.png" Name="bbody[2][3]"/>
+			<Layer File="wing.png" Name="bwing[2][3][1]"/>
+			<Layer File="wing.png" Name="bwing[2][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[2][4]"><children>
+			<Layer File="body.png" Name="bbody[2][4]"/>
+			<Layer File="wing.png" Name="bwing[2][4][1]"/>
+			<Layer File="wing.png" Name="bwing[2][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[2][5]"><children>
+			<Layer File="body.png" Name="bbody[2][5]"/>
+			<Layer File="wing.png" Name="bwing[2][5][1]"/>
+			<Layer File="wing.png" Name="bwing[2][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Name="flock[3]"><children>
+		<Layer Type="ActorFrame" Name="bfly[3][1]"><children>
+			<Layer File="body.png" Name="bbody[3][1]"/>
+			<Layer File="wing.png" Name="bwing[3][1][1]"/>
+			<Layer File="wing.png" Name="bwing[3][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[3][2]"><children>
+			<Layer File="body.png" Name="bbody[3][2]"/>
+			<Layer File="wing.png" Name="bwing[3][2][1]"/>
+			<Layer File="wing.png" Name="bwing[3][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[3][3]"><children>
+			<Layer File="body.png" Name="bbody[3][3]"/>
+			<Layer File="wing.png" Name="bwing[3][3][1]"/>
+			<Layer File="wing.png" Name="bwing[3][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[3][4]"><children>
+			<Layer File="body.png" Name="bbody[3][4]"/>
+			<Layer File="wing.png" Name="bwing[3][4][1]"/>
+			<Layer File="wing.png" Name="bwing[3][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[3][5]"><children>
+			<Layer File="body.png" Name="bbody[3][5]"/>
+			<Layer File="wing.png" Name="bwing[3][5][1]"/>
+			<Layer File="wing.png" Name="bwing[3][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Name="flock[4]"><children>
+		<Layer Type="ActorFrame" Name="bfly[4][1]"><children>
+			<Layer File="body.png" Name="bbody[4][1]"/>
+			<Layer File="wing.png" Name="bwing[4][1][1]"/>
+			<Layer File="wing.png" Name="bwing[4][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[4][2]"><children>
+			<Layer File="body.png" Name="bbody[4][2]"/>
+			<Layer File="wing.png" Name="bwing[4][2][1]"/>
+			<Layer File="wing.png" Name="bwing[4][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[4][3]"><children>
+			<Layer File="body.png" Name="bbody[4][3]"/>
+			<Layer File="wing.png" Name="bwing[4][3][1]"/>
+			<Layer File="wing.png" Name="bwing[4][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[4][4]"><children>
+			<Layer File="body.png" Name="bbody[4][4]"/>
+			<Layer File="wing.png" Name="bwing[4][4][1]"/>
+			<Layer File="wing.png" Name="bwing[4][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[4][5]"><children>
+			<Layer File="body.png" Name="bbody[4][5]"/>
+			<Layer File="wing.png" Name="bwing[4][5][1]"/>
+			<Layer File="wing.png" Name="bwing[4][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Name="flock[5]"><children>
+		<Layer Type="ActorFrame" Name="bfly[5][1]"><children>
+			<Layer File="body.png" Name="bbody[5][1]"/>
+			<Layer File="wing.png" Name="bwing[5][1][1]"/>
+			<Layer File="wing.png" Name="bwing[5][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[5][2]"><children>
+			<Layer File="body.png" Name="bbody[5][2]"/>
+			<Layer File="wing.png" Name="bwing[5][2][1]"/>
+			<Layer File="wing.png" Name="bwing[5][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[5][3]"><children>
+			<Layer File="body.png" Name="bbody[5][3]"/>
+			<Layer File="wing.png" Name="bwing[5][3][1]"/>
+			<Layer File="wing.png" Name="bwing[5][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[5][4]"><children>
+			<Layer File="body.png" Name="bbody[5][4]"/>
+			<Layer File="wing.png" Name="bwing[5][4][1]"/>
+			<Layer File="wing.png" Name="bwing[5][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[5][5]"><children>
+			<Layer File="body.png" Name="bbody[5][5]"/>
+			<Layer File="wing.png" Name="bwing[5][5][1]"/>
+			<Layer File="wing.png" Name="bwing[5][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Name="flock[6]"><children>
+		<Layer Type="ActorFrame" Name="bfly[6][1]"><children>
+			<Layer File="body.png" Name="bbody[6][1]"/>
+			<Layer File="wing.png" Name="bwing[6][1][1]"/>
+			<Layer File="wing.png" Name="bwing[6][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[6][2]"><children>
+			<Layer File="body.png" Name="bbody[6][2]"/>
+			<Layer File="wing.png" Name="bwing[6][2][1]"/>
+			<Layer File="wing.png" Name="bwing[6][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[6][3]"><children>
+			<Layer File="body.png" Name="bbody[6][3]"/>
+			<Layer File="wing.png" Name="bwing[6][3][1]"/>
+			<Layer File="wing.png" Name="bwing[6][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[6][4]"><children>
+			<Layer File="body.png" Name="bbody[6][4]"/>
+			<Layer File="wing.png" Name="bwing[6][4][1]"/>
+			<Layer File="wing.png" Name="bwing[6][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[6][5]"><children>
+			<Layer File="body.png" Name="bbody[6][5]"/>
+			<Layer File="wing.png" Name="bwing[6][5][1]"/>
+			<Layer File="wing.png" Name="bwing[6][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	
+	<Layer Type="ActorFrame" Name="flock[7]"><children>
+		<Layer Type="ActorFrame" Name="bfly[7][1]"><children>
+			<Layer File="body.png" Name="bbody[7][1]"/>
+			<Layer File="wing.png" Name="bwing[7][1][1]"/>
+			<Layer File="wing.png" Name="bwing[7][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[7][2]"><children>
+			<Layer File="body.png" Name="bbody[7][2]"/>
+			<Layer File="wing.png" Name="bwing[7][2][1]"/>
+			<Layer File="wing.png" Name="bwing[7][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[7][3]"><children>
+			<Layer File="body.png" Name="bbody[7][3]"/>
+			<Layer File="wing.png" Name="bwing[7][3][1]"/>
+			<Layer File="wing.png" Name="bwing[7][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[7][4]"><children>
+			<Layer File="body.png" Name="bbody[7][4]"/>
+			<Layer File="wing.png" Name="bwing[7][4][1]"/>
+			<Layer File="wing.png" Name="bwing[7][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[7][5]"><children>
+			<Layer File="body.png" Name="bbody[7][5]"/>
+			<Layer File="wing.png" Name="bwing[7][5][1]"/>
+			<Layer File="wing.png" Name="bwing[7][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" Name="flock[8]"><children>
+		<Layer Type="ActorFrame" Name="bfly[8][1]"><children>
+			<Layer File="body.png" Name="bbody[8][1]"/>
+			<Layer File="wing.png" Name="bwing[8][1][1]"/>
+			<Layer File="wing.png" Name="bwing[8][1][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[8][2]"><children>
+			<Layer File="body.png" Name="bbody[8][2]"/>
+			<Layer File="wing.png" Name="bwing[8][2][1]"/>
+			<Layer File="wing.png" Name="bwing[8][2][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[8][3]"><children>
+			<Layer File="body.png" Name="bbody[8][3]"/>
+			<Layer File="wing.png" Name="bwing[8][3][1]"/>
+			<Layer File="wing.png" Name="bwing[8][3][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[8][4]"><children>
+			<Layer File="body.png" Name="bbody[8][4]"/>
+			<Layer File="wing.png" Name="bwing[8][4][1]"/>
+			<Layer File="wing.png" Name="bwing[8][4][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+		<Layer Type="ActorFrame" Name="bfly[8][5]"><children>
+			<Layer File="body.png" Name="bbody[8][5]"/>
+			<Layer File="wing.png" Name="bwing[8][5][1]"/>
+			<Layer File="wing.png" Name="bwing[8][5][2]" OnCommand="%function(self) self:rotationy(180) end"/>
+		</children></Layer>
+		
+	</children></Layer>
+	
+	
+	
+</children></Layer>
+</children></Layer>

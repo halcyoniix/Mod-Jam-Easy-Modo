@@ -1,0 +1,197 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+		P[pn]:x(scx)
+		P[pn]:SetCombo(0)
+		if pn > 2 then
+			P[pn]:SetAwake(true)
+			P[pn]:SetInputPlayer((pn+1)%2)
+			P[pn]:GetChild('Judgment'):hidden(1)
+			P[pn]:GetChild('Combo'):hidden(1)
+			table.insert(plr, pn)
+		end
+		--[[
+		P[pn]:SetArrowShader(PixelShader:GetShader())
+		P[pn]:SetHoldShader(PixelShader:GetShader())
+		P[pn]:SetReceptorShader(PixelShader:GetShader())
+		--]]
+	end
+
+	aftsprite(PixelAFT, PixelShader)
+	aftsprite(FrontAFT, FrontSprite)
+	
+	function confOff(deg)
+		return math.rad(deg)*100
+	end
+
+	slump = GAMESTATE:GetCurrentSteps(0):GetDifficulty() == 4
+	
+	alias {'confusionzoffset', 'confusionoffset'} -- the same thing
+	
+	definemod {'rotx', 'roty', 'rotz', function(x,y,z)
+		return x, confOff(-x), y, confOff(-y), z, confOff(-z)
+	end,
+	'rotationx', 'confusionxoffset',
+	'rotationy', 'confusionyoffset',
+	'rotationz', 'confusionzoffset'}
+	setdefault {0, 'rotx', 0, 'roty', 0, 'rotz'}
+	
+	definemod {'fov', function(a,pn) P[pn]:fov(a) end}
+	setdefault {60, 'fov'}
+	
+	val = 0
+	definemod {'val', function(a) val = a end}
+	
+	-- rya why
+	-- right subo, I need those since I c2l'd the entire chart but came up with the problem of not being able to modify the strength of the c2l-mods
+	-- so I use a perframe func to be able to modify those -- though it'd be easier to also mod the mods using defined mods to change the mods in the c2l-mods!
+	-- https://canary.discord.com/channels/750586123297882184/750594346113302539/864399387001225236				(yes I intentionally made this hardly readable)
+	-- ((yes I know xero said that I should use node for that but idk how my tiny brain is too smooth)) ~rya
+
+	-- Actually, maybe I can write a flicker mod plugin... ~Sudo
+	-- I wrote it. ~Sudo
+	--flicker {0, 32, 100, 0, 'invert'}
+	-- it even works at any framerate that's COOL ~rya
+
+	--flip = 1
+	KickVal = 0
+	ZVal = 0
+	TipsyVal = 0
+	DigitalVal = 0
+	definemod {'KickVal', function(a) KickVal = a end}
+	set {0, 1, 'KickVal'}
+	definemod {'ZVal', function(a) ZVal = a end}
+	set {0, 1, 'ZVal'}
+	definemod {'TipsyVal', function(a) TipsyVal = a end}
+	set {0, 1, 'TipsyVal'}
+	definemod {'DigitalVal', function(a) DigitalVal = a end}
+	set {0, .5, 'DigitalVal'}
+	
+	function fliperoo()
+		-- thanks XeroOl
+		-- basically creates a near psuedo-flicker effect at 60hz
+		if (GAMESTATE:GetSongTime() * 60) % 2 < 1 then
+			return -1
+		else
+			return 1
+		end
+	end
+	
+	function range(var,tablex)
+		for _,v in pairs(tablex) do
+			if var >= v[1] and var <= v[2] then
+				return true
+			end
+		end
+		return false
+	end
+	
+	function inside(var,tablex)
+		for _,v in pairs(tablex) do
+			if var == v then
+				return true
+			end
+		end
+		return false
+	end
+	
+	for pn = 1,2 do
+		for col = 0,3 do
+			local a = P[pn]
+			a:SetNumPathGradientPoints(col,4)
+			a:SetPathGradientPoint(0,col,-1.5)
+			a:SetPathGradientPoint(1,col,0)
+			a:SetPathGradientPoint(2,col,4.5)
+			a:SetPathGradientPoint(3,col,6.5)
+			a:SetPathGradientColor(0,col,.5,1,0,0)
+			a:SetPathGradientColor(1,col,0,1,.25,1)
+			a:SetPathGradientColor(2,col,0,1,.5,1)
+			a:SetPathGradientColor(3,col,0,.5,.5,0)
+			a:SetNumArrowGradientPoints(col,2)
+			a:SetArrowGradientPoint(0,col,6)
+			a:SetArrowGradientPoint(1,col,6.5)
+			a:SetArrowGradientColor(0,col,1,1,1,1)
+			a:SetArrowGradientColor(1,col,1,1,1,0)
+		end
+	end
+	
+	-- definemod automatically turns the string to lowercase so we might as well do it beforehand.
+	definemod {'gradient', function(a) BGGradient:diffusealpha(a/2.5) end} -- requested by hal
+	definemod {'pixelsize', function(a) PixelShader:GetShader():uniform1f('pixelSize', a) end}
+	
+	definemod {'fszoom', function(a) FrontSprite:zoom(a) end}
+	definemod {'fsrotationz', function(a) FrontSprite:rotationz(a) end}
+
+	-- setdefault makes sure that fszoom defaults to 1 instead of 0.
+	setdefault {0, 'gradient', 0.0001, 'pixelsize', 1, 'fszoom', 0, 'fsrotationz'}
+	
+	aft(Woom)
+	sprite(WoomSprite)
+	aftsprite(Woom, WoomSprite)
+	
+end)"
+Type = "ActorFrame"
+><children>
+
+	<Layer File = "rya.xml" />
+	<Layer File = "sudo.xml" />
+	
+	<Layer Type = "Quad" Name = "BGGradient" InitCommand = "stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,.25,1,.35,0;fadetop,1" />
+	<Layer Type = "Sprite" Name = "WoomSprite" InitCommand = "diffusealpha,0" />	
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	<Layer Type = "ActorFrameTexture" Name = "Woom" />
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	
+	<Layer Type = "ActorFrame" InitCommand="fov,60" Name="marchies" ><children>
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[1]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[2]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[3]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[4]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[5]" />
+		<!--
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[6]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[7]" />
+		<Layer Type = "ActorProxy" Name = "rya_proxyMarch[8]" />
+		-->
+	</children></Layer>
+	
+	<Layer File = "A FUCKING MESS.xml" />
+	<Layer
+		Type = "ActorFrameTexture"
+		Name = "PixelAFT"
+		InitCommand = "%xero.aft"
+	/>
+	<!--
+	<Layer Type = "Quad" Name = "PixelShaderQuad" InitCommand = "stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1" />
+	-->
+	<Layer
+		Type = "Sprite"
+		Name = "PixelShader"
+		Frag = "shaders/simplepixel.frag"
+		InitCommand = "%xero.sprite"
+	/>
+	<Layer
+		Type = "ActorFrameTexture"
+		Name = "FrontAFT"
+		InitCommand = "%xero.aft"
+	/>
+	<Layer Type = "Quad" Name = "BackQuad" InitCommand = "stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1" />
+	<Layer
+		Type = "Sprite"
+		Name = "FrontSprite"
+		InitCommand = "%xero.sprite"
+	/>
+
+
+</children></Mods>

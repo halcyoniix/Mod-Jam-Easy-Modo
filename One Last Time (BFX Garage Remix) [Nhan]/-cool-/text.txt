@@ -1,0 +1,3 @@
+place the board set to boards folder of the games folder
+the bds file is meant for old version of dx-ball 2
+the bdz file is meant for modern version of dx-ball 2 (20th anniversary edition)

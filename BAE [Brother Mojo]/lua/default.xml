@@ -1,0 +1,1150 @@
+<ActorFrame>
+    <children>
+        <Layer
+            Type="Quad"
+            InitCommand="hidden,1"
+            OnCommand="sleep,1000"
+        />
+		<ActorFrame OnCommand="%function(self) self:x(SCREEN_CENTER_X); self:y(SCREEN_CENTER_Y); mp_ligma = {}; mp_spark = {}; end" ><children>
+			<!-- the "background" goes here -->
+			<LAYER File="skyGradient" OnCommand="stretchto,-SCREEN_CENTER_X,-SCREEN_CENTER_Y,SCREEN_CENTER_X,0" />
+			<LAYER Type="ActorFrame" OnCommand="xy,-295,-5;zoom,0.15;linear,120;xy,-330,-15;zoom,0.1"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-200,-20;zoom,0.2;linear,120;xy,-240,-15;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-160,-30;zoom,0.3;linear,120;xy,-200,-20;zoom,0.2"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-180,-10;zoom,0.2;linear,120;xy,-225,-5;zoom,0.25"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-130,-25;zoom,0.2;linear,120;xy,-180,-20;zoom,0.18"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-120,-15;zoom,0.2;linear,120;xy,-220,-10;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-210,0;zoom,0.2;linear,120;xy,-330,-5;zoom,0.22"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-150,-30;zoom,0.2;linear,120;xy,-175,-20;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-260,-20;zoom,0.2;linear,120;xy,-270,-15;zoom,0.25"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-220,-30;zoom,0.2;linear,120;xy,-220,-25;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-240,-10;zoom,0.25;linear,120;xy,-270,-15;zoom,0.2"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-180,-15;zoom,0.2;linear,120;xy,-200,-10;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-270,0;zoom,0.2;linear,120;xy,-350,-15;zoom,0.25"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-210,-30;zoom,0.2;linear,120;xy,-240,-35;zoom,0.18"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,-240,-20;zoom,0.2;linear,120;xy,-310,-15;zoom,0.22"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			
+			<LAYER Type="ActorFrame" OnCommand="xy,335,-5;zoom,0.15;linear,120;xy,300,-10;zoom,0.1"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,260,-15;zoom,0.2;linear,120;xy,220,-10;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,210,-12;zoom,0.3;linear,120;xy,170,-8;zoom,0.2"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,180,5;zoom,0.25;linear,120;xy,150,10;zoom,0.18"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,190,-10;zoom,0.2;linear,120;xy,155,-5;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,260,0;zoom,0.2;linear,120;xy,220,-5;zoom,0.22"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,190,5;zoom,0.2;linear,120;xy,160,8;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,320,-10;zoom,0.2;linear,120;xy,280,-12;zoom,0.25"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,270,-20;zoom,0.2;linear,120;xy,240,-18;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,280,-5;zoom,0.25;linear,120;xy,245,-10;zoom,0.2"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,230,-5;zoom,0.2;linear,120;xy,200,0;zoom,0.15"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,310,0;zoom,0.2;linear,120;xy,270,-5;zoom,0.25"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,270,-22;zoom,0.2;linear,120;xy,230,-20;zoom,0.18"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER Type="ActorFrame" OnCommand="xy,290,-10;zoom,0.2;linear,120;xy,250,-5;zoom,0.22"><children>
+				<LAYER File="circle" />
+				<LAYER File="circle" OnCommand="y,25.6;diffuse,.8,.85,.95,1" />
+			</children></LAYER>
+			<LAYER
+				File="waterGradient"
+				Var="mp_water"
+				Frag="water.frag"
+				OnCommand="%function(self)
+					self:stretchto(-SCREEN_CENTER_X,0,SCREEN_CENTER_X,SCREEN_CENTER_Y)
+					self:GetShader():uniform2f('gridSize', 10, 20)
+				end"
+			/>
+			<LAYER Type="Quad" Var="mp_bgBlack" OnCommand="stretchto,-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,0" />
+			<LAYER File="ligma" OnCommand="%function(self) mp_ligma[1] = self; self:diffusealpha(0) end" />
+			<LAYER File="spark" OnCommand="%function(self) mp_spark[1] = self; self:diffusealpha(0) end" />
+			<LAYER File="ligma" OnCommand="%function(self) mp_ligma[2] = self; self:diffusealpha(0) end" />
+			<LAYER File="spark" OnCommand="%function(self) mp_spark[2] = self; self:diffusealpha(0) end" />
+			<LAYER File="countdown" OnCommand="%function(self) mp_countdown = self; self:animate(0); self:diffuse(1,1,0,1); self:x(160); self:zoom(0) end" />
+		</children></ActorFrame>
+		<ActorFrame OnCommand="%function(self) self:x(SCREEN_CENTER_X); self:y(SCREEN_CENTER_Y); end" ><children>
+			<ActorProxy InitCommand="%function(self) mp_comboproxy1 = self; end" />
+			<ActorProxy InitCommand="%function(self) mp_comboproxy2 = self; end" />
+		</children></ActorFrame>
+		<ActorFrame InitCommand="%function(self) self:x(SCREEN_CENTER_X); self:y(SCREEN_CENTER_Y); mp_noteProxy = {}; mp_shadeLayer = {} self:fov(360 / math.pi * math.atan(math.tan(math.pi * 0.125) * DISPLAY:GetDisplayWidth() / DISPLAY:GetDisplayHeight())); end" ><children>
+			<ActorFrame InitCommand="%function(self) mp_noteProxyFrame = self; end" ><children>
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[7] = self; self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,0.5) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[6] = self; self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[6] = self; self:hidden(1); self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[5] = self; self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[5] = self; self:hidden(1); self:stretchto(-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[4] = self; self:hidden(1); self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[4] = self; self:hidden(1); self:stretchto(-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[3] = self; self:hidden(1); self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[3] = self; self:hidden(1); self:stretchto(-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[2] = self; self:hidden(1); self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[2] = self; self:hidden(1); self:stretchto(-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+				<LAYER Type="ActorProxy" OnCommand="%function(self) mp_noteProxy[1] = self; self:hidden(1); self:hidden(1); end" />
+				<LAYER Type="Quad" OnCommand="%function(self) mp_shadeLayer[1] = self; self:hidden(1); self:stretchto(-SCREEN_WIDTH,-SCREEN_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT); self:diffuse(0,0,0,1) end" />
+			</children></ActorFrame>
+		</children></ActorFrame>
+		<ActorFrame OnCommand="%function(self) self:x(SCREEN_CENTER_X); self:y(SCREEN_CENTER_Y); end" ><children>
+			<Layer Type="ActorFrameTexture"
+				InitCommand="%function(self)
+					self:SetWidth(DISPLAY:GetDisplayWidth())
+					self:SetHeight(DISPLAY:GetDisplayHeight())
+					self:EnableDepthBuffer( true )
+					self:EnableAlphaBuffer( true )
+					self:EnableFloat( true )
+					self:EnablePreserveTexture( true )        
+					self:hidden(0)
+					self:diffusealpha(1)
+					self:zoom(0.1)
+					self:Create()
+					mp_aft = self
+				end"
+			/>
+			<LAYER
+				Type="Sprite"
+				OnCommand="%function(self) 
+					mp_aftSprite = self 
+					self:hidden(0) 
+					self:diffusealpha(0)
+					self:y(-1)
+					self:basezoomx(SCREEN_WIDTH/DISPLAY:GetDisplayWidth())
+					self:basezoomy(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()*-1)
+					self:SetTexture(mp_aft:GetTexture())
+				end"
+			/>
+		</children></ActorFrame>
+		<ActorFrame OnCommand="%function(self) self:x(SCREEN_CENTER_X); self:y(SCREEN_CENTER_Y); end" ><children>
+			<ActorProxy InitCommand="%function(self) mp_judgeproxy1 = self; end" />
+			<ActorProxy InitCommand="%function(self) mp_judgeproxy2 = self; end" />
+		</children></ActorFrame>
+		<Layer
+			Type="Quad"
+			InitCommand="hidden,0"
+			OnCommand="%function(self)
+				local funcList = nil
+				local lastBeats = { -99 }
+				local averageFrame = 1/60
+				local firstFrame = nil
+                local mp_beat = 0
+                
+                local allPlayers = {}
+                local noteData = nil
+                local firstNoteIndex = 1
+                
+                local vars = { orbitScale = 0, orbitAngle = 0, orbitOffset = 0, colorStealthWhite = 1 }
+				
+				local rngSeed = 29603
+                
+                -- let's clean up after ourselves, shall we
+				local water = mp_water
+				mp_water = nil
+				local ligma = {}
+				for i,v in mp_ligma do
+					ligma[i] = v
+					mp_ligma[i] = nil
+				end
+				mp_ligma = nil
+				local spark = {}
+				for i,v in mp_spark do
+					spark[i] = v
+					mp_spark[i] = nil
+				end
+				mp_spark = nil
+				local countdown = mp_countdown
+				mp_countdown = nil
+				local bgBlack = mp_bgBlack
+				mp_bgBlack = nil
+				local aftSprite = mp_aftSprite
+				local aft = mp_aft
+				mp_aftSprite = nil
+				mp_aft = nil
+                local noteProxyFrame = mp_noteProxyFrame
+                mp_noteProxyFrame = nil
+                local noteProxy = {}
+                for i,v in mp_noteProxy do
+                    noteProxy[i] = v
+					mp_noteProxy[i] = nil
+                end
+				local shadeLayer = {}
+				for i,v in mp_shadeLayer do
+					shadeLayer[i] = v
+					mp_shadeLayer[i] = nil
+				end
+                mp_noteProxy = nil
+				mp_shadeLayer = nil
+                local comboProxy = { mp_comboproxy1, mp_comboproxy2 }
+                mp_comboproxy1 = nil
+                mp_comboproxy2 = nil
+                local judgeProxy = { mp_judgeproxy1, mp_judgeproxy2 }
+                mp_judgeproxy1 = nil
+                mp_judgeproxy2 = nil
+                
+                --''GLOBAL'' FUNCTION DEFINITIONS
+                local function RealPlr(number)
+                    return SCREENMAN:GetTopScreen():GetChild('PlayerP'..number)
+                end
+                local function Plr(number)
+                    return RealPlr(allPlayers[number])
+                end
+                local function ApplyMods()
+                    if modString[0] then
+                        GAMESTATE:ApplyModifiers(modString[0])
+                        modString[0] = nil
+                    end
+                    for i_player = 1,2 do
+                        if modString[i_player] then
+                            GAMESTATE:ApplyModifiers(modString[i_player],allPlayers[i_player])
+                            modString[i_player] = nil
+                        end
+                    end
+                end
+                
+				function pf_update()
+					local realBeat = GAMESTATE:GetSongBeat()
+
+					--SETUP
+					if not funcList then
+						--FUNCTION DEFINITIONS
+						local function Prng()
+							rngSeed = (rngSeed * 7153 + 20285) % 56789
+							return rngSeed/56789
+						end
+						local function Floor(float)
+							return float - math.mod(float,1)
+						end
+                        local function Prel(first, last, middle)
+                            if last == first then return 0 end
+                            return (middle-first)/(last-first)
+                        end
+                        local function Lerp(first, last, progress)
+                            return first + (last-first) * progress
+                        end
+						function AddMod(startBeat, endBeat, newMod, player)
+							if not player then
+								player = 0;
+							end
+							if type(player) == 'table' then
+								for k,p in pairs(player) do
+									if not modString[p] then
+										modString[p] = newMod;
+									else
+										modString[p] = modString[p]..', '..newMod;
+									end
+								end
+							else
+								if not modString[player] then
+									modString[player] = newMod;
+								else
+									modString[player] = modString[player]..', '..newMod;
+								end
+							end
+						end
+						function ConvertMod(modName, value, player)
+							if modName == 'xmod' then
+								AddMod(0,0, '*-1 '..value..'x', player)
+							elseif modName == 'cmod' then
+								AddMod(0,0, '*-1 c'..value, player)
+							else
+								AddMod(0,0, '*-1 '..value..' '..modName, player)
+							end
+						end
+						local function AddToFuncTable(startBeat, endBeat, newEntry)
+							-- find first open value, so normally whatever we're adding doesn't get run until next frame
+							local index = 1
+							while funcList[index] do
+								index = index + 1
+							end
+							funcList[index] = newEntry
+						end
+                        local function SetVar(startBeat, endBeat, varName, value)
+                            vars[varName] = value
+                        end
+						local function Hide(startBeat, endBeat, thing)
+							thing:hidden(1);
+						end
+						local function Show(startBeat, endBeat, thing)
+							thing:hidden(0);
+						end
+						local function ProxyToPlayer(startBeat, endBeat, proxy, player)
+							local n = Plr(player):GetChild('NoteField');
+							n:rotationx(0);
+							noteProxy[proxy]:SetTarget(n);
+						end
+                        local function SmX(startBeat, endBeat, thing, newX)
+                            thing:x(newX)
+                        end
+                        local function SmY(startBeat, endBeat, thing, newY)
+                            thing:y(newY)
+                        end
+						local function SmZ(startBeat, endBeat, thing, newZ)
+                            thing:z(newZ)
+                        end
+						local function SmDiffuseAlpha(startBeat, endBeat, thing, newAlpha)
+                            thing:diffusealpha(newAlpha)
+                        end
+						local function SmDiffuse(startBeat, endBeat, thing, newColor)
+                            thing:diffuse(newColor[1], newColor[2], newColor[3], newColor[4])
+                        end
+						local function SmZoom(startBeat, endBeat, thing, newZoom)
+                            thing:zoom(newZoom)
+                        end
+						local function SmRotationZ(startBeat, endBeat, thing, newRot)
+                            thing:rotationz(newRot)
+                        end
+						local function SmSetState(startBeat, endBeat, thing, state)
+							thing:setstate(state)
+						end
+						local function LinearEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							return (mp_beat - startBeat) / (endBeat - startBeat)
+						end
+						local function AccelerateEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							local progress = (mp_beat - startBeat) / (endBeat - startBeat)
+							return progress * progress
+						end
+						local function DecelerateEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							local remaining = (endBeat - mp_beat) / (endBeat - startBeat)
+							return 1 - remaining * remaining
+						end
+						local function CubicAccelerateEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							local progress = (mp_beat - startBeat) / (endBeat - startBeat)
+							return progress * progress * progress
+						end
+						local function CubicDecelerateEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							local remaining = (endBeat - mp_beat) / (endBeat - startBeat)
+							return 1 - remaining * remaining * remaining
+						end
+						local function CosineEase(startBeat, endBeat)
+							if mp_beat >= endBeat then return 1; end
+							return 0.5 * (1 - math.cos(math.pi * (mp_beat - startBeat) / (endBeat - startBeat)))
+						end
+						local function LinearFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + LinearEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function AccelerateFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + AccelerateEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function DecelerateFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + DecelerateEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function CubicAccelerateFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + CubicAccelerateEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function CubicDecelerateFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + CubicDecelerateEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function CosineFunc(startBeat, endBeat, func, thing, startValue, endValue)
+							local value = startValue + CosineEase(startBeat, endBeat) * (endValue - startValue)
+							func(startBeat, endBeat, thing, value)
+						end
+						local function AccelerateMod(startBeat, endBeat, modName, startPercent, endPercent, player)
+							local newPercent = startPercent + AccelerateEase(startBeat, endBeat) * (endPercent - startPercent);
+							ConvertMod(modName, newPercent, player);
+						end
+						local function DecelerateMod(startBeat, endBeat, modName, startPercent, endPercent, player)
+							local newPercent = startPercent + DecelerateEase(startBeat, endBeat) * (endPercent - startPercent);
+							ConvertMod(modName, newPercent, player);
+						end
+						local function CubicAccelerateMod(startBeat, endBeat, modName, startPercent, endPercent, player)
+							local newPercent = startPercent + CubicAccelerateEase(startBeat, endBeat) * (endPercent - startPercent);
+							ConvertMod(modName, newPercent, player);
+						end
+						local function CubicDecelerateMod(startBeat, endBeat, modName, startPercent, endPercent, player)
+							local newPercent = startPercent + CubicDecelerateEase(startBeat, endBeat) * (endPercent - startPercent);
+							ConvertMod(modName, newPercent, player);
+						end
+						local function CosineMod(startBeat, endBeat, modName, startPercent, endPercent, player)
+							local newPercent = startPercent + CosineEase(startBeat, endBeat) * (endPercent - startPercent);
+							ConvertMod(modName, newPercent, player);
+						end
+						local function AccelerateMods(startBeat, endBeat, mods, player)
+							local progress = AccelerateEase(startBeat, endBeat);
+							for key,value in pairs(mods) do
+								ConvertMod(value[1], value[2] + progress * (value[3] - value[2]), player);
+							end
+						end
+						local function DecelerateMods(startBeat, endBeat, mods, player)
+							local progress = DecelerateEase(startBeat, endBeat);
+							for key,value in pairs(mods) do
+								ConvertMod(value[1], value[2] + progress * (value[3] - value[2]), player);
+							end
+						end
+						local function CubicAccelerateMods(startBeat, endBeat, mods, player)
+							local progress = CubicAccelerateEase(startBeat, endBeat);
+							for key,value in pairs(mods) do
+								ConvertMod(value[1], value[2] + progress * (value[3] - value[2]), player);
+							end
+						end
+						local function CubicDecelerateMods(startBeat, endBeat, mods, player)
+							local progress = CubicDecelerateEase(startBeat, endBeat);
+							for key,value in pairs(mods) do
+								ConvertMod(value[1], value[2] + progress * (value[3] - value[2]), player);
+							end
+						end
+						local function CosineMods(startBeat, endBeat, mods, player)
+							local progress = CosineEase(startBeat, endBeat);
+							for key,value in pairs(mods) do
+								ConvertMod(value[1], value[2] + progress * (value[3] - value[2]), player);
+							end
+						end
+						local function HiddenRegionSwapPoint(startBeat, endBeat, swapBeat)
+							Plr(1):ClearHiddenRegions()
+							Plr(1):SetHiddenRegions({{0,swapBeat,-1}})
+							Plr(2):ClearHiddenRegions()
+							Plr(2):SetHiddenRegions({{swapBeat,999999,-1}})
+						end
+						local function ClearHiddenRegions(startBeat, endBeat)
+							Plr(1):ClearHiddenRegions()
+							Plr(2):ClearHiddenRegions()
+						end
+						
+						local function SplitOrbit(startBeat, endBeat)
+							local orbitCenter = -64 * vars.orbitScale
+							local orbitWidth = 192 * vars.orbitScale
+							local orbitDepth = 192 * vars.orbitScale
+							local relativeAngle = math.mod(vars.orbitAngle, math.pi * 2 / 3)
+							local relativeOffsetAngle = math.mod(vars.orbitAngle + vars.orbitOffset * math.pi * 2 / 3, math.pi * 2 / 3)
+							
+							local curXZ = {}
+							local offsetXZ = {}
+							if relativeAngle <= (math.pi / 3) then
+								for i = 1,3 do
+									local a = relativeAngle + math.pi * 2 * (2 - i) / 3
+									curXZ[i] = { x = math.cos(a) * orbitWidth, z = math.sin(a) * orbitDepth + orbitCenter }
+								end
+							else
+								for i = 1,3 do
+									local a = relativeAngle + math.pi * 2 * (i - 1) / 3
+									curXZ[i] = { x = math.cos(a) * orbitWidth, z = math.sin(a) * orbitDepth + orbitCenter }
+								end
+							end
+							if vars.orbitOffset == 0 then
+								for i = 1,3 do
+									offsetXZ[i] = curXZ[i]
+								end
+							else
+								if relativeOffsetAngle <= (math.pi / 3) then
+									for i = 1,3 do
+										local a = relativeOffsetAngle + math.pi * 2 * (2 - i) / 3
+										offsetXZ[i] = { x = math.cos(a) * orbitWidth, z = math.sin(a) * orbitDepth + orbitCenter }
+									end
+								else
+									for i = 1,3 do
+										local a = relativeOffsetAngle + math.pi * 2 * (i - 1) / 3
+										offsetXZ[i] = { x = math.cos(a) * orbitWidth, z = math.sin(a) * orbitDepth + orbitCenter }
+									end
+								end
+							end
+							
+							local finalXZ = {}
+							for i = 1,6 do
+								if curXZ[1] == nil or offsetXZ[1] and curXZ[1].z < offsetXZ[1].z then
+									ProxyToPlayer(0,0,i,2)
+									finalXZ[i] = offsetXZ[1]
+									offsetXZ[1] = offsetXZ[2]
+									offsetXZ[2] = offsetXZ[3]
+									offsetXZ[3] = nil
+								else
+									ProxyToPlayer(0,0,i,1)
+									finalXZ[i] = curXZ[1]
+									curXZ[1] = curXZ[2]
+									curXZ[2] = curXZ[3]
+									curXZ[3] = nil
+								end
+							end
+							
+							for i = 1,6 do
+								noteProxy[i]:x(finalXZ[i].x)
+								noteProxy[i]:z(finalXZ[i].z)
+								if finalXZ[i].z >= 0 then
+									shadeLayer[i]:hidden(1)
+									shadeLayer[i]:diffusealpha(0)
+								else
+									local thisBrightness = math.sqrt(1 + finalXZ[i].z * 0.003)
+									local lastBrightness
+									if i == 1 or finalXZ[i-1].z >= 0 then
+										lastBrightness = 1
+									else
+										lastBrightness = math.sqrt(1 + finalXZ[i-1].z * 0.003)
+									end
+									shadeLayer[i]:hidden(0)
+									shadeLayer[i]:diffusealpha(1 - thisBrightness / lastBrightness)
+								end
+							end
+							
+							local finalBrightness = math.sqrt(1 + finalXZ[6].z * 0.003)
+							if finalBrightness > 0.5 then
+								shadeLayer[7]:hidden(0)
+								shadeLayer[7]:diffusealpha(1 - 0.5 / finalBrightness)
+							else
+								shadeLayer[7]:hidden(1)
+								shadeLayer[7]:diffusealpha(0)
+							end
+						end
+						
+						local function ColorFromBeat(beat)
+							if beat%1 == 0 then
+								return 1, vars.colorStealthWhite, vars.colorStealthWhite, (1+vars.colorStealthWhite)*0.5
+							elseif beat%1 == 0.5 then
+								return vars.colorStealthWhite, vars.colorStealthWhite, 0.7 + 0.3 * vars.colorStealthWhite, 1
+							else
+								return vars.colorStealthWhite, 1, vars.colorStealthWhite, (1+vars.colorStealthWhite)*0.5
+							end
+						end
+						local function ColorStealth(startBeat, endBeat)
+							if noteData then
+								while noteData[firstNoteIndex] and noteData[firstNoteIndex][1] < mp_beat - 1 do
+									firstNoteIndex = firstNoteIndex + 1
+								end
+								local currentNoteIndex = firstNoteIndex
+								local seenNotes = { [0]={}, {}, {}, {} }
+								while noteData[currentNoteIndex] and noteData[currentNoteIndex][1] < mp_beat + 8 do
+									local cNote = noteData[currentNoteIndex]
+									local cSeen = seenNotes[cNote[2] ]
+									cSeen[#cSeen + 1] = cNote[1]
+									currentNoteIndex = currentNoteIndex + 1
+								end
+								for col = 0,3 do
+									local cSeen = seenNotes[col]
+									if cSeen[1] then
+										if cSeen[2] then
+											for pn = 1,2 do
+												local p = Plr(pn)
+												local r,g,b,a
+												p:SetNumStealthGradientPoints(col,#cSeen*2-1)
+												for i = 1,#cSeen-1 do
+													local relAvg = (cSeen[i] + cSeen[i+1]) * 0.5 - mp_beat
+													p:SetStealthGradientPoint(2*i-2,col,relAvg * 2.5 - 0.01)
+													p:SetStealthGradientPoint(2*i-1,col,relAvg * 2.5 + 0.01)
+													r,g,b,a = ColorFromBeat(cSeen[i])
+													p:SetStealthGradientColor(2*i-2,col,r,g,b,a)
+													r,g,b,a = ColorFromBeat(cSeen[i+1])
+													p:SetStealthGradientColor(2*i-1,col,r,g,b,a)
+												end
+												p:SetStealthGradientPoint(#cSeen*2-2,col,99999)
+												p:SetStealthGradientPoint(#cSeen*2-2,col,r,g,b,a)
+											end
+										else
+											for pn = 1,2 do
+												local p = Plr(pn)
+												p:SetNumStealthGradientPoints(col,2)
+												p:SetStealthGradientPoint(0,col,0)
+												local r,g,b,a = ColorFromBeat(cSeen[1])
+												p:SetStealthGradientColor(0,col,r,g,b,a)
+												p:SetStealthGradientPoint(1,col,99999)
+												p:SetStealthGradientColor(1,col,r,g,b,a)
+											end
+										end
+									end
+								end
+							end
+						end
+                        
+						local function RandomColumn(avoidColumn)
+							if avoidColumn == 1 then
+								return Floor(Prng() * 3) + 3
+							elseif avoidColumn == 2 then
+								return Floor(Prng() * 2) + 4
+							elseif avoidColumn == 3 then
+								return Floor(Prng() * 2) * 4 + 1
+							elseif avoidColumn == 4 then 
+								return Floor(Prng() * 2) + 1
+							elseif avoidColumn == 5 then
+								return Floor(Prng() * 3) + 1
+							else
+								return Floor(Prng() * 5) + 1
+							end
+						end
+
+						-- SPELLCARDS
+						local song = GAMESTATE:GetCurrentSong()
+						song:SetNumSpellCards(4)
+						song:SetSpellCardTiming(0,48,80); song:SetSpellCardName(0,'Musical Chairs'); song:SetSpellCardDifficulty(0,2); song:SetSpellCardColor(0,0.2,0.8,0,1)
+						song:SetSpellCardTiming(1,80,112); song:SetSpellCardName(1,'Conga Line'); song:SetSpellCardDifficulty(1,3); song:SetSpellCardColor(1,0.9,0,0,1)
+						song:SetSpellCardTiming(2,148,176); song:SetSpellCardName(2,'Musical Chairs II'); song:SetSpellCardDifficulty(2,2); song:SetSpellCardColor(2,0.2,0.8,0,1)
+						song:SetSpellCardTiming(3,180,204); song:SetSpellCardName(3,'Conga Line II'); song:SetSpellCardDifficulty(3,3); song:SetSpellCardColor(3,0.9,0,0,1)
+
+						-- CONSTANTS
+						-- OTHER DATA
+						modString = {};
+						
+						mp_bg = SCREENMAN:GetTopScreen():GetChild('SongBackground');
+						SCREENMAN:GetTopScreen():GetChild('Overlay'):hidden(1);
+						SCREENMAN:GetTopScreen():GetChild('Underlay'):hidden(1);
+						if RealPlr(1) then
+							SCREENMAN:GetTopScreen():GetChild('LifeP1'):hidden(1);
+							SCREENMAN:GetTopScreen():GetChild('ScoreP1'):hidden(1);
+							if RealPlr(2) then
+								allPlayers = { 1, 2 };
+							else
+								allPlayers = { 1, 3 };
+                                judgeProxy[2]:SetTarget(RealPlr(1):GetChild('Judgment'));
+                                comboProxy[2]:SetTarget(RealPlr(1):GetChild('Combo'));
+							end
+							judgeProxy[1]:SetTarget(RealPlr(1):GetChild('Judgment'));
+							comboProxy[1]:SetTarget(RealPlr(1):GetChild('Combo'));
+						end
+						if RealPlr(2) then
+							SCREENMAN:GetTopScreen():GetChild('LifeP2'):hidden(1);
+							SCREENMAN:GetTopScreen():GetChild('ScoreP2'):hidden(1);
+							if not RealPlr(1) then
+								allPlayers = { 4, 2 };
+                                judgeProxy[1]:SetTarget(RealPlr(2):GetChild('Judgment'));
+                                comboProxy[1]:SetTarget(RealPlr(2):GetChild('Combo'));
+							end
+                            judgeProxy[2]:SetTarget(RealPlr(2):GetChild('Judgment'));
+                            comboProxy[2]:SetTarget(RealPlr(2):GetChild('Combo'));
+						end
+                        for i = 1,2 do
+                            local o = 320*i-480
+                            judgeProxy[i]:x(o)
+                            judgeProxy[i]:y(-16)
+                            comboProxy[i]:x(o)
+                            comboProxy[i]:y(16)
+						end
+						-- SET UP PROXIES
+						for i = 1,2 do
+							Plr(i):SetAwake(true)
+                            Plr(i):hidden(1)
+							for j = 0,4,2 do
+								ProxyToPlayer(0,0,i+j,i)
+							end
+						end
+						
+						-- THE FUNCTION LIST
+						funcList = {
+							{ 0, 0, 0, AddMod, '*-1 2.5x, *-1 dark' },
+							{ 0, 0, 0, Show, noteProxy[1] },
+							
+							{ 1, 0, 0, Hide, aft },
+
+							{ 15, 1, 1, CubicAccelerateMod, 'confusionoffset', 0, 25 },						
+							{ 31, 0.5, 1, CubicAccelerateMod, 'confusionoffset', -25, 24 },
+							{ 31.5, 0.5, 1, CubicAccelerateMod, 'confusionoffset', 24, -23 },
+							{ 32, 1, 1, CubicAccelerateMod, 'confusionoffset', -23, 22 },
+							{ 33, 0.5, 1, CubicAccelerateMod, 'confusionoffset', 22, -21 },
+							{ 33.5, 1, 1, CubicAccelerateMod, 'confusionoffset', -21, 20 },
+							{ 34.5, 0.5, 1, CubicAccelerateMod, 'confusionoffset', 20, -19 },
+							{ 35, 1, 1, CubicAccelerateMod, 'confusionoffset', -19, 18 },
+
+							{ 32, 43.5, 0, AccelerateMod, 'dizzy', 0, -150 },
+							{ 43, .5, 0, CubicDecelerateMod, 'dark', 50, 100 },
+							{ 43.5, .5, 0, CubicAccelerateMod, 'dark', 100, 50 },
+							{ 43.5, 46.5, 0, CubicDecelerateMod, 'dizzy', -150, 0 },
+							{ 43.5, 0, 1, AddMod, '*-1 beat' },
+							{ 46.5, 0, 1, AddMod, '*-1 0 beat' },
+
+							{ 43, 1, 0, CubicAccelerateFunc, SmDiffuseAlpha, bgBlack, 0, 0.35 },
+							{ 44, 1, 0, CubicAccelerateFunc, SmDiffuseAlpha, bgBlack, 0.35, 0.65 },
+							{ 45, 1, 0, CubicAccelerateFunc, SmDiffuseAlpha, bgBlack, 0.65, 1 },
+							{ 46, 0, 0, Hide, water },
+
+							{ 44, 0, 0, SmSetState, countdown, 0 },
+							{ 44, 1, 0, CubicDecelerateFunc, SmZoom, countdown, 0.6, 0.5 },
+							{ 45, 0, 0, SmSetState, countdown, 1 },
+							{ 45, 1, 0, CubicDecelerateFunc, SmZoom, countdown, 0.6, 0.5 },
+							{ 46, 0, 0, SmSetState, countdown, 2 },
+							{ 46, 0.75, 0, CubicDecelerateFunc, SmZoom, countdown, 0.6, 0.5 },
+							{ 46.75, 0.5, 0, AccelerateFunc, SmZoom, countdown, 0.5, 0 },
+
+								-- orbit 1
+							{ 48, 0, 0, SetVar, 'orbitScale', 0 },
+							{ 48, 0, 0, SetVar, 'orbitAngle', math.pi / 2 },
+							{ 48, 0, 0, CubicAccelerateMod, 'dark', 100, 50, 1 },
+							{ 49, 0, 0, Show, noteProxy[2] },
+							{ 49, 0, 0, Show, noteProxy[3] },
+							{ 49, 0, 0, Show, noteProxy[4] },
+							{ 49, 0, 0, Show, noteProxy[5] },
+							{ 49, 0, 0, Show, noteProxy[6] },
+							{ 49, 2, 0, CubicDecelerateFunc, SetVar, 'orbitScale', 0, 1 },
+							{ 49, 81, 0, SplitOrbit },
+							{ 49, 0, 1, AddMod, '*-1 dark, *-1 hidenoteflash, *-1 25 drawsize', 1 },
+							{ 49, 0, 1, AddMod, '*-1 25 drawsize', 2 },
+							
+							{ 80, 0.5, 1, DecelerateMod, 'tiny', -50, 0 },						
+							{ 80.5, 0.5, 1, DecelerateMod, 'tiny', -50, 0 },					
+								-- slink 1
+							{ 81, 0, 0, ClearHiddenRegions },
+							{ 81, 0, 1, AddMod, '*-1 0 dark, *-1 0 hidenoteflash' },
+							{ 81, 0, 0, Hide, noteProxy[4] },
+							{ 81, 0, 0, Hide, noteProxy[5] },
+							{ 81, 0, 0, Hide, noteProxy[6] },
+							{ 81, 0, 0, ProxyToPlayer, 1, 1 },
+							{ 81, 0, 0, ProxyToPlayer, 2, 2 },
+							{ 81, 0, 0, ProxyToPlayer, 3, 2 },
+							{ 81, 0, 0, Hide, shadeLayer[1] },
+							{ 81, 0, 0, Show, shadeLayer[2] },
+							{ 81, 0, 0, Hide, shadeLayer[3] },
+							{ 81, 0, 0, Hide, shadeLayer[4] },
+							{ 81, 0, 0, Hide, shadeLayer[5] },
+							{ 81, 0, 0, Hide, shadeLayer[6] },
+							{ 81, 0, 0, Show, shadeLayer[7] },
+							{ 81, 2, 0, DecelerateFunc, SmX, noteProxy[2], -192 * math.sin(math.pi * 2 / 3), -320 },
+							{ 81, 2, 0, DecelerateFunc, SmX, noteProxy[3], 192 * math.sin(math.pi * 2 / 3), 320 },
+							{ 81, 2, 0, DecelerateFunc, SmZ, noteProxy[1], 128, 0 },
+							{ 81, 2, 0, DecelerateFunc, SmZ, noteProxy[2], -160, 0 },
+							{ 81, 2, 0, DecelerateFunc, SmZ, noteProxy[3], -160, 0 },
+							{ 81, 2, 0, DecelerateFunc, SmDiffuseAlpha, shadeLayer[2], 1 - math.sqrt(0.52), 0 },
+							{ 81, 2, 0, DecelerateFunc, SmDiffuseAlpha, shadeLayer[7], 1 - (0.5 / math.sqrt(0.52)), 0.5 },
+							
+							{ 81, 0, 0, AddMod, '*-1 700 bumpyxperiod, *-1 200 bumpyxoffset', 1 },
+							{ 81, 0, 0, AddMod, '*-1 700 bumpyxperiod, *-1 -200 bumpyxoffset', 2 },
+							{ 81, 1, 1, CosineMods, { { 'bumpyx', 0, 80 }, { 'movex', 0, 50 } } },
+							{ 106, 1, 1, CosineMods, { { 'bumpyx', -80, 0 }, { 'movex', -50, 0 } } },
+							
+								-- stealth break
+							{ 108, 4, 0, CosineFunc, SmDiffuseAlpha, bgBlack, 1, 0 },
+							{ 108, 0, 0, Show, water },
+
+							{ 108, 4, 1, CosineMods, { { 'stealth', 0, 80}, { 'dark', 50, 80 } } },
+							{ 108, 4, 0, CosineFunc, SmX, noteProxy[2], -320, -SCREEN_WIDTH * 0.75 },
+							{ 108, 4, 0, CosineFunc, SmX, noteProxy[3], 320, SCREEN_WIDTH * 0.75 },
+							{ 112, 140, 0, ColorStealth },
+							{ 112, 4, 0, DecelerateFunc, SetVar, 'colorStealthWhite', 1, 0.2 },
+
+							{ 127, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 0, 25 }, { 'drunk', 0, 2 } } },						
+							{ 127.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 25, -24 }, { 'drunk', 2, -4 } } },
+							{ 128.25, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -24, 23 }, { 'drunk', -4, 6 } } },						
+							{ 129, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 23, -22 }, { 'drunk', 6, -8 } } },
+							{ 130, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -22, 21 }, { 'drunk', -8, 10 } } },						
+							{ 130.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 21, -20 }, { 'drunk', 10, -12 } } },
+							{ 131, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -20, 19 }, { 'drunk', -12, 14 } } },						
+							{ 131.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 19, -18 }, { 'drunk', 14, -16 } } },
+							{ 132.25, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -18, 17 }, { 'drunk', -16, 18 } } },						
+							{ 133, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 17, -16 }, { 'drunk', 18, -20 } } },
+							{ 134, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -16, 15 }, { 'drunk', -20, 22 } } },						
+							{ 134.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 15, -14 }, { 'drunk', 22, -24 } } },
+							{ 135, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -14, 12 }, { 'drunk', -24, 26 } } },
+							{ 135.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 12, -10 }, { 'drunk', 26, -28 } } },
+							{ 136, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -10, 8 }, { 'drunk', -28, 30 } } },
+							{ 136.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 8, -6 }, { 'drunk', 30, -32 } } },
+							{ 137, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -6, 4 }, { 'drunk', -32, 34 } } },
+							{ 137.5, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', 4, -2 }, { 'drunk', 34, -36 } } },
+							{ 138, 0.5, 1, CubicAccelerateMods, { { 'confusionoffset', -2, 0 }, { 'drunk', -36, 38 } } },
+							{ 138.5, 0.5, 0, CubicAccelerateMod, 'drunk', 38, -40 },
+							{ 139, 0.25, 0, CubicAccelerateMod, 'drunk', -40, 42 },
+							{ 139.25, 0.25, 0, CubicAccelerateMod, 'drunk', 42, -44 },
+							{ 139.5, 0.25, 0, CubicAccelerateMod, 'drunk', -44, 46 },
+							{ 139.75, 0.25, 0, CubicAccelerateMod, 'drunk', 46, -48 },
+							{ 140, 2.5, 0, DecelerateMod, 'drunk', -48, 0 },
+
+							{ 128, 8, 0, CosineFunc, SetVar, 'colorStealthWhite', 0.2, 1 },
+							{ 128, 8, 1, CosineMods, { { 'stealth', 80, 0}, { 'dark', 80, 50 } } },
+							{ 128, 139, 0, AccelerateMod, 'dizzy', 0, 150 },
+							{ 139, 142.5, 0, CubicDecelerateMod, 'dizzy', 150, 0 },
+
+							{ 142.5, 0, 0, AddMod, '*-1 50 drawsize' },
+							{ 142.5, 148, 0, DecelerateMod, 'mini', 0, 150 },
+							{ 142.5, 146, 0, CosineFunc, SmDiffuseAlpha, bgBlack, 0, 1 },
+							{ 146, 0, 0, Hide, water },
+							
+								-- orbit 2
+							{ 147, 0, 0, SetVar, 'orbitScale', 0 },
+							{ 147, 0, 0, SetVar, 'orbitAngle', math.pi / 3 },
+							{ 148, 0, 0, Show, noteProxy[2] },
+							{ 148, 0, 0, Show, noteProxy[3] },
+							{ 148, 0, 0, Show, noteProxy[4] },
+							{ 148, 0, 0, Show, noteProxy[5] },
+							{ 148, 0, 0, Show, noteProxy[6] },							{ 49, 2, 0, CubicDecelerateFunc, SetVar, 'orbitScale', 0, 1 },
+							{ 148, 2, 0, CubicDecelerateFunc, SetVar, 'orbitScale', 0, 1 },
+							{ 148, 2, 0, CubicDecelerateMods, { { 'mini', 150, 0 }, { 'drawsize', 50, 25 } } },
+							{ 148, 176.5, 0, SplitOrbit },
+							{ 148, 0, 1, AddMod, '*-1 dark, *-1 hidenoteflash', 1 },
+
+								-- slink 2
+							{ 176.5, 0, 0, ClearHiddenRegions },
+							{ 176.5, 0, 1, AddMod, '*-1 0 dark, *-1 0 hidenoteflash' },
+							{ 176.5, 0, 0, Hide, noteProxy[4] },
+							{ 176.5, 0, 0, Hide, noteProxy[5] },
+							{ 176.5, 0, 0, Hide, noteProxy[6] },
+							{ 176.5, 0, 0, ProxyToPlayer, 1, 1 },
+							{ 176.5, 0, 0, ProxyToPlayer, 2, 2 },
+							{ 176.5, 0, 0, ProxyToPlayer, 3, 2 },
+							{ 176.5, 0, 0, Hide, shadeLayer[1] },
+							{ 176.5, 0, 0, Show, shadeLayer[2] },
+							{ 176.5, 0, 0, Hide, shadeLayer[3] },
+							{ 176.5, 0, 0, Hide, shadeLayer[4] },
+							{ 176.5, 0, 0, Hide, shadeLayer[5] },
+							{ 176.5, 0, 0, Hide, shadeLayer[6] },
+							{ 176.5, 0, 0, Show, shadeLayer[7] },
+							{ 176.5, 0, 0, SmX, noteProxy[1], 0 },
+							{ 176.5, 3.5, 0, CosineFunc, SmX, noteProxy[2], -192 * math.sin(math.pi * 2 / 3), -320 },
+							{ 176.5, 3.5, 0, CosineFunc, SmX, noteProxy[3], 192 * math.sin(math.pi * 2 / 3), 320 },
+							{ 176.5, 3.5, 0, CosineFunc, SmZ, noteProxy[1], 128, 0 },
+							{ 176.5, 3.5, 0, CosineFunc, SmZ, noteProxy[2], -160, 0 },
+							{ 176.5, 3.5, 0, CosineFunc, SmZ, noteProxy[3], -160, 0 },
+							{ 176.5, 3.5, 0, CosineFunc, SmDiffuseAlpha, shadeLayer[2], 1 - math.sqrt(0.52), 0 },
+							{ 176.5, 3.5, 0, CosineFunc, SmDiffuseAlpha, shadeLayer[7], 1 - (0.5 / math.sqrt(0.52)), 0.5 },
+							
+							{ 179, 1, 1, CosineMods, { { 'bumpyx', 0, -80 }, { 'movex', 0, -50 } } },
+							{ 203, 1, 0, CosineFunc, SmX, noteProxy[2], -320, -SCREEN_WIDTH * 0.75 },
+							{ 203, 1, 0, CosineFunc, SmX, noteProxy[3], 320, SCREEN_WIDTH * 0.75 },
+							{ 204, 4, 1, AccelerateMods, { { 'flip', 0, 25}, { 'tiny', 0, -200 }, { 'dark', 50, 100 } } },
+
+							{ 204, 4, 0, CosineFunc, SmDiffuseAlpha, bgBlack, 1, 0 },
+							{ 204, 0, 0, Show, water },
+							
+							{ 209, 0, 0, Hide, noteProxy[1] },
+						}
+						
+						-- THE INSERTS
+							-- intro claps
+						for i = 1,41,2 do
+							table.insert(funcList,{ i, i+1, 1, CubicDecelerateMod, 'dark', 50, 100 })
+							table.insert(funcList,{ i, 1, 1, DecelerateFunc, SmDiffuseAlpha, aftSprite, 0, 0 })
+						end
+						
+							-- intro ticks
+						local sf = 25
+						for i = 16,30 do
+							table.insert(funcList,{ i, 1, 1, CubicAccelerateMod, 'confusionoffset', sf, -sf })
+							sf = -sf
+						end
+						local sf = 18
+						for i = 36,43,0.5 do
+							local nsf = -sf + (sf > 0 and 1 or -1)
+							table.insert(funcList,{ i, 0.5, 1, CubicAccelerateMod, 'confusionoffset', sf, i == 43 and 0 or nsf })
+							sf = nsf
+						end
+						
+							-- orbits 1
+						for i = 0,7 do
+							table.insert(funcList,{ 51.5 + 4 * i, 1, 0, DecelerateFunc, SetVar, 'orbitAngle', math.pi / 2 + math.pi / 6 * i, math.pi / 2 + math.pi / 6 * (i + 1) })
+							table.insert(funcList,{ 51.5 + 4 * i, 1, 0, DecelerateFunc, SetVar, 'orbitOffset', math.pi / 3, 0 })
+							table.insert(funcList,{ 51.5 + 4 * i, 0, 0, HiddenRegionSwapPoint, 52.25 + 4 * i})
+							table.insert(funcList,{ 52.5 + 4 * i, 0, 0, HiddenRegionSwapPoint, 9999})
+						end
+
+							-- blinks and sparkles 1
+						local nextSparkle = 1
+						local lastColumn = 0
+						local function PlaceSparkle(startBeat, endBeat, row)
+							local color = { Prng(), Prng(), Prng(), 0.5 }
+							local lightColor = { (color[1] + 1) * 0.5, (color[2] + 1) * 0.5, (color[3] + 1) * 0.5, 1 }
+							local startAngle = Prng() * 90
+							local endAngle = startAngle + Prng() * 30 - 15
+							lastColumn = RandomColumn(lastColumn)
+							local cx = lastColumn * 100 + Prng() * 100 - 350
+							local cy = -(row * 80 + Prng() * 80 - 320)
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmDiffuse, ligma[nextSparkle], color })
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmDiffuse, spark[nextSparkle], lightColor })
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmX, ligma[nextSparkle], cx })
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmY, ligma[nextSparkle], cy })
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmX, spark[nextSparkle], cx })
+							AddToFuncTable(0,0,{ startBeat, startBeat, 0, SmY, spark[nextSparkle], cy })
+							AddToFuncTable(0,0,{ startBeat, startBeat + 1, 0, DecelerateFunc, SmRotationZ, spark[nextSparkle], startAngle, endAngle })
+							AddToFuncTable(0,0,{ startBeat, startBeat + 1, 0, AccelerateFunc, SmDiffuseAlpha, ligma[nextSparkle], 0.5, 0 })
+							AddToFuncTable(0,0,{ startBeat, startBeat + 1, 0, DecelerateFunc, SmDiffuseAlpha, spark[nextSparkle], 1, 0 })
+							AddToFuncTable(0,0,{ startBeat, startBeat + 1, 0, DecelerateFunc, SmZoom, ligma[nextSparkle], 0.5, 0.3 })
+							AddToFuncTable(0,0,{ startBeat, startBeat + 1, 0, DecelerateFunc, SmZoom, spark[nextSparkle], 0.75, 0.5 })
+							nextSparkle = 3 - nextSparkle
+						end
+						for i = 0,7 do
+							if i == 5 or i == 7 then
+								table.insert(funcList,{ 48 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+								table.insert(funcList,{ 48 + 4 * i, 0, 1, PlaceSparkle, i == 5 and 3 or 2 })
+							end
+							if i > 0 then
+								if i ~= 4 then
+									if i%4 == 3 or i == 6 then
+										table.insert(funcList,{ 48.5 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+										table.insert(funcList,{ 48.5 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 3 or 4 })
+									else
+										table.insert(funcList,{ 48.5 + 4 * i, 1, 1, DecelerateMod, 'stealth1', 40, 0 })
+										table.insert(funcList,{ 48.5 + 4 * i, 0, 1, PlaceSparkle, 4 })
+									end
+								end
+								table.insert(funcList,{ 49 + 4 * i, 1, 1, DecelerateMod, 'stealth2', 40, 0 })								
+								table.insert(funcList,{ 49 + 4 * i, 0, 1, PlaceSparkle, 5 })
+							end
+							table.insert(funcList,{ 49.75 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+							table.insert(funcList,{ 49.75 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 1 or (i == 7 and 2 or 3) })
+							table.insert(funcList,{ 50.25 + 4 * i, 1, 1, DecelerateMod, 'stealth1', 40, 0 })
+							table.insert(funcList,{ 50.25 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 3 or 4 })
+							table.insert(funcList,{ 50.75 + 4 * i, 1, 1, DecelerateMod, 'stealth2', 40, 0 })
+							table.insert(funcList,{ 50.75 + 4 * i, 0, 1, PlaceSparkle, 5 })
+							table.insert(funcList,{ 51.5 + 4 * i, 1, 1, DecelerateMod, 'stealth3', 40, 0 })
+							table.insert(funcList,{ 51.5 + 4 * i, 0, 1, PlaceSparkle, 6 })
+						end
+						
+							-- kicks and claps for orbits 1
+						for i = 48,76 do
+							table.insert(funcList,{ i, 1, 1, DecelerateMod, 'tiny', -50, 0 })
+						end
+						for i = 48.75,76.75,4 do
+							table.insert(funcList,{ i, 0.25, 1, AccelerateMod, 'beat', 0, 200 })
+							table.insert(funcList,{ i+0.25, 0.25, 1, DecelerateMod, 'beat', 200, 0 })
+							table.insert(funcList,{ i+2, 0.25, 1, AccelerateMod, 'beat', 0, -200 })
+							table.insert(funcList,{ i+2.25, 0.25, 1, DecelerateMod, 'beat', -200, 0 })
+						end
+						
+							-- slinks 1
+						sf = 80
+						for i = 82,105,2 do
+							local fi = math.mod((i - 79),5)-2
+							if fi == -2 then
+								sf = -sf
+							end
+							table.insert(funcList,{ i, 1, 1, CosineMods, { { 'bumpyx', sf, -sf }, { 'movex', -50 + (fi * 100), 50 + (fi * 100) } } })
+							local fi = math.mod((i - 78),5)-2
+							if fi == -2 then
+								sf = -sf
+							end
+							table.insert(funcList,{ i+1, 1, 1, CosineMods, { { 'bumpyx', -sf, sf }, { 'movex', -50 + (fi * 100), 50 + (fi * 100) } } })
+						end
+							-- claps for slinks 1
+						for i = 81,109,4 do
+							table.insert(funcList,{ i, 0.5, 1, DecelerateMod, 'tipsy', 50, 0, 1 })
+							table.insert(funcList,{ i, 0.5, 1, DecelerateMod, 'tipsy', -50, 0, 2 })
+							table.insert(funcList,{ i+2, 0.5, 1, DecelerateMod, 'tipsy', -50, 0, 1 })
+							table.insert(funcList,{ i+2, 0.5, 1, DecelerateMod, 'tipsy', 50, 0, 2 })
+						end
+							-- vocal cuts AFT 1
+						for i = 0,3 do
+							if i > 0 then
+								table.insert(funcList,{ 80 + 8 * i, 0, 0, Show, aft })
+								table.insert(funcList,{ 80.5 + 8 * i, 0, 0, Hide, aft })
+								table.insert(funcList,{ 80.5 + 8 * i, 1, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							end
+							table.insert(funcList,{ 81.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 82 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 82 + 8 * i, 0.5, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							table.insert(funcList,{ 82.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 82.75 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 82.75 + 8 * i, 0.5, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							table.insert(funcList,{ 83.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 84 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 84 + 8 * i, 2, 0, DecelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+						end
+						
+							-- orbits 2
+						for i = 1,7 do
+							table.insert(funcList,{ 147.5 + 4 * i, 1, 0, DecelerateFunc, SetVar, 'orbitAngle', 17 * math.pi / 2 - math.pi / 6 * i, 17 * math.pi / 2 - math.pi / 6 * (i + 1) })
+							table.insert(funcList,{ 147.5 + 4 * i, 1, 0, DecelerateFunc, SetVar, 'orbitOffset', -math.pi / 3, 0 })
+							table.insert(funcList,{ 147.5 + 4 * i, 0, 0, HiddenRegionSwapPoint, 148.25 + 4 * i})
+							if i < 7 then
+								table.insert(funcList,{ 148.5 + 4 * i, 0, 0, HiddenRegionSwapPoint, 9999})
+							end
+						end
+
+							-- blinks and sparkles 2
+						for i = 1,7 do
+							if i == 5 or i == 7 then
+								table.insert(funcList,{ 144 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+								table.insert(funcList,{ 144 + 4 * i, 0, 1, PlaceSparkle, i == 5 and 3 or 2 })
+							end
+							if i > 0 then
+								if i ~= 4 then
+									if i%4 == 3 or i == 6 then
+										table.insert(funcList,{ 144.5 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+										table.insert(funcList,{ 144.5 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 3 or 4 })
+									else
+										table.insert(funcList,{ 144.5 + 4 * i, 1, 1, DecelerateMod, 'stealth1', 40, 0 })
+										table.insert(funcList,{ 144.5 + 4 * i, 0, 1, PlaceSparkle, 4 })
+									end
+								end
+								table.insert(funcList,{ 145 + 4 * i, 1, 1, DecelerateMod, 'stealth2', 40, 0 })								
+								table.insert(funcList,{ 145 + 4 * i, 0, 1, PlaceSparkle, 5 })
+							end
+							table.insert(funcList,{ 145.75 + 4 * i, 1, 1, DecelerateMod, 'stealth0', 40, 0 })
+							table.insert(funcList,{ 145.75 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 1 or (i == 7 and 2 or 3) })
+							table.insert(funcList,{ 146.25 + 4 * i, 1, 1, DecelerateMod, 'stealth1', 40, 0 })
+							table.insert(funcList,{ 146.25 + 4 * i, 0, 1, PlaceSparkle, i == 6 and 3 or 4 })
+							table.insert(funcList,{ 146.75 + 4 * i, 1, 1, DecelerateMod, 'stealth2', 40, 0 })
+							table.insert(funcList,{ 146.75 + 4 * i, 0, 1, PlaceSparkle, 5 })
+							table.insert(funcList,{ 147.5 + 4 * i, 1, 1, DecelerateMod, 'stealth3', 40, 0 })
+							table.insert(funcList,{ 147.5 + 4 * i, 0, 1, PlaceSparkle, 6 })
+						end
+						
+							-- kicks and claps for orbits 2
+						for i = 148,176 do
+							table.insert(funcList,{ i, 1, 1, DecelerateMod, 'tiny', -50, 0 })
+						end
+						for i = 148.75,172.75,4 do
+							table.insert(funcList,{ i, 0.25, 1, AccelerateMod, 'beat', 0, 200 })
+							table.insert(funcList,{ i+0.25, 0.25, 1, DecelerateMod, 'beat', 200, 0 })
+							table.insert(funcList,{ i+2, 0.25, 1, AccelerateMod, 'beat', 0, -200 })
+							table.insert(funcList,{ i+2.25, 0.25, 1, DecelerateMod, 'beat', -200, 0 })
+						end
+
+							-- slinks 2
+						sf = 80
+						for i = 180,202,2 do
+							local fi = math.mod((i - 177),5)-2
+							if fi == -2 then
+								sf = -sf
+							end
+							table.insert(funcList,{ i, 1, 1, CosineMods, { { 'bumpyx', -sf, sf }, { 'movex', 50 - (fi * 100), -50 - (fi * 100) } } })
+							local fi = math.mod((i - 176),5)-2
+							if fi == -2 then
+								sf = -sf
+							end
+							table.insert(funcList,{ i+1, 1, 1, CosineMods, { { 'bumpyx', sf, i == 202 and 0 or -sf }, { 'movex', 50 - (fi * 100), i == 202 and 0 or -50 - (fi * 100) } } })
+						end
+							-- claps for slinks 2
+						for i = 181,205,4 do
+							table.insert(funcList,{ i, 0.5, 1, DecelerateMod, 'tipsy', 50, 0, 1 })
+							table.insert(funcList,{ i, 0.5, 1, DecelerateMod, 'tipsy', -50, 0, 2 })
+							table.insert(funcList,{ i+2, 0.5, 1, DecelerateMod, 'tipsy', -50, 0, 1 })
+							table.insert(funcList,{ i+2, 0.5, 1, DecelerateMod, 'tipsy', 50, 0, 2 })
+						end
+							-- vocal cuts AFT 2
+						for i = 0,3 do
+							table.insert(funcList,{ 176 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 176.5 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 176.5 + 8 * i, 1, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							table.insert(funcList,{ 177.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 178 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 178 + 8 * i, 0.5, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							table.insert(funcList,{ 178.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 178.75 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 178.75 + 8 * i, 0.5, 0, AccelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+							table.insert(funcList,{ 179.5 + 8 * i, 0, 0, Show, aft })
+							table.insert(funcList,{ 180 + 8 * i, 0, 0, Hide, aft })
+							table.insert(funcList,{ 180 + 8 * i, 2, 0, DecelerateFunc, SmDiffuseAlpha, aftSprite, 0.75, 0 })
+						end
+
+							-- for testing
+						table.insert(funcList,{ 81, 0, 0, ClearHiddenRegions })
+						
+						
+						-- TABLE CLEANUP: convert lens to ends
+						for key,value in pairs(funcList) do
+							if value[2] < value[1] then
+								funcList[key][2] = value[1] + value[2];
+							end
+						end
+						
+						GAMESTATE:ApplyGameCommand('mod,clearall');
+					end
+
+					-- grab noteData once we know turn mods have applied
+					if lastBeats[2] and not lastBeats[3] then
+						noteData = Plr(1):GetNoteData()
+					end
+					
+					for key,value in pairs(funcList) do
+						mp_beat = realBeat + averageFrame * value[3]
+						if mp_beat >= value[1] then
+							value[4](value[1], value[2], value[5], value[6], value[7], value[8], value[9])
+							if mp_beat >= value[2] then
+								funcList[key] = nil
+							end
+						end
+					end
+					ApplyMods()
+					
+					if PREFSMAN:GetPreference('Autoplay') == 0 then
+						for pn = 1,2 do
+							if AllPlayers[pn] > 2 then
+                                Plr(pn):SetInputPlayer((pn-1)%2)
+                            end
+						end
+					else
+						for pn = 1,2 do
+                            if pn > 2 then
+                                Plr(pn):SetInputPlayer(2)
+                            end
+						end
+					end
+					
+					for i = 3,1,-1 do
+						lastBeats[i+1] = lastBeats[i]
+					end
+					lastBeats[1] = realBeat
+					if lastBeats[4] and lastBeats[4] ~= -99 then
+						averageFrame = (lastBeats[1] - lastBeats[4]) / 3
+					end
+				end
+				self:tween(9999, 'pf_update()')
+			end"
+		/>
+    </children>
+</ActorFrame>

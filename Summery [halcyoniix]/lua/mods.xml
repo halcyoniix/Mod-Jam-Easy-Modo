@@ -1,0 +1,966 @@
+<Mods LoadCommand = "%xero(function(self)
+
+
+-- + define shit
+	player.real = P
+	Plr = function(pn) return player.real[pn] end
+	randomxd = function(t) if t == 0 then return 0.5 else return (math.sin(t * 3229.3) * 43758.5453)%1 end end
+	c2l = {
+		dingz = {
+			{132.500,3,1},
+			{133.000,2,1},
+			{133.500,0,1},
+			{134.000,2,1},
+			{134.792,3,1},
+			{135.500,0,1},
+			{136.500,2,1},
+			{137.000,2,1},
+			{137.500,1,1},
+			{138.000,3,1},
+			{138.792,3,1},
+			{139.500,0,1},
+			{140.000,1,1},
+			{140.500,1,1},
+			{141.000,2,1},
+			{141.500,0,1},
+			{142.000,2,1},
+			{142.792,3,1},
+			{143.500,0,1},
+			{144.500,3,1},
+			{145.000,3,1},
+			{145.500,2,1},
+			{146.000,1,1},
+			{146.500,0,1},
+			{146.792,2,1},
+			{147.500,3,1},
+			{148.000,0,1},
+			{148.500,3,1},
+			{149.000,1,1},
+			{149.500,0,1},
+			{150.000,1,1},
+			{150.792,3,1},
+			{151.500,0,1},
+			{152.500,1,1},
+			{153.000,1,1},
+			{153.500,2,1},
+			{154.000,3,1},
+			{154.792,3,1},
+			{155.500,0,1},
+			{156.000,2,1},
+			{156.500,2,1},
+			{157.000,1,1},
+			{157.500,0,1},
+			{158.000,1,1},
+			{158.792,3,1},
+			{159.500,0,1},
+			{160.500,1,1},
+			{161.000,2,1},
+			{161.500,1,1},
+			{162.000,0,1},
+			{162.500,2,1},
+			{162.725,1,1},
+			{163.5,0,1},
+		},
+		build = {
+			{84.000,0,1},
+			{85.000,0,1},
+			{86.000,0,1},
+			{87.000,0,1},
+			{88.000,0,1},
+			{89.000,0,1},
+			{90.000,0,1},
+			{91.000,0,1},
+			{92.000,0,1},
+			{92.500,0,1},
+			{93.000,0,1},
+			{93.500,0,1},
+			{94.000,0,1},
+			{94.500,0,1},
+		},
+		build2 = {
+			{164.000,0,1},
+			{165.000,1,1},
+			{166.000,2,1},
+			{167.000,3,1},
+			{168.000,0,1},
+			{169.000,2,1},
+			{170.000,1,1},
+			{171.000,3,1},
+			{172.000,0,1},
+			{173.000,1,1},
+			{174.000,2,1},
+			{175.000,3,1},
+			{176.000,1,1},
+			{177.000,1,1},
+			{178.000,2,1},
+			{179.000,2,1},
+			{180.000,0,1},
+			{180.500,3,1},
+			{181.000,0,1},
+			{181.500,3,1},
+			{182.000,1,1},
+			{182.500,2,1},
+			{183.000,1,1},
+			{183.500,2,1},
+			{184.000,0,1},
+			{184.500,1,1},
+			{185.000,0,1},
+			{185.500,1,1},
+			{186.000,2,1},
+			{186.500,3,1},
+			{187.000,2,1},
+			{187.500,3,1},
+			{188.000,0,4},
+		},
+		introdingz = {
+			{68.500,3,1},
+			{69.000,5,1},
+			{69.500,6,1},
+			{70.000,5,1},
+			{70.750,2,1},
+			{71.500,1,1},
+			{72.500,3,1},
+			{73.500,1,1},
+			{74.000,3,1},
+			{74.750,3,1},
+			{75.500,4,1},
+			{76.000,3,1},
+			{76.500,3,1},
+			{77.000,5,1},
+			{77.500,6,1},
+			{78.000,5,1},
+			{78.750,2,1},
+			{79.500,1,1},
+			{80.500,3,1},
+			{81.500,1,1},
+			{82.000,3,1},
+			{82.500,5,1},
+			{82.750,3,1},
+			{83.500,1,1},
+		}
+	}
+-- + end define shit
+-- + set shit
+
+	set {0, 2.5, 'xmod', 1, 'zbuffer', 1, 'approachtype', 200, 'modtimer', 1, 'halgun', 1, 'dizzyholds', -100, 'drawsizeback', 1, 'stealthtype', 1, 'stealthpastreceptors', 100, 'receptorzbuffer', 100, 'disablemines'}
+
+	local hr = {
+		{
+			{68,68+4},
+			{72,72+4},
+		},
+		{
+			{76,76+4},
+			{80,80+16},
+		}
+	}
+	for pn = 1, 2 do
+		local j, c, rp = player.jud[pn], player.com[pn], player.real[pn]
+		rp('NoteField'):addy(-10)
+		setshitup(j, rp('Judgment'), pn)
+		setshitup(c, rp('Combo'), pn)
+		Plr(pn):hidden(1)
+		Plr(pn):SetFarDist(9e9)
+		for k,v in pairs(hr) do
+			Plr(pn):SetHiddenRegions{v[pn]}
+			set {v[pn][1]-0.05, 100, 'hidenoteflash', plr = pn}
+			set {v[pn][2]-0.05, 0, 'hidenoteflash', plr = pn}
+		end
+		for col = 0,3 do
+			Plr(pn):SetNumArrowGradientPoints(col, 2)
+			Plr(pn):SetArrowGradientPoint(0, col, 5)
+			Plr(pn):SetArrowGradientPoint(1, col, 6)
+			Plr(pn):SetArrowGradientColor(0, col, hal.rgba{255,255,255,255})
+			Plr(pn):SetArrowGradientColor(1, col, hal.rgba{255,255,255,0})
+		end
+	end
+
+	for pn = 1, #player.proxy do
+		local p, rp = player.proxy[pn], player.real[pn]
+		p:SetTarget(rp)
+		rp:hidden(1)
+	end
+
+	bg.itg:xy(scx,scy)
+	bg.itg:zoomto(sw,sh)
+
+	bg.shiny:xy(scx,scy)
+	bg.shiny:zoomto(sw,sh)
+	bg.shiny:hidden(1)
+
+	bg.bottom:xy(scx,scy)
+	bg.bottom:zoomto(sw,sh)
+	bg.bottom:diffuse(hal.rgba{10,10,10})
+
+	flash:diffuse(1,1,1,0)
+	flash:zoomto(sw,sh)
+	flash:xy(scx,scy)
+	flash:hidden(1)
+	flash:blend('add')
+
+	local pos = {
+		{0,0},
+		{0,1},
+		{1,1},
+		{1,0}
+	}
+	fg.polygon:hidden(0)
+	fg.polygon:SetDrawMode('Quads')
+	fg.polygon:SetNumVertices(4)
+	fg.polygon:blend('add')
+	for i = 0,3 do
+		fg.polygon:SetVertexPosition(i, sw*pos[i+1][1], sh*pos[i+1][2], 0)
+		fg.polygon:SetVertexColor(i, hal.rgba{0,0,0})
+	end
+
+
+	fg.swooshFade:xy(scx+sw/2,scy)
+	fg.swooshFade:zoomto(sw,sh)
+	fg.swooshFade:skewx(1)
+	fg.swooshFade:faderight(0.5)
+	fg.swooshFade:blend('add')
+	fg.swooshFade:diffusealpha(0.5)
+	fg.swooshFade:fadeleft(0.5)
+
+
+	moveSwoosh = function()
+		local a = fg.swooshFrame
+		hal.msg{'showSwoosh'}
+		a:x(-sw*2)
+		a:linear(spb(1))
+		a:x(scx)
+	end
+
+	doFlash = function(b, l)
+		func{b, function()
+			hal.qcmd{flash, 'Show'}
+			hal.msg{'hideSwoosh'}
+		end}
+		func {b, l, outSine, 1, 0, function(p)
+			flash:diffusealpha(p)
+		end}
+		func{b+l, function()
+			hal.qcmd{flash, 'Hide'}
+		end}
+	end
+
+	funkySwap1 = function(b)
+		hal.swap {b, 0.5, inOutCirc, 'invert'}
+		hal.swap {b+0.5+0.21, 0.5, inOutCirc, 'normal'}
+
+		ease {b, 0.5, inOutCirc, 40, 'rotationy'}
+		ease {b+0.5+0.21, 0.5, inOutCirc, 0, 'rotationy'}
+
+	end
+
+	funkySwap2 = function(b)
+		hal.swap {b, 0.5, inOutCirc, 'flip'}
+		hal.swap {b+0.5+0.21, 0.5, inOutCirc, 'normal'}
+
+		ease {b, 0.5, inOutCirc, -40, 'rotationy'}
+		ease {b+0.5+0.21, 0.5, inOutCirc, 0, 'rotationy'}
+
+		ease {b, 0.5, inOutCirc, 25, 'skewx'}
+		ease {b+0.5+0.21, 0.5, inOutCirc, 0, 'skewx'}
+
+	end
+
+	funkySwaps = function(b)
+		b = b - 0.25
+		funkySwap1(b)
+		hal.bounce {b+1, 1, inExpo, outSine, 0, math.rad(90)*100, 'confusionxoffset', mirror = true}
+
+
+		funkySwap2(b+2)
+		hal.bounce {2+b+1, 1, inExpo, outSine, 0, -math.rad(90)*100, 'confusionyoffset', mirror = true}
+	end
+
+	syncopationTing = function(b,m)
+		b = b - 0.25
+		local shid = {'dlur','ldru'}
+		ease {b+0.21, 1, inOutCirc, 20, 'reverse'}
+		swap {b+(0.21*2) , 0.792/2, inOutCirc, shid[0.5+(0.5*hal.fluct(m))+1]}
+		swap {b+(0.21*2)+(0.21), 0.792, inOutExpo, 'ldur'}
+		--hal.bounce {b+(0.21*2), 0.792, inOutCirc, inOutExpo, 0, 100, 'invert'}
+		ease {b+0.792, 0.5, inOutExpo, 50*hal.fluct(m), 'x'}
+		ease {b+1.21, 1, inOutQuart, 0, 'x'}
+		ease {b+1.21, 1, inOutQuart, 0, 'reverse'}
+	end
+
+	definemod {'shinyzoom', 'shinyrot', function(zm, r)
+		bg.shiny:zoom2(zm)
+		bg.shiny:rotationz2(r)
+	end}
+
+	definemod {'coolreverse', function(r)
+			return r,r,r,r
+		end,
+		'reverse0','reverse1','reverse2','reverse3'
+	}
+
+	definemod {'coolrotationx', function(r)
+			return r, -math.rad(r)*100
+		end,
+		'rotationx','confusionxoffset'
+	}
+	definemod {'coolrotationy', function(r)
+			return r, -math.rad(r)*100
+		end,
+		'rotationy','confusionyoffset'
+	}
+	definemod {'coolrotationz', function(r)
+			return r, -math.rad(r)*100
+		end,
+		'rotationz','confusionzoffset'
+	}
+	definemod {'coolskewx', function(x)
+			return x, -x
+		end,
+		'skewx','noteskew'
+	}
+
+	funkyTrash = {p = 0,m = 0}
+	definemod {'funkytrashperiod', 'funkytrashmult', function(p, m)
+		funkyTrash.p = p
+		funkyTrash.m = m
+	end}
+
+	funkyWiggle = 0
+	definemod {'funkywiggle', function(a)
+		funkyWiggle = a
+	end}
+
+	card {0, 36, 'intro', 1, {hal.rgba{255, 57, 57,255}}}
+	card {36, 68, 'predrop a', 2, {hal.rgba{255, 157, 77,255}}}
+	card {68, 100, 'build a', 2, {hal.rgba{250, 232, 65,255}}}
+	card {100, 132, 'drop a1', 3, {hal.rgba{102, 240, 48,255}}}
+	card {132, 164, 'drop a2', 5, {hal.rgba{50, 183, 250,255}}}
+	card {164, 196, 'build b', 2, {hal.rgba{54, 56, 161,255}}}
+	card {196, 228, 'drop b', 4, {hal.rgba{170, 3, 254,255}}}
+
+-- + end set shit
+	
+
+	func {0, function()
+		bg.itg:zoom2(0.6)
+		bg.itg:diffusealpha(0)
+	end}
+
+	ease {0, 1, instant, 0, 'zoom'}
+	ease {4, 1, inCirc, 100, 'zoom'}
+	hal.ease2 {5, 2, outExpo, 120, 100, 'zoom'}
+
+	func{4, function()
+		hal.qcmd{flash, 'Show'}
+	end}
+	func {4.5, 0.5, inSine, 0, 0.8, 'flash:diffusealpha'}
+	doFlash(5, 4)
+
+	func {4, 1, inCirc, 0.6, 1, 'bg.itg:zoom2'}
+	func {4, 1, inCirc, 0, 1, 'bg.itg:diffusealpha'}
+	func {5, 6, outCirc, 1.4, 1, 'bg.itg:zoom2'}
+
+	set {4.5, 100, 'bumpyxperiod'}
+
+	for i = 0,25 do
+		hal.bounce {5+i-0.5, 1, inCirc, outSine, 0, -25, 'mini'}
+		hal.bounce {5+i-0.5, 1, inCirc, outSine, 0, -3*hal.fluct(i), 'rotationz'}
+		hal.ease2 {5+(i*2), 1, outExpo, -100, 0, 'tiny'}
+		hal.ease2 {5+(i*2), 1, outExpo, -100*hal.fluct(i), 0, 'tipsy'}
+	end
+	for i = 0,6 do
+		ease {4+(i*4)-1, 1, inCirc, -200, 'bumpy'}
+		ease {4+(i*4), 3, outSine, 0, 'bumpy'}
+		hal.ease2 {4+(i*4)-1, 4, oat.mix{inCirc, outSine, 0.25}, 0, -800, 'funkywiggle'}
+	end
+
+	--hal.wiggle {4, 4*7, oat.mix{inCirc, outBack, 0.35}, 5, 1, 'rotationz', sus = 4}
+
+	for i = 0,12 do
+		hal.bounce {20+i-0.5, 1, inCirc, outSine, 0, 25, 'brake'}
+	end
+
+
+	for j = 0,2 do
+		for k = 0,1 do
+			local offset = k+(j*4)
+			hal.bounce {20-0.25+offset, 1, inOutCirc, inOutCirc, 0, 100*hal.fluct(k), 'drunk'}
+		end
+		offset = (j*4)
+		hal.bounce {20+offset, 2, inOutCirc, inOutCirc, 0, -30, 'rotationx'}
+		hal.bounce {20+offset, 2, inOutCirc, inOutCirc, 100, 200, 'zoomz'}
+		syncopationTing(22+offset, j)
+	end
+
+
+	func {31, 1, inExpo, 1, 1.4, 'bg.itg:zoom2'}
+	func {32, 2, outCirc, 1.5, 1, 'bg.itg:zoom2'}
+
+	func {32, 3, outSine, 1, 0.7, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+	func {35, 1, inCirc, 0.7, 1, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+
+	ease {32, 3, outSine, 20, 'reverse'}
+	ease {35, 1, inCirc, 0, 'reverse'}
+
+
+	funkySwaps(32)
+	func {34, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(2),'xero.inOutCirc(%f,0,1,1)')
+				a:x(scx)
+			end
+		end
+	end, persist = 32}
+	set {4, 400, 'bumpyperiod', -50, 'drunkperiod', -100, 'drunkspeed'}
+
+	swap {55.5-0.25/2, 0.25, inOutCirc, 'dlur'}
+	swap {55.75-0.25/2, 0.25, inOutCirc, 'ldur'}
+
+	swap {59.5-0.25/2, 0.25, inOutCirc, 'ludr'}
+
+	swap {63.5-0.25/2, 0.25, inOutCirc, 'dlur'}
+	swap {63.75-0.25/2, 0.25, inOutCirc, 'ldur'}
+
+	ease {32, 2, outCirc, 1.8, 'xmod'}
+	ease {64, 2, inOutSine, 2.5, 'xmod'}
+
+	func {4, 80, function(beat, poptions)
+		for pn = 1,2 do
+			poptions[pn].bumpyoffset = poptions[pn].bumpyoffset + funkyWiggle
+		end
+	end}
+
+	func {36, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:x(scx)
+			end
+		end
+	end, persist = 131-36}
+
+	for k,v in pairs(c2l.introdingz) do
+		local b, col, p = v[1], math.mod(v[2],4), math.floor(v[2]/4)+1
+		hal.ease2 {b, 1, outCirc, -200, 0, 'tiny'..col, plr = p}
+	end
+
+	for i = 0,7 do
+		ease {36+(i*4)-1, 1, inCirc, -600, 'bumpy'}
+		ease {36+(i*4), 3, outSine, 0, 'bumpy'}
+		ease {36+(i*4)-1, 4, oat.mix{inCirc, outSine, 0.25}, i ~= 7 and 50-(35*hal.fluct(i)) or 0, 'reverse'}
+		hal.ease2 {36+(i*4)-1, 4, oat.mix{inCirc, outSine, 0.25}, 0, -800, 'funkywiggle'}
+		func {36+(i*4), 4, outQuad, 0.4, 0.1, 'bg.itg:diffusealpha'}
+	end
+
+	for i  = 0,16-3 do
+		hal.ease2 {37+(i*2), 1, outCirc, 50*hal.fluct(i), 0, 'tipsy'}
+		ease {37+(i*2)-0.25, 0.25, inCirc, 25, 'centered2'}
+		ease {37+(i*2), 1, outSine, 0, 'centered2'}
+
+		if i <= (16-2)/2 then
+			hal.ease2 {69+(i*2), 1, outCirc, 100*hal.fluct(i), 0, 'tipsy'}
+		end
+	end
+
+	hal.wiggle {37, 26, oat.mix{inCirc, outBack, 0.4}, -50, 1, 'drunk', sus = 2}
+	hal.wiggle {37, 26, oat.mix{inCirc, outBack, 0.4}, -15, 1, 'x', sus = 2}
+
+	hal.wiggle {69, (26/2)+1, oat.mix{inCirc, outBack, 0.4}, -150, 1, 'drunk', sus = 2}
+
+	func {35, 1, inCirc, 1.0, 0.9, 'bg.itg:zoom2'}
+	func {36, 4, outQuad, 0.9, 0.6, 'bg.itg:zoom2'}
+	func {36, 4, outQuad, 1, 0.1, 'bg.itg:diffusealpha'}
+
+	func {64, 3, outQuad, 0.6, 0.8, 'bg.itg:zoom2'}
+	func {67, 1, inExpo, 0.8, 1.2, 'bg.itg:zoom2'}
+	func {68, 2, outCirc, 1.3, 1, 'bg.itg:zoom2'}
+	func {67, 1, inExpo, 0.1, 1, 'bg.itg:diffusealpha'}
+	func {68, 4, outSine, 1, 0.25, 'bg.itg:diffusealpha'}
+
+	hal.ease2 {66.25, 2, oat.mix{inQuad, outExpo, 0.25}, math.rad(360)*100, 0, 'confusionoffset'}
+
+	ease {67, 1, inExpo, -400, 'movez'}
+	ease {67, 1, linear, 75, 'wave'}
+	ease {67, 1, linear, 50, 'waveoffset'}
+	ease {68, 24, inOutSine, 0, 'movez'}
+
+	for pn = 1,2 do
+		ease {67, 1, inCirc, 50*hal.fluct(pn), 'coolskewx', plr = pn}
+		ease {67, 1, inCirc, -64*hal.fluct(pn), 'x', plr = pn}
+		hal.ease2 {68, 1, outCirc, 60*hal.fluct(pn), 50*hal.fluct(pn), 'coolskewx', plr = pn}
+	end
+	ease {83, 1, inCirc, 0, 'coolskewx'}
+	ease {83, 1, inCirc, 0, 'x'}
+
+	ease {84, 12, linear, -5000, 'zigzagz'}
+	ease {84, 12, linear, 50, 'orient'}
+	ease {84, 12, linear, 200, 'z'}
+	set {84, 400, 'zigzagzperiod', 0, 'hidenoteflash'}
+	func {84, 12, inExpo, 1.0, 1.4, function(p) bg.itg:zoom2(p) end}
+	func {84, 12, linear, 0.25, 1, 'bg.itg:diffusealpha'}
+
+	local t = c2l.build
+	for i = 1,#t-1 do
+		local b,diff = t[i][1],t[i+1][1]-t[i][1]
+		--hal.bounce {b, diff, outQuad, inCirc, 1.0, 1.05, function(p) bg.itg:zoom(p) end}
+		ease {b-diff/2, diff, inOutExpo, i ~= #t-1 and 150*hal.fluct(i) or 0, 'drunk'}
+		hal.ease2 {b, 1, outExpo, -200, 0, 'tiny'}
+		hal.ease2 {b, 1, linear, 25, 0, 'brake'}
+	end
+
+	for i = 0,3 do
+		local hell = ((i+1)/4)
+		ease {92+(i/2), 0.5, outCirc, hell*50, 'reverse'}
+		ease {92+(i/2), 0.5, outCirc, hell*35, 'flip'}
+		ease {92+(i/2), 0.5, outCirc, hell*1000, 'bumpy'}
+	end
+
+	set {96, 0, 'reverse', 0, 'centered', 0, 'bumpy', 2.5, 'xmod', 0, 'zigzagz', 0, 'zigzagzperiod', 0, 'z', 0, 'orient', 0, 'wave'}
+	--ease {99, 2, inOutExpo, 0, 'centered'}
+	hal.ease2 {94, 2, inSine, 360*3, 0, 'coolrotationz'}
+	ease {94, 2, inQuad, 200, 'zoom'}
+	hal.ease2 {96, 4, outCirc, 1.5, 2.5, 'xmod'}
+
+
+	funkySwaps(96)
+
+	func{100, function()
+		hal.qcmd{flash, 'Show'}
+		moveSwoosh()
+	end}
+
+	doFlash(101, 4)
+
+	func {96, 4, outExpo, 1.4, 1.0, 'bg.itg:zoom2'}
+	hal.ease2 {96, 4, outExpo, 200, 80, 'zoom'}
+	hal.ease2 {96, 6, inCirc, 1.75, 2.5, 'xmod'}
+
+	ease {99, 1, inCirc, 100, 'zoom'}
+	hal.ease2 {100, 1, outQuad, -10000, 0, 'tinyz'}
+
+	func {100, 1, inSine, 0, 0.8, 'flash:diffusealpha'}
+	func {100, 1, inExpo, 1.0, 1.4, 'bg.itg:zoom2'}
+
+	func {101, function()
+		hal.msg{'showShiny'}
+	end, persist = true}
+
+	hal.bounce {100, 1, outCirc, inCirc, 0, -600, 'z'}
+
+	local ting = {
+		{110.000,0,1},
+		{110.792,0,1},
+		{111.333,0,1},
+	}
+
+
+	for i = 0,1 do
+		for j = 0,2 do
+			for k = 0,1 do
+				local offset = k+(j*4)+(i*16)
+				hal.bounce {100-0.25+offset, 1, inOutCirc, inOutCirc, 0, 200*hal.fluct(k), 'drunk'}
+			end
+			offset = (j*4)+(i*16)
+			hal.bounce {100+offset, 2, inOutCirc, inOutCirc, 0, -30, 'rotationx'}
+			hal.bounce {100+offset, 2, inOutCirc, inOutCirc, 0, 200, 'gayholds'}
+			hal.bounce {100+offset, 2, inOutCirc, inOutCirc, 100, 600, 'zoomz'}
+			syncopationTing(102+offset,j)
+		end
+		funkySwaps(112+(i*16))
+	end
+
+	ease {128, 3, outSine, 1, 'shinyzoom'}
+	ease {128, 3, outSine, 0, 'shinyrot'}
+
+
+	func {128, 3, outSine, 1, 0.7, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+	func {131, 1, inCirc, 0.7, 1, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+
+	ease {128, 3, outSine, 20, 'reverse'}
+	ease {131, 1, inCirc, 0, 'reverse'}
+
+	hal.ease2 {130.79, 0.75, outExpo, math.rad(360)*100, 0, 'confusionoffset'}
+
+	local beat = 101
+	for i = 0,59 do
+		local i = i
+		if not hal.between{i, 28, 30} then
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 1.3, 1.5, 'shinyzoom'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 4*hal.fluct(i), 'shinyrot'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 50, 'brake'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 50*hal.fluct(i), 'bumpyx'}
+			if i <= 58/2 then
+				hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 200, 'z'}
+				hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, -6*hal.fluct(i), 'rotationz'}
+			else
+				hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, math.rad(6*hal.fluct(i))*100, 'confusionoffset'}
+				hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 1*hal.fluct(i), function(p)
+					local a = player.proxyFrame
+					local r = condor.rotation(-6*p)
+					local zm = condor.zoom(1+math.abs(p/4))
+					a:rotationz(r.rot)
+					a:xy(r.x,r.y)
+
+					a:zoom2(zm.zoom)
+					a:x2(zm.x)
+					a:y2(zm.y)
+				end}
+				ease {beat+i-0.5, 1, inOutCirc, (i-(58/2))/2, 'funkytrashperiod'}
+
+				local e = math.floor(math.mod(i+1-8,16)/8)
+				local a = math.mod(i+1,4)
+				local sports = 2-math.floor(math.mod(i+1-4,8)/4)
+				-- it's in the game
+				if i ~= 59 then
+					ease {beat+i-0.5, 1, inOutCirc, 100*e, 'reverse'..a, plr = sports}
+				end
+			end
+		end
+
+		if math.mod(i,2) == 0 then
+			hal.ease2 {beat+i, 3, outElastic, 100*hal.fluct(i), 0, 'tipsy'}
+			hal.ease2 {beat+i, 1, outExpo, -150, 0, 'tiny'}
+		end
+	end
+
+	for i = 0,6 do
+		for sports = 1,2 do
+			local e = math.mod(i+sports,2)
+			ease {132+(i*4), 0.25, linear, 25*e, 'stealth', plr = sports}
+		end
+	end
+
+
+	func {131, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(1),'xero.outCirc(%f,0,1,1)')
+				a:x(scx-((64*4)/2)*hal.fluct(pn))
+			end
+		end
+	end, persist = 32-4}
+
+	ease {131, 1, inSine, 50, 'funkytrashmult'}
+
+	func {131, 161-131, function(beat, poptions)
+		for pn = 1,2 do
+			for col = 0,3 do
+				local fuck = (pn * math.pi) + (col * math.pi) / 4
+				poptions[pn]['movey'..col] = funkyTrash.m*math.sin(funkyTrash.p*math.pi+fuck)
+			end
+		end
+	end, t = 'end'}
+
+	for offset = 0,1 do
+		local offset = (196.5-132.5)*offset
+		for k,v in pairs(c2l.dingz) do
+			local k = k
+			local r = {math.random(150,255),math.random(150,255),math.random(150,255)}
+			func {v[1]+offset, 1, outQuad, 0.6, 0, function(p)
+				fg.polygon:SetVertexColor((4-math.mod(k,4))-1, hal.rgba{r[1]*p,r[2]*p,r[3]*p, 255*0.5})
+			end}
+		end
+	end
+
+	funkySwap2(146-0.25)
+	hal.bounce {147, 1, inExpo, outSine, 0, math.rad(90)*100, 'confusionxoffset', mirror = true}
+	ease {159, 1, inSine, 0, 'funkytrashmult'}
+	for col = 0,3 do
+		ease {159, 1, inCirc, 0, 'reverse'..col, plr = 2}
+	end
+	ease {160, 0.25, linear, 0, 'stealth'}
+	funkySwaps(160)
+	ease {160, 3, outSine, 1, 'shinyzoom'}
+	ease {160, 3, outSine, 0, 'shinyrot'}
+
+	func {160, 3, outSine, 1, 0.7, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+	func {163, 1, inCirc, 0.7, 1, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+
+	ease {160, 3, outSine, 20, 'reverse'}
+	ease {163, 1, inCirc, 0, 'reverse'}
+
+	ease {163, 1, inCirc, 1.4, 'shinyzoom'}
+	func{163, function()
+		hal.qcmd{flash, 'Show'}
+	end}
+	func {163, 1, inSine, 0, 0.8, 'flash:diffusealpha'}
+	doFlash(164, 2)
+
+	func {164, 4, outExpo, 1.2, 1, 'bg.itg:zoom2'}
+	func {164, 4, instant, 1, 0.25, 'bg.itg:diffusealpha'}
+
+	func {162, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(2),'xero.inOutCirc(%f,0,1,1)')
+				a:x(scx)
+			end
+		end
+	end, persist = true}
+
+	func {164, function()
+		hal.msg{'hideShiny'}
+	end, persist = true}
+
+	set {164, -100, 'drunkspeed', -50, 'drunkperiod', 1000, 'bumpyperiod'}
+	ease {164, 16, inOutSine, -90, 'coolrotationx'}
+	ease {164, 16, inOutSine, 400, 'zoomz'}
+	ease {164, 16, inOutSine, -100, 'centered'}
+	ease {164, 16, inOutSine, 50, 'flip'}
+	ease {164, 16, inOutSine, 50, 'wave'}
+
+	ease {164, 16, inOutSine, 400, 'bumpy', plr = 1}
+	ease {164, 16, inOutSine, -400, 'bumpy', plr = 2}
+
+
+	for i = 0,3 do
+		for pn = 1,2 do
+			ease {180+(i*2), 2, inOutCirc, 400*hal.fluct(i)*hal.fluct(pn), 'bumpy', plr = pn}
+		end
+	end
+
+	local m = {-1,-1/3,1/3,1}
+	for col = 0,3 do
+		set {164, 1000, 'bumpyxperiod'..col}
+		ease {164, 16, inOutSine, 400*m[col+1], 'bumpyx'..col}
+
+		set {192, 0, 'bumpyxperiod'..col, 0, 'bumpyx'..col}
+	end
+	ease {164, 16, inOutSine, 50, 'wave'}
+
+
+	local t = c2l.build2
+	for i = 1,#t-1 do
+		local b,diff = t[i][1],t[i+1][1]-t[i][1]
+		--local s = (360*2)/(16*2)
+		--ease {b-0.25, 0.5, inOutCirc, s - ((i+1)*s), 'rotationz'}
+		hal.ease2 {b, 1, linear, 25, 0, 'brake'}
+		hal.ease2 {b, 1, outCirc, -250, 0, 'tiny'}
+		hal.ease2 {b, 0.5, outCirc, 100*hal.fluct(i), 0, 'tipsy'}
+		ease {b, diff, inExpo, i ~= #t-1 and 100*hal.fluct(i) or 0, 'drunk'}
+	end
+	hal.ease2 {188, 4, inSine, 360*4, 0, 'rotationy'}
+	ease {188, 4, inSine, 4000, 'zoomz'}
+	func {180, 12, linear, 0.25, 1, 'bg.itg:diffusealpha'}
+
+
+
+
+	set {192, 0, 'drunkspeed', 0, 'drunkperiod', 0, 'bumpyperiod', 100, 'zoomz', 100, 'zoom', 0, 'coolrotationx', 0, 'wave', 0, 'flip', 0, 'centered', 0, 'bumpy'}
+
+	for col = 0,3 do
+		set {192, 200, 'tiny'..col}
+	end
+
+	hal.ease2 {195-(0.21), 1, outExpo, -100, 0, 'tiny'}
+	hal.ease2 {195.5, 1, outExpo, -100, 0, 'tiny'}
+	ease {195-(0.21*2), 0.5, inOutCirc, 70, 'zoomx'}
+	ease {195, 1, inOutCirc, 100, 'zoomx'}
+
+	for i = 0,3 do
+		hal.ease2 {192.5+(i*0.5), 1, outExpo, -110, 0, 'tiny'..i}
+	end
+
+
+	ease {197, 2, inOutExpo, 100, 'coolreverse'}
+	func{196, function()
+		hal.qcmd{flash, 'Show'}
+	end}
+
+	doFlash(200, 4)
+	func{199, function()
+		moveSwoosh()
+	end}
+
+	hal.bounce {195, 1, outQuad, inCirc, 1, 1.2, function(p) bg.itg:zoom2(p) end}
+	hal.bounce {195, 1, outQuad, inCirc, 100, 70, 'zoom'}
+
+	func {196, 4, outExpo, 1.2, 0.8, 'bg.itg:zoom2'}
+	func {196, 1, outExpo, 1, 0.15, 'bg.itg:diffusealpha'}
+	hal.ease2 {196, 4, outExpo, 200, 60, 'zoom'}
+	hal.ease2 {196, 6, inCirc, 1.5, 2.5, 'xmod'}
+
+	ease {196+3, 1, inCirc, 100, 'zoom'}
+	hal.ease2 {199, 1, outQuad, -5000, 0, 'tinyz'}
+
+	func {199, 1, inSine, 0.15, 0.8, 'flash:diffusealpha'}
+	func {199, 1, inExpo, 0.8, 1.4, 'bg.itg:zoom2'}
+	func {199, 1, inExpo, 0.1, 1, 'bg.itg:diffusealpha'}
+
+	func {200, function()
+		hal.msg{'showShiny'}
+		bg.shiny:GetShader():uniform1f('dir', -1)
+	end, persist = true}
+
+	hal.bounce {199, 1, outCirc, inCirc, 0, -600, 'z'}
+
+
+
+	-- copy paste lol
+
+	local beat = 196
+	for i = 0,1 do
+		for j = 0,2 do
+			for k = 0,1 do
+				local offset = k+(j*4)+(i*16)
+				hal.bounce {beat-0.25+offset, 1, inOutCirc, inOutCirc, 0, 200*hal.fluct(k), 'drunk'}
+			end
+			offset = (j*4)+(i*16)
+			hal.bounce {beat+offset, 2, inOutCirc, inOutCirc, 0, -30, 'rotationx'}
+			hal.bounce {beat+offset, 2, inOutCirc, inOutCirc, 0, 200, 'gayholds'}
+			hal.bounce {beat+offset, 2, inOutCirc, inOutCirc, 100, 600, 'zoomz'}
+			if offset ~= 0 then
+				syncopationTing(beat+2+offset,j)
+			end
+		end
+		funkySwaps(beat+12+(i*16))
+	end
+	hal.bounce {198+(0.21*2), 0.792+0.21, inOutCirc, inOutCirc, 0, 100, 'invert'}
+
+
+	local beat = 200
+	for i = 0,24 do
+		local i = i
+		if not hal.between{i, 28, 30} then
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 1.3, 1.6, 'shinyzoom'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 6*hal.fluct(i), 'shinyrot'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 50, 'brake'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 50*hal.fluct(i), 'bumpyx'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, 200, 'z'}
+			hal.bounce {beat+i-0.5, 1, inCirc, outSine, 0, -10*hal.fluct(i), 'rotationz'}
+		end
+
+		if math.mod(i+1,2) == 0 then
+			hal.ease2 {beat+i, 3, outElastic, 100*hal.fluct(i), 0, 'tipsy'}
+			hal.ease2 {beat+i, 1, outExpo, -150, 0, 'tiny'}
+		end
+	end
+
+
+
+
+	ease {224, 3, outSine, 1, 'shinyzoom'}
+	hal.ease2 {224, 3, outSine, 6, 0, 'shinyrot'}
+
+
+	func {224, 3, outSine, 1, 0.7, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+	func {227, 1, inCirc, 0.7, 1, function(p)
+		local a = player.proxyFrame2
+		local zm = condor.zoom(p)
+		a:zoom(zm.zoom)
+		a:x(zm.x)
+		a:y(zm.y)
+	end}
+	func{227, function()
+		hal.qcmd{flash, 'Show'}
+	end}
+	func {227, 1, inSine, 0.15, 1, 'flash:diffusealpha'}
+
+	ease {224, 3, outSine, 20, 'reverse'}
+	ease {227, 1, inCirc, 0, 'reverse'}
+	ease {227, 1, inCirc, 1.6, 'shinyzoom'}
+
+	func{226.5, function()
+		moveSwoosh()
+	end}
+
+	func{228, function()
+		hal.msg{'hideSwoosh'}
+	end}
+
+	func{228, function()
+		hal.msg{'hideShiny'}
+		flash:blend('normal')
+		for pn = 1,2 do
+			player.com[pn]:hidden(1)
+			player.jud[pn]:hidden(1)
+		end
+		player.proxyFrame2:hidden(1)
+		bg.itg:hidden(1)
+	end}
+
+	func {228, 6, linear, 1, 0, 'flash:diffusealpha'}
+
+
+
+
+
+end)"
+Type="ActorFrame"><children>
+	
+	<Layer Type="ActorFrame" InitCommand="fov,45;"><children>
+		<Layer Type="Quad" Name="bg.bottom"/>
+		<Layer File="bg" Name="bg.itg" showShinyMessageCommand="hidden,1" hideShinyMessageCommand="hidden,0"/>
+		<Layer File="shiny" Frag="gayscale.frag" Name="bg.shiny" showShinyMessageCommand="hidden,0" hideShinyMessageCommand="hidden,1"/>
+	</children></Layer>
+
+	<Layer Type="ActorProxy" Name="player.com[1]" />
+	<Layer Type="ActorProxy" Name="player.com[2]" />
+	<Layer Type="ActorProxy" Name="player.jud[1]" />
+	<Layer Type="ActorProxy" Name="player.jud[2]" />
+
+	<Layer Type="ActorFrame" Name="player.proxyFrame2"><children>
+		<Layer Type="ActorFrame" Name="player.proxyFrame"><children>
+			<Layer Type="ActorProxy" Name="player.proxy[1]" />
+			<Layer Type="ActorProxy" Name="player.proxy[2]" />
+		</children></Layer>
+	</children></Layer>
+
+
+	<Layer Type="ActorFrame" InitCommand="hidden,1" showSwooshMessageCommand="hidden,0" hideSwooshMessageCommand="hidden,1" Name="fg.swooshFrame"><children>
+		<Layer Type="Quad" Name="fg.swooshFade"/>
+	</children></Layer>
+
+	<Layer Type="Polygon" Name="fg.polygon"/>
+
+	
+	<Layer Type="Quad" Name="flash" HideCommand="hidden,1" ShowCommand="hidden,0"/>
+
+
+</children></Mods>

@@ -1,0 +1,10 @@
+[Sprite]
+Texture=pasg 3x1.png
+Frame0000=0
+Delay0000=0.333333
+Frame0001=1
+Delay0001=0.333333
+Frame0002=2
+Delay0002=0.333333
+Frame0003=1
+Delay0003=0.333333

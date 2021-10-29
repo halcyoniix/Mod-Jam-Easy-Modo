@@ -1,0 +1,111 @@
+<Layer Type="ActorFrame" ><children>
+
+<Layer Type="Quad" OnCommand="%function(self) 
+
+local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+self:zoom(1000); 
+self:diffuse(rgba(150, 84, 207,1)); end"/>
+
+
+		<Layer Type="ActorFrame" Name="beaws[1]"><children>
+			<Layer File="bear.sprite" Name="bear[1]"
+				OnCommand="%function(self)
+				local function rgba(r,g,b,a)
+					r=r/255
+					g=g/255
+					b=b/255
+					a=a
+		
+				return r,g,b,a
+				end
+					self:xy(0,0)
+					self:hidden(0)
+					self:effectclock('bgm')
+					self:diffuse(rgba(216, 187, 79,1))
+
+				end"
+			/>
+			
+			<Layer File="bear.sprite" Name="bear[2]"
+				OnCommand="%function(self)
+				local function rgba(r,g,b,a)
+					r=r/255
+					g=g/255
+					b=b/255
+					a=a
+		
+				return r,g,b,a
+				end
+					self:xy(0,0)
+					self:hidden(0)
+					self:effectclock('bgm')
+					self:diffuse(rgba(216, 187, 79,1))
+
+				end"
+			/>
+			
+			<Layer File="bear.sprite" Name="bear[3]"
+				OnCommand="%function(self)
+				local function rgba(r,g,b,a)
+					r=r/255
+					g=g/255
+					b=b/255
+					a=a
+		
+				return r,g,b,a
+				end
+					self:xy(0,0)
+					self:hidden(0)
+					self:effectclock('bgm')
+					self:diffuse(rgba(216, 187, 79,1))
+
+				end"
+			/>
+			
+			<Layer File="bear.sprite" Name="bear[4]"
+				OnCommand="%function(self)
+				local function rgba(r,g,b,a)
+					r=r/255
+					g=g/255
+					b=b/255
+					a=a
+		
+				return r,g,b,a
+				end
+					self:xy(0,0)
+					self:hidden(0)
+					self:effectclock('bgm')
+					self:diffuse(rgba(216, 187, 79,1))
+
+				end"
+			/>
+			
+			<Layer File="bear.sprite" Name="bear[5]"
+				OnCommand="%function(self)
+				local function rgba(r,g,b,a)
+					r=r/255
+					g=g/255
+					b=b/255
+					a=a
+		
+				return r,g,b,a
+				end
+					self:xy(0,0)
+					self:hidden(0)
+					self:effectclock('bgm')
+					self:diffuse(rgba(216, 187, 79,1))
+
+				end"
+			/>
+			
+			
+		</children></Layer>
+		
+</children></Layer>

@@ -1,0 +1,444 @@
+<Mods LoadCommand = "%xero(function(self)
+	-- judgment / combo proxies
+	for pn = 1, 2 do
+		setupJudgeProxy(PJ[pn], P[pn]:GetChild('Judgment'), pn)
+		setupJudgeProxy(PC[pn], P[pn]:GetChild('Combo'), pn)
+	end
+	-- player proxies
+	for pn = 1, #PP do
+		PP[pn]:SetTarget(P[pn])
+		P[pn]:hidden(1)
+	end
+	-- your code goes here here:
+	
+	
+	-- un-autoplay the additional playfields
+	for pn = 3, 4 do
+		P[pn]:SetInputPlayer((pn+1)%2)
+		P[pn]:SetAwake(true)
+		P[pn]:hidden(1)
+		P[pn]:GetChild('Judgment'):hidden(1)
+		P[pn]:GetChild('Combo'):hidden(1)
+	end
+	sprite(mysprite) 
+	aft(myaft) 
+	mysprite:SetTexture(myaft:GetTexture())
+	
+	sprite(scren) 
+	aft(screnaft) 
+	scren:SetTexture(screnaft:GetTexture()) 
+	sprite(scren2) 
+	aft(screnaft2) 
+	scren2:SetTexture(screnaft2:GetTexture())
+	aftMult = 1
+
+        -- If the user is using a Nvidia graphic card, they have some issues with alphas of sprites.
+        if tonumber(GAMESTATE:GetVersionDate()) >= 20170405 and string.find(string.lower(DISPLAY:GetVendor()), 'nvidia')
+        or string.find(string.lower(PREFSMAN:GetPreference('LastSeenVideoDriver')), 'nvidia') then
+            aftMult = 0.9 -- Setting the alpha multiplier to 0.9.
+        end
+
+
+	-- I make good mod names
+	definemod {'penis', function(p)
+	mysprite:diffusealpha(p*aftMult)
+	end}
+	
+	definemod {'peniszoom', function(p)
+	mysprite:zoom(p)
+	end}
+	
+	definemod {'weewoo', function(percent)
+  scren:GetShader():uniform1f('amount', percent)
+end} 
+
+definemod {'kick', function(percent)
+  scren2:GetShader():uniform1f('amount', percent)
+end} 
+
+	-- Hi, Welcome to my awful code,
+	-- I don't know how to do math
+	-- so the advanced stuff isn't made by me really.
+	-- :] 
+	
+	P3:SetAwake(true)
+	P3:hidden(1)
+	
+	for i, proxy in ipairs(proxwall) do
+    proxy:SetTarget(P3)
+end
+	for i = 1, #proxwall do
+	proxwall[i]:hidden(1)
+	end
+	for i = 1, #proxwall do
+    proxwall[i]:x(500 - 256 * i)
+end
+	
+
+	
+	setdefault {2, 'xmod', 100, 'dizzyholds', 100, 'stealthtype', 100, 'stealthpastreceptors', 100, 'reversetype', 100, 'modtimer', 200, 'drawsize', 100, 'cover'}
+
+	
+	set {0, 200, 'dark', 200, 'stealth', 25, 'rotationz', 100, 'mini', 100, 'orient'}
+	ease {0.2, 4, outQuad, 0, 'dark', 0, 'stealth', 0, 'rotationz', 0, 'mini', 0, 'orient',}
+	ease {1, 2, outQuad, 10000, 'noteskew'}
+	for i = 0,4,.2 do
+	ease {i, .1, outQuad, 100, 'movex', 100, 'tipsy', -100, 'drunk'}
+	ease {i+.1, .1, outQuad, -100, 'movex', -100, 'tipsy', 100, 'drunk'}
+	add {i, .1, instant, 120, 'confusionoffset'}
+	end
+	reset {4}
+	set {5, 1.5, 'xmod', 100, 'dizzyholds', 100, 'stealthtype', 100, 'stealthpastreceptors', 100, 'reversetype', 100, 'modtimer', 200, 'drawsize', 100, 'cover', plr = 3}
+	set {5, 1.1, 'peniszoom'}
+	
+	func {96, function() for i = 1, #proxwall do
+	proxwall[i]:hidden(0)
+	end end}
+	set {95, 100, 'stealth', 100, 'dark', 100, 'brake', 100, 'hidenoteflash', plr = 3}
+	
+	
+	
+
+	set {100, 150, 'orient', plr = 3}
+
+	
+	
+	for i = 4,62,2 do 
+	ease {i+.5, .5, outBack, 100, 'flip', plr = 1}
+	ease {i+.5, .5, outBack, 0, 'flip', plr = 2}
+	ease {i+1.5, .5, outBack, 0, 'flip', plr = 1}
+	ease {i+1.5, .5, outBack, 100, 'flip', plr = 2}
+	end
+	
+	ease {64, 1, outBack, 0, 'flip'}
+	for i = 4,67,2 do
+	ease {i, 1, bounce, -100, 'movey'}
+	
+	ease {i+1, 1, bounce, -100, 'movey'}
+	
+	end
+	
+	for i = 20,67,1 do
+	ease {i, 1, pop, 0.5, 'penis'}
+	
+	end
+	
+	for i = 36,63.5,2 do
+	ease {i, 1, pop, 1000, 'bumpyz'}
+	ease {i+1,1, pop, -1000, 'bumpyz'}
+	
+	end
+	
+	ease {51, 0.25, bounce, 25, 'skewx'}
+	ease {51.25, 0.25, bounce, -25, 'skewx'}
+	ease {51.5, 0.25, bounce, 25, 'skewx'}
+	ease {51.75, 0.25, bounce, -25, 'skewx'}
+	
+	
+	for i = 36,63.5,4 do
+	ease {i, .5, outBounce, 75, 'stealth'}
+	ease {i+1, 1, outQuad, 0, 'stealth'}
+	end
+	
+	for i = 69,71,1 do
+	ease {i, 1, pop, 75, 'tipsy', -75, 'drunk'}
+	ease {i+.5, 1, pop, -75, 'tipsy', 75, 'drunk'}
+	end
+	ease {72, .25, bounce, 75, 'movex', 50, 'skewx', 100, 'flip'}
+	ease {72.25, .25, bounce, -75, 'movex', -50, 'skewx', 0, 'flip'}
+	ease {72.5, .25, bounce, 75, 'movex', 50, 'skewx', 100, 'flip'}
+	for i = 68,80,8 do
+	ease {i, 2, pop, 200, 'bumpyx', 100, 'orient'}
+	ease {i+4, 2, pop, -200, 'bumpyx', 100, 'orient'}
+	end
+	for i = 73,79,1 do
+	ease {i, 1, pop, -90, 'tipsy', 90, 'drunk'}
+	ease {i+.5, 1, pop, 90, 'tipsy', -90, 'drunk'}
+	end
+	for i = 81,82,1 do
+	ease {i, 1, pop, -120, 'tipsy', 120, 'drunk'}
+	ease {i+.5, 1, pop, 120, 'tipsy', -120, 'drunk'}
+	end
+	for i = 134,162,2 do
+	ease {i, .5, outBounce, 75, 'stealth', plr = 3}
+	ease {i+1, 1, outQuad, 0, 'stealth', plr = 3}
+	end
+	
+	ease {80, .25, bounce, 75, 'movex', 50, 'skewx', 100, 'flip'}
+	ease {80.25, .25, bounce, -75, 'movex', -50, 'skewx', 0, 'flip'}
+	ease {80.5, .25, bounce, 75, 'movex', 50, 'skewx', 100, 'flip'}
+	
+	ease {96, 2, outQuad, 100, 'stealth', 100, 'dark', 100, 'hidenoteflash', 100, 'brake', plr = {1,2}}
+	ease {98, 2, outBack, 0, 'stealth', 0, 'dark', 0, 'brake', 0, 'hidenoteflash', plr = 3}
+	
+	for i = 84,95,1 do
+	ease {i, .5, pop, 100, 'tipsy', 100, 'drunk'}
+	ease {i+.5, .5, pop, -100, 'tipsy', -100, 'drunk'}
+	end
+	for i = 96,98.5,.5 do
+	add {i, .5, outQuad, 104.72, 'confusionoffset', plr = {1,2,3}}
+	end
+	
+	func {84, 12, outQuad, 1, 0.2, function(p) scren:zoom(p) end}
+	func {84, 12, outQuad, 0, 25, function(p) scren:rotationz(p) end}
+	func {96, 4, outQuad, 0.2, 1, function(p) scren:zoom(p) end}
+	func {96, 4, outQuad, 25, 0, function(p) scren:rotationz(p) end}
+	for i = 100,162,2 do
+	ease {i, 1, pop, -60, 'tiny', plr = 3}
+	ease {i+1, 1, pop, -60, 'tiny', plr = 3}
+	ease {i, 1, pop, -60, 'drunk', plr = 3}
+	ease {i+1, 1, pop, 60, 'drunk', plr = 3}
+	
+	ease {i, .75, bounce, 0.4, 'kick', plr = 3}
+	ease {i+1, .75, bounce, -0.4, 'kick', plr = 3}
+	func {i, 1, bounce, 1, 1.2, function(p) scren:zoom(p) end}
+	func {i, 1, bounce, 0, 5, function(p) scren:rotationz(p) end}
+	func {i+1, 1, bounce, 1, 1.2, function(p) scren:zoom(p) end}
+	func {i+1, 1, bounce, 0, -5, function(p) scren:rotationz(p) end}
+	end
+	for i = 208,302,2 do
+	ease {i, 1, pop, -60, 'tiny', plr = 3}
+	ease {i+1, 1, pop, -60, 'tiny', plr = 3}
+	ease {i, 1, pop, -60, 'drunk', plr = 3}
+	ease {i+1, 1, pop, 60, 'drunk', plr = 3}
+	
+	
+	
+	ease {i, .5, bounce, 0.4, 'kick', plr = 3}
+	ease {i+1, .5, bounce, -0.4, 'kick', plr = 3}
+	func {i, 1, bounce, 1, 1.2, function(p) scren:zoom(p) end}
+	func {i, 1, bounce, 0, 5, function(p) scren:rotationz(p) end}
+	func {i+1, 1, bounce, 1, 1.2, function(p) scren:zoom(p) end}
+	func {i+1, 1, bounce, 0, -5, function(p) scren:rotationz(p) end}
+	end
+	ease {128, 1, outBack, 100, 'flip', plr = 3}
+	ease {129, 1, outBack, 0, 'flip', plr = 3}
+	ease {130, 1, outBack, 100, 'invert', plr = 3}
+	ease {131, 1, outBack, 0, 'invert', plr = 3}
+	ease {133, 15, outQuad, 0.02, 'weewoo'}
+	ease {148, 0.5, outQuad, 0, 'weewoo'}
+	ease {149, 16, outQuad, 0.02, 'weewoo'}
+	ease {164, 0.5, outQuad, 0, 'weewoo'}
+	ease {304,4 , outQuad, 0, 'zoom', 1000, 'drunk', 10000, 'tipsy', 100, 'dark', 100, 'stealth', plr = 3}
+	
+	ease {163, 1, inQuad, 100, 'dark', 100, 'stealth', 100, 'brake', 100, 'hidenoteflash', plr = 3}
+	
+	func {165, function() for i = 1, #proxwall do
+	proxwall[i]:hidden(1)
+	end end}
+	
+	func {206, function() for i = 1, #proxwall do
+	proxwall[i]:hidden(0)
+	end end}
+	
+	ease {163.5, 1, outQuad, 0, 'dark', 0, 'stealth', 0, 'brake', 0, 'hidenoteflash', plr = {1,2}}
+	
+	for i = 163,188,2 do
+	ease {i, 1, pop, 100, 'tipsy', -100, 'drunk'}
+	ease {i, 1, bounce, -100, 'movey'}
+	
+	ease {i+1, 1, bounce, -100, 'movey'}
+	ease {i+1, 1, pop, -100, 'tipsy', 100, 'drunk'}
+	end
+	for i = 188,198,2 do
+	ease {i, 1, pop, 25, 'movex', -25, 'tiny', 25, 'tipsy'}
+	ease {i+1, 1, pop, -25, 'movex', -25, 'tiny', -25, 'tipsy'}
+end	
+
+for i = 204,206.5,.5 do
+	add {i, .5, outQuad, 104.72, 'confusionoffset', plr = {1,2,3}}
+	end
+
+	ease {180, 1, pop, 0.5, 'penis'}
+	ease {196, 1, pop, 0.5, 'penis'}
+	
+	ease {204, 2, outQuad, 100, 'stealth', 100, 'dark', 100, 'hidenoteflash', 100, 'brake', plr = {1,2}}
+	ease {206, 2, outBack, 0, 'stealth', 0, 'dark', 0, 'brake', 0, 'hidenoteflash', plr = 3}
+	
+	
+	ease {200, 4, outQuad, 200, 'drunk'}
+	ease {204, 1, outQuad, 0, 'drunk'}
+	
+	func {200, 4, outQuad, 1, 0.6, function(p) scren:zoom(p) end}
+	func {200, 4, outQuad, 0, -25, function(p) scren:rotationz(p) end}
+	func {204, 4, outQuad, 0.6, 1, function(p) scren:zoom(p) end}
+	func {204, 4, outQuad, -25, 0, function(p) scren:rotationz(p) end}
+	
+	set {0, 0, 'x', plr = 3}
+	for i=1,table.getn(notedata) do
+    if notedata[i][2] == 3 and get('zigzagperiod') == 0 then
+	add {notedata[i][1], 0.5, inSine, 50, 'movex0', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey0', plr = 3}
+	add {notedata[i][1], 1, linear, -100, 'movex1', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, 50, 'movex0', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey0', plr = 3}
+	add {notedata[i][1], 1, linear, 64, 'x', plr = 3}
+	ease {notedata[i][1], 1, instant, 1, 'zigzagperiod'}
+	add {notedata[i][1], 0.5, inSine, 50, 'movex2', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey2', plr = 3}
+	add {notedata[i][1], 1, linear, -100, 'movex3', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, 50, 'movex2', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey2', plr = 3}
+	
+	
+	elseif notedata[i][2] == 3 and get('zigzagperiod') == 1 then
+	add {notedata[i][1], 0.5, inSine, 50, 'movex1', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey1', plr = 3}
+	add {notedata[i][1], 1, linear, -100, 'movex0', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, 50, 'movex1', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey1', plr = 3}
+	ease {notedata[i][1], 1, instant, 0, 'zigzagperiod'}
+	add {notedata[i][1], 1, linear, 64, 'x', plr = 3}
+	add {notedata[i][1], 0.5, inSine, 50, 'movex3', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey3', plr = 3}
+	add {notedata[i][1], 1, linear, -100, 'movex2', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, 50, 'movex3', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey3', plr = 3}
+	
+	
+	
+	elseif notedata[i][2] == 0 and get('zigzagoffset') == 0 then
+	add {notedata[i][1], 0.5, inSine, -50, 'movex0', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey0', plr = 3}
+	add {notedata[i][1], 1, linear, 100, 'movex1', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, -50, 'movex0', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey0', plr = 3}
+	add {notedata[i][1], 1, linear, -64, 'x', plr = 3}
+	ease {notedata[i][1], 1, instant, 1, 'zigzagoffset'}
+	add {notedata[i][1], 0.5, inSine, -50, 'movex2', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey2', plr = 3}
+	add {notedata[i][1], 1, linear, 100, 'movex3', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, -50, 'movex2', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey2', plr = 3}
+
+	
+	elseif notedata[i][2] == 0 and get('zigzagoffset') == 1 then
+	add {notedata[i][1], 0.5, inSine, -50, 'movex1', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey1', plr = 3}
+	add {notedata[i][1], 1, linear, 100, 'movex0', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, -50, 'movex1', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey1', plr = 3}
+	ease {notedata[i][1], 1, instant, 0, 'zigzagoffset'}
+	add {notedata[i][1], 1, linear, -64, 'x', plr = 3}
+	add {notedata[i][1], 0.5, inSine, -50, 'movex3', plr = 3}
+	add {notedata[i][1], 0.5, outSine, -100, 'movey3', plr = 3}
+	add {notedata[i][1], 1, linear, 100, 'movex2', plr = 3}
+	add {notedata[i][1]+.5, 0.5, outSine, -50, 'movex3', plr = 3}
+	add {notedata[i][1]+.5, 0.5, inSine, 100, 'movey3', plr = 3}
+	
+	end
+	end
+	
+	
+	for i = 241,304,2 do
+	ease {i, 1, bounce, 0.5, 'penis', plr = {1,2,3}}
+	end
+	set {208, 1024, 'x', plr = 3}
+	ease {240, 4, bell, 0.05, 'weewoo'}
+	ease {240+4, 2, bell, 0.05, 'weewoo'}
+	ease {240+6, 2, bell, 0.05, 'weewoo'}
+	add {240, 4, inOutQuad, -512, 'x', plr = 3}
+	add {240+4, 2, inOutQuad, 341.3333, 'x', plr = 3}
+	add {240+6, 2, inOutQuad, -341.3333, 'x', plr = 3}
+	
+	ease {256, 4, bell, 0.05, 'weewoo'}
+	ease {256+4, 2, bell, 0.05, 'weewoo'}
+	ease {256+6, 2, bell, 0.05, 'weewoo'}
+	add {256, 4, inOutQuad, 512, 'x', plr = 3}
+	add {256+4, 2, inOutQuad, -341.3333, 'x', plr = 3}
+	add {256+6, 2, inOutQuad, 341.3333, 'x', plr = 3}
+	
+	ease {272, 4, bell, 0.05, 'weewoo'}
+	ease {272+4, 2, bell, 0.05, 'weewoo'}
+	ease {272+6, 2, bell, 0.05, 'weewoo'}
+	add {272, 4, inOutQuad, -512, 'x', plr = 3}
+	add {272+4, 2, inOutQuad, 341.3333, 'x', plr = 3}
+	add {272+6, 2, inOutQuad, -341.3333, 'x', plr = 3}
+	
+	ease {288, 4, bell, 0.02, 'weewoo'}
+	ease {288+4, 2, bell, 0.01, 'weewoo'}
+	ease {288+6, 2, bell, 0.007, 'weewoo'}
+	add {288, 4, inOutQuad, 512, 'x', plr = 3}
+	add {288+4, 2, inOutQuad, -341.3333, 'x', plr = 3}
+	add {288+6, 2, inOutQuad, 341.3333, 'x', plr = 3}
+	set {163, 0, 'x', plr = 3}
+	ease {163, 1, outQuad, 0, 'zoomy', plr = 3}
+	func{163, 2, outBack, function(p)
+  for i = 1, #proxwall do
+    proxwall[i]:x((-500 + 256 * i) * (1-p))
+  end
+end}
+set {206, 0, 'x', plr = 3}
+ease {206, 2, outQuad, 100, 'zoomy', plr = 3}
+func{206, 2, outBack, function(p)
+  for i = 1, #proxwall do
+    proxwall[i]:x((p) * (500 - 256 * i))
+  end
+end}
+
+func{98, 2, outBack, function(p)
+  for i = 1, #proxwall do
+    proxwall[i]:x((p) * (500 - 256 * i))
+  end
+end}
+	ease {304, 2, outQuad, 1, 'penis'}
+	
+	
+	-- Edgy spellcard names like anyone would do lmao.
+	card {4, 68, 'Entry to A New Reality', 4, '000000'}
+	card {69, 100, 'Point of No Return', 2, '000000'}
+	card {100, 165, 'Repeat Beyond Infinity', 6, '000000'}
+	card {165, 208, 'A Peaceful Blindspot Within Horror', 1, '000000'}
+	card {208, 239, 'Repeat Beyond Infinity', 6, '000000'}
+	card {239, 304, 'Everything Where is Not', 7, '000000'}
+	
+	
+	-- alright that was all of my ass code :]
+	
+end)"
+Type = "ActorFrame"
+><children>
+
+<Layer File="notedata.xml"/>
+
+<Layer Type = "Sprite" Name = "mysprite" />
+	<Layer Type="ActorProxy" Name = "proxwall[1]" /> -- oh boy look at all these proxies
+	<Layer Type="ActorProxy" Name = "proxwall[2]" /> -- if you have performance issues 
+	<Layer Type="ActorProxy" Name = "proxwall[3]" /> -- this is the reason for that
+	<Layer Type="ActorProxy" Name = "proxwall[4]" />
+	<Layer Type="ActorProxy" Name = "proxwall[5]" />
+	<Layer Type="ActorProxy" Name = "proxwall[6]" />
+	<Layer Type="ActorProxy" Name = "proxwall[7]" />
+	<Layer Type="ActorProxy" Name = "proxwall[8]" />
+	<Layer Type="ActorProxy" Name = "proxwall[9]" />
+	<Layer Type="ActorProxy" Name = "proxwall[10]" />
+	<Layer Type="ActorProxy" Name = "proxwall[11]" />
+	<Layer Type="ActorProxy" Name = "proxwall[12]" />
+	<Layer Type="ActorProxy" Name = "proxwall[13]" />
+	<Layer Type="ActorProxy" Name = "proxwall[14]" />
+	<Layer Type="ActorProxy" Name = "proxwall[15]" />
+	<Layer Type="ActorProxy" Name = "proxwall[16]" />
+	<Layer Type="ActorProxy" Name = "proxwall[17]" />
+	<Layer Type="ActorProxy" Name = "proxwall[18]" />
+	<Layer Type="ActorProxy" Name = "proxwall[19]" />
+	<Layer Type="ActorProxy" Name = "proxwall[20]" />
+	<Layer Type="ActorProxy" Name = "proxwall[21]" />
+	<Layer Type="ActorProxy" Name = "proxwall[22]" />
+	<Layer Type="ActorProxy" Name = "proxwall[23]" />
+	<Layer Type="ActorProxy" Name = "proxwall[24]" />
+	<Layer Type = "ActorProxy" Name = "PC[1]" />
+	<Layer Type = "ActorProxy" Name = "PC[2]" />
+	<Layer Type = "ActorProxy" Name = "PJ[1]" />
+	<Layer Type = "ActorProxy" Name = "PJ[2]" />
+	<Layer Type = "ActorProxy" Name = "PP[1]" />
+	<Layer Type = "ActorProxy" Name = "PP[2]" />
+	
+	
+	<Layer Type = "ActorFrameTexture" Name = "screnaft2" />
+	<Layer Type = "Sprite" Name = "scren2" Frag = "shaders/glitch2.frag" />
+	<Layer Type = "ActorFrameTexture" Name = "screnaft" />
+
+	<Layer Type = "Quad" InitCommand = "stretchto,0,0,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,0,0,0,1" />
+<Layer Type = "Sprite" Name = "scren" Frag = "shaders/glitch-lines.frag" />
+<Layer Type = "ActorFrameTexture" Name = "myaft" />
+</children></Mods>

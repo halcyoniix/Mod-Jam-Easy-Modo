@@ -1,0 +1,142 @@
+<Layer Type="ActorFrame" ><children>
+	
+	
+	<Layer Type="Quad" OnCommand="%function(self) self:zoom(1000); self:diffuse(1,1,1,1); end"/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[8]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[7]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[6]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[5]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[4]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[3]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+	
+	<Layer Type="Polygon" 
+		Name="tri[2]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+
+	<Layer Type="Polygon" 
+		Name="tri[1]"
+		OnCommand="%function(self)
+		self:SetDrawMode('triangles')
+		self:SetNumVertices(3)
+		self:SetPolygonMode(0)
+		self:rotationz(180)
+			local radi=32
+			local ang=360/3
+		for i=0,2 do
+			local xpos=(radi*math.sin(math.rad(ang*(i))))
+			local ypos=(radi*math.cos(math.rad(ang*(i))))
+			self:SetVertexPosition(i,xpos,ypos,0)
+		end
+		end"
+	/>
+
+</children></Layer>

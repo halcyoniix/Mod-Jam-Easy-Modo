@@ -1,0 +1,12 @@
+<Layer Type="ActorFrame" ><children>
+
+<Layer File="sand_waves.png" 
+OnCommand="%function(self)
+self:customtexturerect(0,0,2,2)
+self:zoom(2)
+self:texcoordvelocity(.35,0)
+self:rotationz(-25)
+end"/>
+
+
+</children></Layer>

@@ -1,0 +1,236 @@
+<Layer Type="ActorFrame" ><children>
+<Layer Type="Quad" OnCommand="%function(self) 
+
+local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+self:zoom(1000); 
+self:diffuse(rgba(196, 38, 49,1)); end"/>
+
+<Layer Type="ActorFrame" Name="ywavec[1]"><children>
+
+<Layer Type="ActorFrame" Name="ywavew[1]"><children>
+<Layer File="wave.png" Name="ywave[1]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+		<Layer File="wave.png" Name="ywaved[1]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" Name="ywavew[2]"><children>
+<Layer File="wave.png" Name="ywave[2]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+		<Layer File="wave.png" Name="ywaved[2]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" Name="ywavew[3]"><children>
+<Layer File="wave.png" Name="ywave[3]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+		
+		<Layer File="wave.png" Name="ywaved[3]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" Name="ywavew[4]"><children>
+<Layer File="wave.png" Name="ywave[4]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+		
+		<Layer File="wave.png" Name="ywaved[4]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" Name="ywavew[5]"><children>
+<Layer File="wave.png" Name="ywave[5]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+		
+<Layer File="wave.png" Name="ywaved[5]" OnCommand="%function(self) 
+
+	local function rgba(r,g,b,a)
+		r=r/255
+		g=g/255
+		b=b/255
+		a=a
+		
+		return r,g,b,a
+end
+			self:customtexturerect(0.5,0,2.5,4.0)
+			self:texcoordvelocity(0,-.3)
+			self:cropleft(.2)
+			self:cropright(.2)
+			self:zoomy(2)
+			self:zoomx(2)
+			self:rotationz(0)
+			self:xy(0,0)
+		end" />
+</children></Layer>
+
+
+</children></Layer>
+</children></Layer>
+
