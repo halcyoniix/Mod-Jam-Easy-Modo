@@ -9,7 +9,7 @@
 		PP[pn]:SetTarget(P[pn])
 		P[pn]:hidden(1)
 	end
-	--what even is "stranglehold" anyway? strangehold rolls off the tongue better /j
+	--what even is 'stranglehold' anyway? strangehold rolls off the tongue better /j
 	-- your strangehold strangegoes here:
 	
 	--actors, afts, quads, whatever, all neatly setup here
